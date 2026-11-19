@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PokéQuién Test Suite</title>
+</head>
+<body>
+  <h1>Running Tests...</h1>
+  <div id="results"></div>
+  <script src="app.js"></script>
+  <script>
+    const results = [];
+    function assert(cond, name) {
+      if (cond) {
+        results.push({ name, pass: true });
+        console.log(`[PASS] ${name}`);
+      } else {
+        results.push({ name, pass: false });
+        console.error(`[FAIL] ${name}`);
+      }
+    }
+
+    async function runTests() {
+      console.log("=== INICIANDO TEST SUITE DETERMINISTA POKÉQUIÉN ===");
+
+      // Test 1: Determinismo FNV-1a + Mulberry32 + Fisher-Yates
+      const run1 = computeBoardIds("PRUEBA", [1, 2, 3]);
+      const run2 = computeBoardIds("PRUEBA", [1, 2, 3]);
+      assert(run1.length === 30, "computeBoardIds retorna exactamente 30 Pokémon");
+      assert(JSON.stringify(run1) === JSON.stringify(run2), "computeBoardIds es 100% determinista con la misma semilla y generaciones");
+
+      // Test 2: Semillas distintas producen listas distintas
+      const run3 = computeBoardIds("OTRAAA", [1, 2, 3]);
+      assert(JSON.stringify(run1) !== JSON.stringify(run3), "Semillas distintas producen tableros distintos");
+
+      // Test 3: Rango Gen 2 a 4 solo contiene IDs entre 152 y 493
+      const gen2to4 = computeBoardIds("TEST24", [2, 3, 4]);
+      const allInRange = gen2to4.every(id => id >= 152 && id <= 493);
+      assert(allInRange, "Gen 2 a 4 solo genera IDs entre 152 y 493");
+
+      // Test 4: Formato de Código de Sala
+      const code1 = buildRoomCode("X7K9P2", new Set([1, 2, 3]), true);
+      assert(code1 === "X7K9P2-123", "buildRoomCode con tipos genera 'X7K9P2-123'");
+
+      const code2 = buildRoomCode("M4R8T2", new Set([9, 1]), false);
+      assert(code2 === "M4R8T2-19-NT", "buildRoomCode sin tipos y ordenado genera 'M4R8T2-19-NT'");
+
+      // Test 5: Parseo de Código de Sala
+      const parsed1 = parseRoomCode("X7K9P2-123");
+      assert(parsed1.valid === true && parsed1.seed === "X7K9P2" && JSON.stringify(parsed1.gens) === "[1,2,3]" && parsed1.showTypes === true, "parseRoomCode decodifica 'X7K9P2-123'");
+
+      const parsed2 = parseRoomCode("M4R8T2-19-NT");
+      assert(parsed2.valid === true && parsed2.seed === "M4R8T2" && JSON.stringify(parsed2.gens) === "[1,9]" && parsed2.showTypes === false, "parseRoomCode decodifica 'M4R8T2-19-NT'");
+
+      const parsedInvalid = parseRoomCode("CODIGO_INVALIDO");
+      assert(parsedInvalid.valid === false, "parseRoomCode rechaza códigos inválidos");
+
+      // Test 6: Caché LocalStorage en fetchPokemonData
+      localStorage.removeItem("poke_v1_25");
+      const p1 = await fetchPokemonData(25);
+      assert(p1.id === 25 && p1.name === "Pikachu", "fetchPokemonData obtiene Pikachu correctamente");
+      const inCache = localStorage.getItem("poke_v1_25");
+      assert(inCache !== null, "fetchPokemonData guarda el Pokémon en localStorage");
+      const p2 = await fetchPokemonData(25);
+      assert(JSON.stringify(p1) === JSON.stringify(p2), "fetchPokemonData lee de localStorage en la segunda llamada");
+
+      // Test 7: Selector de Temas (Clásico Retro vs Moderno)
+      applyTheme("retro");
+      assert(document.body.classList.contains("theme-retro") && state.theme === "retro", "applyTheme('retro') activa la clase theme-retro");
+      applyTheme("modern");
+      assert(document.body.classList.contains("theme-modern") && state.theme === "modern", "applyTheme('modern') activa la clase theme-modern");
+      applyTheme("retro"); // Dejar en retro por defecto
+
+      // Resumen final
+      const allPassed = results.every(r => r.pass);
+      const resDiv = document.getElementById("results");
+      resDiv.innerHTML = `<h2>Total Tests: ${results.length} | Aprobados: ${results.filter(r=>r.pass).length}</h2>`;
+      console.log(`=== TEST RESULT: ${allPassed ? "ALL TESTS PASSED!" : "SOME TESTS FAILED!"} ===`);
+      window.__TEST_RESULTS__ = { allPassed, results };
+    }
+
+    runTests();
+  </script>
+</body>
+</html>
+

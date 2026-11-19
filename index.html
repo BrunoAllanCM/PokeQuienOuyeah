@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adivina Quién – Pokémon (2 Jugadores)</title>
+  <meta name="description" content="Juego de Adivina Quién con Pokémon para 2 jugadores mediante código de sala determinista sin servidor.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' fill='%23ef4444'/><path d='M1 12h22' stroke='%23111' stroke-width='2'/><circle cx='12' cy='12' r='4' fill='%23fff' stroke='%23111' stroke-width='2'/><circle cx='12' cy='12' r='2' fill='%23ef4444'/></svg>">
+</head>
+<body>
+  <!-- HUD Top Header -->
+  <header class="pokedex-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="pokedex-lights">
+          <div class="big-lens pulse-glow" id="pokedex-power-led" title="Pokédex Online"></div>
+          <div class="small-led led-red"></div>
+          <div class="small-led led-yellow"></div>
+          <div class="small-led led-green"></div>
+        </div>
+        <div class="title-group">
+          <h1 class="app-title">POKÉ<span class="highlight">QUIÉN</span></h1>
+          <span class="app-subtitle">Adivina Quién Pokémon • 2 Jugadores</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Selector de Estilo / Tema Pokédex -->
+        <button id="btn-toggle-theme" class="btn-theme-switch" title="Cambiar entre diseño Clásico (Retro) y Moderno (Cyber)" aria-label="Cambiar estilo de Pokédex">
+          <span id="theme-switch-icon" class="theme-icon">📟</span>
+          <span id="theme-switch-text" class="theme-text">Pokédex Clásica</span>
+        </button>
+
+        <button id="btn-toggle-sound" class="btn-icon" title="Activar/Silenciar sonido" aria-label="Sonido">
+          <svg class="icon sound-on" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+          <svg class="icon sound-off hidden" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.01 4.01H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+          </svg>
+        </button>
+        <span class="badge-version">v2.0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <main class="main-content">
+    <!-- ========================================== -->
+    <!-- PANTALLA 1: CONFIGURACIÓN / EDITOR DE SALA -->
+    <!-- ========================================== -->
+    <section id="view-setup" class="view-section active">
+      <div class="setup-wrapper">
+        <div class="setup-intro">
+          <div class="intro-badge">SISTEMA DETERMINISTA DE SALA</div>
+          <h2>Configura tu Partida de Adivina Quién</h2>
+          <p>
+            Elige las generaciones que participarán en el sorteo. Ambos jugadores verán exactamente
+            los mismos <strong>30 Pokémon</strong> gracias al código de sala determinista.
+          </p>
+        </div>
+
+        <div class="setup-grid">
+          <!-- Columna Izquierda: Selector de Generaciones -->
+          <div class="setup-card panel-generations">
+            <div class="card-header">
+              <div class="header-icon">
+                <svg viewBox="0 0 24 24" width="22" height="22">
+                  <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+              </div>
+              <div class="header-text">
+                <h3>1. Selección de Generaciones (Gen 1 - Gen 9)</h3>
+                <p>Personaliza por rango rápido o selecciona libremente cada región.</p>
+              </div>
+            </div>
+
+            <!-- Selector por Rango Rápido -->
+            <div class="range-selector-box">
+              <div class="range-inputs">
+                <div class="form-group">
+                  <label for="select-gen-desde">Desde:</label>
+                  <select id="select-gen-desde" class="custom-select">
+                    <option value="1" selected>Gen 1 (Kanto)</option>
+                    <option value="2">Gen 2 (Johto)</option>
+                    <option value="3">Gen 3 (Hoenn)</option>
+                    <option value="4">Gen 4 (Sinnoh)</option>
+                    <option value="5">Gen 5 (Teselia)</option>
+                    <option value="6">Gen 6 (Kalos)</option>
+                    <option value="7">Gen 7 (Alola)</option>
+                    <option value="8">Gen 8 (Galar)</option>
+                    <option value="9">Gen 9 (Paldea)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="select-gen-hasta">Hasta:</label>
+                  <select id="select-gen-hasta" class="custom-select">
+                    <option value="1">Gen 1 (Kanto)</option>
+                    <option value="2">Gen 2 (Johto)</option>
+                    <option value="3">Gen 3 (Hoenn)</option>
+                    <option value="4">Gen 4 (Sinnoh)</option>
+                    <option value="5">Gen 5 (Teselia)</option>
+                    <option value="6">Gen 6 (Kalos)</option>
+                    <option value="7">Gen 7 (Alola)</option>
+                    <option value="8">Gen 8 (Galar)</option>
+                    <option value="9" selected>Gen 9 (Paldea)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="range-quick-actions">
+                <button type="button" id="btn-quick-all" class="btn-secondary btn-sm" title="Marcar todas las generaciones">
+                  ★ Todas (Gen 1-9)
+                </button>
+                <button type="button" id="btn-quick-classic" class="btn-secondary btn-sm" title="Marcar Gen 1 a 3">
+                  Clásico (Gen 1-3)
+                </button>
+              </div>
+            </div>
+
+            <!-- Selección Libre: Grid 9 Tarjetas -->
+            <div class="gen-grid-label">Selección libre por tarjetas:</div>
+            <div class="gen-cards-grid" id="gen-cards-container">
+              <!-- Renderizado dinámico desde JS con Gen 1 a 9 -->
+            </div>
+
+            <!-- Resumen dinámico del Pool -->
+            <div class="pool-summary-banner">
+              <div class="pool-stat">
+                <span class="stat-number" id="summary-gens-count">9</span>
+                <span class="stat-label">Generaciones activas</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="pool-stat">
+                <span class="stat-number" id="summary-pool-count">1025</span>
+                <span class="stat-label">Pokémon en el pool</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="pool-stat">
+                <span class="stat-number highlight-blue">30</span>
+                <span class="stat-label">En el tablero final</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Opciones y Acciones -->
+          <div class="setup-right-col">
+            <!-- Opciones de Partida -->
+            <div class="setup-card panel-options">
+              <div class="card-header">
+                <div class="header-icon icon-yellow">
+                  <svg viewBox="0 0 24 24" width="22" height="22">
+                    <path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                  </svg>
+                </div>
+                <div class="header-text">
+                  <h3>2. Opciones de Partida</h3>
+                  <p>Reglas visuales para las cartas.</p>
+                </div>
+              </div>
+
+              <div class="options-body">
+                <label class="toggle-option-item" for="chk-show-types">
+                  <div class="toggle-info">
+                    <span class="toggle-title">Mostrar etiquetas de tipo</span>
+                    <span class="toggle-desc">Muestra u oculta badges con los tipos elementales (Fuego, Agua, etc.) en cada carta.</span>
+                  </div>
+                  <div class="switch">
+                    <input type="checkbox" id="chk-show-types" checked>
+                    <span class="slider"></span>
+                  </div>
+                </label>
+              </div>
+
+              <div class="action-box">
+                <button type="button" id="btn-create-room" class="btn-primary btn-glow btn-large">
+                  <span class="btn-icon-inner">🎮</span>
+                  <span class="btn-text-group">
+                    <span class="btn-title">Crear sala y empezar</span>
+                    <span class="btn-subtitle">Genera un código nuevo y carga los 30 Pokémon</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Unirse a Sala Existente -->
+            <div class="setup-card panel-join">
+              <div class="card-header">
+                <div class="header-icon icon-blue">
+                  <svg viewBox="0 0 24 24" width="22" height="22">
+                    <path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 3s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                  </svg>
+                </div>
+                <div class="header-text">
+                  <h3>3. Unirse a una Sala Existente</h3>
+                  <p>¿Tu rival ya creó la sala? Pega el código aquí.</p>
+                </div>
+              </div>
+
+              <form id="form-join-room" class="join-form" onsubmit="return false;">
+                <div class="join-input-group">
+                  <input
+                    type="text"
+                    id="input-room-code"
+                    class="custom-input"
+                    placeholder="Ej: X7K9P2-123 o M4R8T2-19-NT"
+                    autocomplete="off"
+                    spellcheck="false"
+                  >
+                  <button type="submit" id="btn-join-room" class="btn-secondary btn-join">
+                    Unirse
+                  </button>
+                </div>
+                <div id="join-error-msg" class="form-error-msg hidden"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- PANTALLA 2: TABLERO DE JUEGO (30 POKÉMON)  -->
+    <!-- ========================================== -->
+    <section id="view-board" class="view-section">
+      <!-- Barra Superior de Control de Sala -->
+      <div class="board-topbar">
+        <div class="topbar-left">
+          <button id="btn-new-config" class="btn-secondary btn-sm" title="Volver al menú de configuración">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            Nueva configuración
+          </button>
+
+          <div class="room-info-pill">
+            <span class="room-pill-label">SALA:</span>
+            <span id="board-room-code" class="room-pill-code">------</span>
+            <button id="btn-copy-code" class="btn-icon-subtle" title="Copiar solo el código de sala" aria-label="Copiar código">
+              <svg viewBox="0 0 24 24" width="15" height="15">
+                <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="board-badges">
+            <span id="board-badge-gens" class="badge-hud">Gen 1-9</span>
+            <span id="board-badge-types" class="badge-hud">Tipos: Visibles</span>
+          </div>
+        </div>
+
+        <div class="topbar-center">
+          <!-- Widget: Tu Pokémon Secreto -->
+          <div class="secret-pokemon-card" id="secret-pokemon-card">
+            <div class="secret-header">
+              <div class="secret-label-group">
+                <span class="secret-pulse-dot"></span>
+                <span class="secret-title">TU POKÉMON SECRETO</span>
+              </div>
+              <div class="secret-actions">
+                <button type="button" id="btn-toggle-secret-hide" class="btn-secret-action" title="Tapar o destapar el Pokémon secreto">
+                  <span id="secret-visibility-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                      <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    </svg>
+                  </span>
+                  <span id="secret-visibility-text">Ocultar</span>
+                </button>
+                <button type="button" id="btn-change-secret" class="btn-secret-action" title="Elegir otro Pokémon del tablero">
+                  <span>✎ Cambiar</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="secret-body" id="secret-body">
+              <div class="secret-avatar-wrap">
+                <img id="secret-img" src="" alt="Pokémon Secreto" class="secret-img">
+                <div id="secret-mask-cover" class="secret-mask-cover hidden">
+                  <span class="mask-icon">❓</span>
+                  <span class="mask-text">OCULTO</span>
+                </div>
+              </div>
+              <div class="secret-details" id="secret-details">
+                <div class="secret-id-name">
+                  <span id="secret-num" class="secret-num">#000</span>
+                  <h4 id="secret-name" class="secret-name">Cargando...</h4>
+                </div>
+                <div id="secret-types" class="secret-types"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button id="btn-copy-link" class="btn-primary btn-sm">
+            <svg viewBox="0 0 24 24" width="16" height="16">
+              <path fill="currentColor" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+            </svg>
+            Copiar enlace de sala
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Estado Dinámica -->
+      <div class="board-statusbar">
+        <div class="status-counter-box">
+          <span class="counter-label">Restantes:</span>
+          <span id="counter-remaining" class="counter-val">30</span>
+          <span class="counter-total">/ 30</span>
+          <div class="mini-progress-track">
+            <div id="mini-progress-fill" class="mini-progress-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <div id="board-instruction-banner" class="instruction-banner hidden">
+          <span class="banner-pulse"></span>
+          <span id="instruction-banner-text">Haz clic en cualquier carta del tablero para fijarla como tu nuevo Pokémon secreto.</span>
+          <button id="btn-cancel-secret-select" class="btn-secondary btn-xs">Cancelar</button>
+        </div>
+
+        <div class="status-controls">
+          <div class="search-wrap">
+            <input
+              type="text"
+              id="input-board-filter"
+              class="custom-input input-xs"
+              placeholder="🔍 Filtrar por nombre o tipo..."
+            >
+          </div>
+          <button id="btn-reset-discards" class="btn-secondary btn-sm" title="Quitar el descarte de todas las cartas">
+            <svg viewBox="0 0 24 24" width="15" height="15">
+              <path fill="currentColor" d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+            </svg>
+            Reiniciar descartes
+          </button>
+        </div>
+      </div>
+
+      <!-- Tablero de Cartas: 6x5 en escritorio, 4 cols tablet, 3 cols móvil -->
+      <div id="board-grid-container" class="board-grid-wrapper">
+        <div id="board-cards-grid" class="board-cards-grid">
+          <!-- 30 cartas generadas por JS con skeletons de carga -->
+        </div>
+
+        <!-- Mensaje de Error en Carga / Reintentar -->
+        <div id="board-error-panel" class="board-error-panel hidden">
+          <div class="error-icon">⚠️</div>
+          <h3>Error al conectar con la PokéAPI</h3>
+          <p id="board-error-desc">No se pudieron cargar todos los Pokémon debido a un problema de conexión temporal.</p>
+          <button id="btn-retry-fetch" class="btn-primary">
+            Reintentar carga
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-content">
+      <span>PokéQuién • Adivina Quién con Pokémon • 100% Frontend Determinista</span>
+      <span class="footer-credits">Datos provistos por <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">PokéAPI</a>. Pokémon es marca registrada de Nintendo, Creatures y Game Freak.</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
