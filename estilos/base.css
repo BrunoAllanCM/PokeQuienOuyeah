@@ -1,0 +1,671 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap');
+
+/* ==========================================================================
+   🎮 1. FUENTES LOCALES ACTIVAS (@font-face)
+   ========================================================================== */
+
+/* [1] Pixel Operator HB 8 (Fuente Arcade: Títulos, Botones y Badges) */
+@font-face {
+  font-family: 'Pixel Operator HB 8';
+  src: url('../letrasfuentes/PixelOperatorHB8.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pixel Operator 8 Heavy'; /* Alias retrocompatible */
+  src: url('../letrasfuentes/PixelOperatorHB8.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* [2] EAS VHS (Fuente Pixel: Textos generales, opciones y chat) */
+@font-face {
+  font-family: 'EAS VHS';
+  src: url('../letrasfuentes/eas-vhs.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* [3] Public Pixel (PP - Fuente pixel clásica arcade) */
+@font-face {
+  font-family: 'Public Pixel';
+  src: url('../letrasfuentes/PublicPixel.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'PP'; /* Alias corto */
+  src: url('../letrasfuentes/PublicPixel.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* [4] Squares (Fuente para descripciones y explicaciones) */
+@font-face {
+  font-family: 'Squares';
+  src: url('../letrasfuentes/squares.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==========================================================================
+   ⭐ 2. PANEL DE CONFIGURACIÓN DE TIPOGRAFÍA Y TAMAÑO
+   ==========================================================================
+   ¡AQUÍ CONFIGURAS LA FUENTE Y EL TAMAÑO DE TODO EL JUEGO EN UN SOLO LUGAR!
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     OPCIONES DISPONIBLES:
+     ------------------------------------------------------------------------ */
+  --opcion-hb8:      'Pixel Operator HB 8', monospace;   /* 1. Gruesa 8-bit Arcade */
+  --opcion-eas-vhs:  'EAS VHS', monospace;               /* 2. EAS VHS retro */
+  --opcion-pp:       'Public Pixel', 'PP', monospace;    /* 3. Public Pixel (PP) */
+  --opcion-squares:  'Squares', monospace;               /* 4. Squares (Explicaciones) */
+
+  /* ------------------------------------------------------------------------
+     EDITA AQUÍ PARA CAMBIAR FUENTE Y TAMAÑO DEL JUEGO
+     ------------------------------------------------------------------------ */
+  
+  /* [1] Fuente para TÍTULOS PRINCIPALES Y BOTONES GRANDES (Arcade): */
+  --font-arcade: 'Public Pixel', monospace;
+
+  /* [2] Fuente para TITULITOS (las más negras: opciones, encabezados): */
+  --font-pixel: 'Public Pixel', 'PP', monospace;  
+
+  /* [3] Fuente para TEXTOS EXPLICATIVOS (las letras grises de explicaciones): */
+  --font-desc: 'EAS VHS', monospace;
+
+  /* [4] TAMAÑO GENERAL DE TODO EL JUEGO (Escala Maestra):
+     Cambia este valor para agrandar o achicar proporcionalmente TODO:
+  */
+  --tamano-fuente: 13px;
+
+  /* [5] AJUSTE DE TAMAÑOS POR SEPARADO (Títulos vs Explicaciones):
+     Edita estos valores libremente para calibrar cada texto a tu gusto:
+  */
+  --tamano-titulos:          1.15rem; /* Títulos grandes de sección ("1. Selección...", "2. Opciones...") */
+  --tamano-titulitos-opcion: 0.92rem; /* Titulitos de opciones ("Mostrar tipo", "Mostrar generación", etc.) */
+  --tamano-explicaciones:    1.0rem; /* Letras grises de explicaciones y subtítulos */
+
+  /* [6] 🌟 PATRÓN RETRO DE FONDO (Sprites de tipos Pokémon según color de carcasa):
+     - Opacidad del patrón (0.08 = sutil y elegante, 0 = sin patrón, 0.20 = muy visible):
+     - Tamaño de repetición del mosaico en píxeles:
+  */
+  --casing-pattern-opacity:  0.08;
+  --casing-pattern-size:     80px;
+  --casing-pattern:          url('../recursos/patrones/patron-fuego.svg');
+
+  /* [7] 👾 ESQUINAS PIXEL ART RETRO (Polígonos escalonados estilo 8-bit / Game Boy): */
+  --clip-pixel-sm: polygon(
+    0 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0,
+    calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px,
+    100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%,
+    4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px)
+  );
+
+  --clip-pixel-md: polygon(
+    0 8px, 4px 8px, 4px 4px, 8px 4px, 8px 0,
+    calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
+    8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px)
+  );
+
+  --clip-pixel-lg: polygon(
+    0 12px, 4px 12px, 4px 8px, 8px 8px, 8px 4px, 12px 4px, 12px 0,
+    calc(100% - 12px) 0, calc(100% - 12px) 4px, calc(100% - 8px) 4px, calc(100% - 8px) 8px, calc(100% - 4px) 8px, calc(100% - 4px) 12px, 100% 12px,
+    100% calc(100% - 12px), calc(100% - 4px) calc(100% - 12px), calc(100% - 4px) calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) calc(100% - 4px), calc(100% - 12px) calc(100% - 4px), calc(100% - 12px) 100%,
+    12px 100%, 12px calc(100% - 4px), 8px calc(100% - 4px), 8px calc(100% - 8px), 4px calc(100% - 8px), 4px calc(100% - 12px), 0 calc(100% - 12px)
+  );
+
+  /* ------------------------------------------------------------------------ */
+  /* Paleta Base Pokédex Dark */
+  --bg-primary: #0a0d14;
+  --bg-surface: #121824;
+  --bg-surface-elevated: #1a2332;
+  --bg-surface-highlight: #232e42;
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(239, 68, 68, 0.5);
+  --border-neon-cyan: rgba(6, 182, 212, 0.6);
+
+  /* ------------------------------------------------------------------------
+     [B] 🎨 PALETAS DE COLOR PARA CADA CARCASA POKÉDEX
+     ------------------------------------------------------------------------
+     Aquí configuras fácilmente los tonos de cada carcasa del juego.
+     Cada carcasa cuenta con 5 valores ajustables:
+       - base:   Color principal de la carcasa (cuerpo y header)
+       - sombra: Relieve y borde inferior 3D
+       - luces:  Marco de las luces LED del header
+       - claro:  Borde suave interior
+       - brillo: Resplandor con transparencia (rgba)
+     ------------------------------------------------------------------------ */
+
+  /* 🔴 1. CARCASA ROJA (Kanto Original) */
+  --carcasa-rojo-base:       #d22d2d;
+  --carcasa-rojo-sombra:     #b91c1c;
+  --carcasa-rojo-luces:      #7f1d1d;
+  --carcasa-rojo-claro:      #fee2e2;
+  --carcasa-rojo-brillo:     rgba(220, 38, 38, 0.4);
+
+  /* 🔵 2. CARCASA AZUL / CELESTE (Agua / Hoenn) */
+  --carcasa-azul-base:       #3ca9dc;
+  --carcasa-azul-sombra:     #0284c7;
+  --carcasa-azul-luces:      #0369a1;
+  --carcasa-azul-claro:      #e0f2fe;
+  --carcasa-azul-brillo:     rgba(14, 165, 233, 0.4);
+
+  /* 🌸 3. CARCASA ROSA (Tierno / Hada) */
+  --carcasa-rosa-base:       #e95da3;
+  --carcasa-rosa-sombra:     #be185d;
+  --carcasa-rosa-luces:      #831843;
+  --carcasa-rosa-claro:      #fce7f3;
+  --carcasa-rosa-brillo:     rgba(236, 72, 153, 0.4);
+
+  /* ⚪ 4. CARCASA GRIS (Acero / Game Boy Clásica) */
+  --carcasa-gris-base:       #64748b;
+  --carcasa-gris-sombra:     #334155;
+  --carcasa-gris-luces:      #0f172a;
+  --carcasa-gris-claro:      #f1f5f9;
+  --carcasa-gris-brillo:     rgba(100, 116, 139, 0.4);
+
+  /* ⚫ 5. CARCASA NEGRA (Ónix / Siniestro) */
+  --carcasa-negro-base:      #1e293b;
+  --carcasa-negro-sombra:    #0f172a;
+  --carcasa-negro-luces:     #020617;
+  --carcasa-negro-claro:     #e2e8f0;
+  --carcasa-negro-brillo:    rgba(30, 41, 59, 0.4);
+
+  /* Valores activos por defecto (Carcasa inicial): */
+  --casing-primary: var(--carcasa-rojo-base);
+  --casing-dark:    var(--carcasa-rojo-sombra);
+  --casing-darker:  var(--carcasa-rojo-luces);
+  --casing-light:   var(--carcasa-rojo-claro);
+  --casing-glow:    var(--carcasa-rojo-brillo);
+
+  /* Acentos Temáticos */
+  --poke-red: #ef4444;
+  --poke-red-hover: #dc2626;
+  --poke-red-glow: rgba(239, 68, 68, 0.35);
+  
+  --poke-blue: #3b82f6;
+  --poke-cyan: #06b6d4;
+  --poke-cyan-glow: rgba(6, 182, 212, 0.3);
+  
+  --poke-yellow: #facc15;
+  --poke-green: #10b981;
+
+  /* Textos */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Tipos Oficiales de Pokémon */
+  --type-normal: #9fa19f;
+  --type-fuego: #e62829;
+  --type-fire: #e62829;
+  --type-agua: #2980ef;
+  --type-water: #2980ef;
+  --type-planta: #3fa129;
+  --type-grass: #3fa129;
+  --type-electrico: #eab308;
+  --type-electric: #eab308;
+  --type-hielo: #3dcef3;
+  --type-ice: #3dcef3;
+  --type-lucha: #ff8000;
+  --type-fighting: #ff8000;
+  --type-veneno: #9141cb;
+  --type-poison: #9141cb;
+  --type-tierra: #915121;
+  --type-ground: #915121;
+  --type-volador: #81b9ef;
+  --type-flying: #81b9ef;
+  --type-psiquico: #ef4179;
+  --type-psychic: #ef4179;
+  --type-bicho: #91a119;
+  --type-bug: #91a119;
+  --type-roca: #afa981;
+  --type-rock: #afa981;
+  --type-fantasma: #704170;
+  --type-ghost: #704170;
+  --type-dragon: #5060e1;
+  --type-acero: #60a1b8;
+  --type-steel: #60a1b8;
+  --type-hada: #ef70ef;
+  --type-fairy: #ef70ef;
+  --type-siniestro: #50413f;
+  --type-dark: #50413f;
+  --type-stellar: #40b5a5;
+
+  /* Dimensiones y Transiciones */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --trans-fast: 0.15s ease;
+  --trans-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.6);
+  --shadow-neon: 0 0 15px var(--poke-red-glow);
+}
+
+/* Reset y Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: var(--tamano-fuente, 16px);
+}
+
+body {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.02em;
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(239, 68, 68, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.07) 0%, transparent 40%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface-highlight);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--poke-red);
+}
+
+/* Header Pokédex */
+.pokedex-header {
+  background: linear-gradient(180deg, #182030 0%, #101623 100%);
+  border-bottom: 2px solid #243048;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pokedex-lights {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #090d15;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.big-lens {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #93c5fd 0%, #3b82f6 50%, #1d4ed8 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+}
+
+.pulse-glow {
+  animation: pulseBlue 2.5s infinite;
+}
+
+@keyframes pulseBlue {
+  0%, 100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.8); }
+  50% { box-shadow: 0 0 18px rgba(96, 165, 250, 1), 0 0 25px rgba(59, 130, 246, 0.5); }
+}
+
+.small-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.led-red { background: #ef4444; box-shadow: 0 0 5px #ef4444; }
+.led-yellow { background: #facc15; box-shadow: 0 0 5px #facc15; }
+.led-green { background: #10b981; box-shadow: 0 0 5px #10b981; }
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.app-title .highlight {
+  color: var(--poke-red);
+  text-shadow: 0 0 12px var(--poke-red-glow);
+}
+
+.app-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ========================================================
+   APLICACIÓN DE COLOR SEGÚN LA CARCASA ACTIVA
+   (Consume las variables configuradas en el Panel de :root)
+   ======================================================== */
+body[data-casing="rojo"] {
+  --casing-primary: var(--carcasa-rojo-base);
+  --casing-dark:    var(--carcasa-rojo-sombra);
+  --casing-darker:  var(--carcasa-rojo-luces);
+  --casing-light:   var(--carcasa-rojo-claro);
+  --casing-glow:    var(--carcasa-rojo-brillo);
+  --casing-pattern: url('../recursos/patrones/patron-fuego.svg');
+}
+
+body[data-casing="celeste"], body[data-casing="azul"] {
+  --casing-primary: var(--carcasa-azul-base);
+  --casing-dark:    var(--carcasa-azul-sombra);
+  --casing-darker:  var(--carcasa-azul-luces);
+  --casing-light:   var(--carcasa-azul-claro);
+  --casing-glow:    var(--carcasa-azul-brillo);
+  --casing-pattern: url('../recursos/patrones/patron-agua.svg');
+}
+
+body[data-casing="rosa"] {
+  --casing-primary: var(--carcasa-rosa-base);
+  --casing-dark:    var(--carcasa-rosa-sombra);
+  --casing-darker:  var(--carcasa-rosa-luces);
+  --casing-light:   var(--carcasa-rosa-claro);
+  --casing-glow:    var(--carcasa-rosa-brillo);
+  --casing-pattern: url('../recursos/patrones/patron-hada.svg');
+}
+
+body[data-casing="gris"] {
+  --casing-primary: var(--carcasa-gris-base);
+  --casing-dark:    var(--carcasa-gris-sombra);
+  --casing-darker:  var(--carcasa-gris-luces);
+  --casing-light:   var(--carcasa-gris-claro);
+  --casing-glow:    var(--carcasa-gris-brillo);
+  --casing-pattern: url('../recursos/patrones/patron-acero.svg');
+}
+
+body[data-casing="negro"] {
+  --casing-primary: var(--carcasa-negro-base);
+  --casing-dark:    var(--carcasa-negro-sombra);
+  --casing-darker:  var(--carcasa-negro-luces);
+  --casing-light:   var(--carcasa-negro-claro);
+  --casing-glow:    var(--carcasa-negro-brillo);
+  --casing-pattern: url('../recursos/patrones/patron-siniestro.svg');
+}
+
+/* Sincronización automática de las muestras circulares de color del menú y header */
+.casing-swatch[data-color="rojo"]    { background-color: var(--carcasa-rojo-base) !important; }
+.casing-swatch[data-color="celeste"] { background-color: var(--carcasa-azul-base) !important; }
+.casing-swatch[data-color="rosa"]    { background-color: var(--carcasa-rosa-base) !important; }
+.casing-swatch[data-color="gris"]    { background-color: var(--carcasa-gris-base) !important; }
+.casing-swatch[data-color="negro"]   { background-color: var(--carcasa-negro-base) !important; }
+#casing-active-swatch                { background-color: var(--casing-primary) !important; }
+
+.btn-theme-switch {
+  display: none !important;
+}
+
+/* ========================================================
+   SELECTOR DE COLOR DE CARCASA (DROPDOWN EN HEADER)
+   Solo visible en Pokédex Clásica (theme-retro)
+   ======================================================== */
+.casing-picker-wrap {
+  position: relative;
+  display: none;
+}
+
+body.theme-retro .casing-picker-wrap {
+  display: block;
+}
+
+.btn-casing-picker {
+  background: var(--bg-surface-elevated);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+  user-select: none;
+}
+
+.btn-casing-picker:hover {
+  background: var(--bg-surface-highlight);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.casing-swatch-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background-color: var(--casing-primary);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+}
+
+.casing-label {
+  letter-spacing: 0.02em;
+}
+
+.casing-caret {
+  opacity: 0.7;
+}
+
+.casing-color-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  min-width: 175px;
+}
+
+.casing-menu-header {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.55rem;
+  text-align: center;
+}
+
+.casing-colors-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.casing-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform var(--trans-fast), box-shadow var(--trans-fast);
+  outline: none;
+  padding: 0;
+}
+
+.casing-swatch:hover {
+  transform: scale(1.22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.casing-swatch.active {
+  transform: scale(1.25);
+  outline: 2.5px solid #0f172a;
+  outline-offset: 1px;
+}
+
+
+.btn-icon {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--trans-fast);
+}
+
+.btn-icon:hover {
+  background: var(--bg-surface-highlight);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.badge-version {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--poke-red);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  font-size: 0.88rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  animation: toastIn 0.3s ease forwards;
+  pointer-events: auto;
+  max-width: 380px;
+}
+
+.toast.toast-success {
+  border-left: 4px solid var(--poke-green);
+}
+.toast.toast-info {
+  border-left: 4px solid var(--poke-cyan);
+}
+.toast.toast-error {
+  border-left: 4px solid var(--poke-red);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.95); }
+}
+
+/* Contenido Principal */
+.main-content {
+  flex: 1;
+  padding: 1.25rem;
+  max-width: 1480px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Alternancia de Vistas */
+.view-section {
+  display: none;
+}
+.view-section.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "pokequien",
+  "version": "2.0.0",
+  "description": "Juego de Adivina Quién con Pokémon para 2 jugadores mediante código de sala determinista sin servidor.",
+  "type": "module",
+  "scripts": {
+    "test": "node pruebas.js",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "pokemon",
+    "guess-who",
+    "clean-code",
+    "prng",
+    "es-modules"
+  ],
+  "author": "SVFA",
+  "license": "MIT"
+}

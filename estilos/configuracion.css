@@ -1,0 +1,513 @@
+/* ========================================================
+   PANTALLA 1: CONFIGURACIÓN
+   ======================================================== */
+.setup-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.setup-intro {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.setup-intro h2 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.setup-intro p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.setup-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.setup-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  transition: var(--trans-normal);
+}
+
+.setup-card:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.card-header {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.header-icon {
+  width: 42px;
+  height: 42px;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--poke-red);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.header-icon.icon-yellow {
+  background: rgba(250, 204, 21, 0.12);
+  color: var(--poke-yellow);
+}
+.header-icon.icon-blue {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--poke-blue);
+}
+
+.header-text h3 {
+  font-family: var(--font-pixel);
+  font-size: var(--tamano-titulos, 1.15rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.header-text p {
+  font-family: var(--font-desc, 'Squares', monospace);
+  font-size: var(--tamano-explicaciones, 0.82rem);
+  color: var(--text-secondary);
+}
+
+/* Rango selector */
+.range-selector-box {
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border-subtle);
+}
+
+.range-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+}
+
+.custom-select, .custom-input {
+  width: 100%;
+  background: #0d121c;
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 500;
+  outline: none;
+  transition: var(--trans-fast);
+}
+
+.custom-select:focus, .custom-input:focus {
+  border-color: var(--poke-cyan);
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+}
+
+.range-quick-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gen-grid-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+/* Cuadrícula de 9 generaciones */
+.gen-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.gen-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.35rem;
+  position: relative;
+  transition: all var(--trans-fast);
+  user-select: none;
+}
+
+.gen-card:hover {
+  background: var(--bg-surface-highlight);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.gen-card.active {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(6, 182, 212, 0.12) 100%);
+  border-color: var(--poke-red);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+.gen-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gen-number {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--poke-yellow);
+}
+
+.gen-check-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: transparent;
+  transition: var(--trans-fast);
+}
+
+.gen-card.active .gen-check-icon {
+  background: var(--poke-red);
+  border-color: var(--poke-red);
+  color: #ffffff;
+}
+
+.gen-region {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.gen-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.gen-count-badge {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+/* Banner de Resumen del Pool */
+.pool-summary-banner {
+  background: #0d131f;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.pool-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-number {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.stat-number.highlight-blue {
+  color: var(--poke-cyan);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.15rem;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Columna Derecha Setup */
+.setup-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Switch toggle */
+.toggle-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+}
+
+.toggle-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle-title {
+  font-family: var(--font-pixel);
+  font-size: var(--tamano-titulitos-opcion, 0.92rem);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.toggle-desc {
+  font-family: var(--font-desc, 'Squares', monospace);
+  font-size: var(--tamano-explicaciones, 0.78rem);
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+
+.option-pro-mode {
+  border-top: 1px dashed rgba(239, 68, 68, 0.25);
+  padding-top: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.pro-warning-desc {
+  font-size: 0.68rem !important;
+  color: #ef4444 !important;
+  line-height: 1.35;
+  margin-top: 0.25rem;
+  letter-spacing: 0.02em;
+}
+
+/* Cajita arcade Checkbox con Palomita ✓ o X ✕ */
+.checkbox-box-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.custom-chk-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  cursor: pointer;
+}
+
+.checkbox-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-arcade, monospace);
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+  user-select: none;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 2px solid rgba(239, 68, 68, 0.6);
+  color: #ef4444;
+}
+
+.custom-chk-input:not(:checked) + .checkbox-box .check-icon-yes {
+  display: none;
+}
+
+.custom-chk-input:not(:checked) + .checkbox-box .check-icon-no {
+  display: inline-block;
+  font-size: 0.95rem;
+  color: #ef4444;
+}
+
+.custom-chk-input:checked + .checkbox-box {
+  background-color: rgba(16, 185, 129, 0.2);
+  border: 2px solid var(--poke-green);
+  color: var(--poke-green);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+.custom-chk-input:checked + .checkbox-box .check-icon-yes {
+  display: inline-block;
+  font-size: 1.15rem;
+  color: var(--poke-green);
+}
+
+.custom-chk-input:checked + .checkbox-box .check-icon-no {
+  display: none;
+}
+
+.toggle-option-item:hover .checkbox-box {
+  transform: translateY(-1px);
+}
+
+.toggle-option-item:active .checkbox-box {
+  transform: translateY(1px);
+}
+
+/* Botones principales */
+.btn-primary {
+  background: linear-gradient(135deg, var(--poke-red) 0%, #b91c1c 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.4rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  transition: all var(--trans-fast);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #f87171 0%, var(--poke-red) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-large {
+  width: 100%;
+  padding: 1.15rem 1.5rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.btn-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.btn-secondary {
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  transition: var(--trans-fast);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-surface-highlight);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-sm {
+  padding: 0.45rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+.btn-xs {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+}
+
+/* Formulario Unirse a Sala */
+.join-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.join-input-group .custom-input {
+  text-transform: uppercase;
+  font-family: monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+}
+
+.btn-join {
+  background: var(--poke-blue);
+  border-color: var(--poke-blue);
+  color: #ffffff;
+  padding: 0 1.25rem;
+  font-weight: 700;
+}
+
+.btn-join:hover {
+  background: #2563eb;
+}
+
+.form-error-msg {
+  color: #f87171;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.hidden {
+  display: none !important;
+}

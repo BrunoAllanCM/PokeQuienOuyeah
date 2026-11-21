@@ -1,13 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>PokéQuién Test Suite</title>
+  <title>PokéQuién Test Suite Modular</title>
 </head>
 <body>
   <h1>Running Tests...</h1>
   <div id="results"></div>
-  <script src="app.js"></script>
+
+  <script src="js/constantes/datosPokemon.js"></script>
+  <script src="js/logica/aleatorio.js"></script>
+  <script src="js/logica/codigoSala.js"></script>
+  <script src="js/logica/seguridadAntiTrampas.js"></script>
+  <script src="js/servicios/apiPokemon.js"></script>
+  <script src="js/estado/estadoJuego.js"></script>
+  <script src="js/servicios/audio.js"></script>
+  <script src="js/interfaz/notificaciones.js"></script>
+  <script src="js/interfaz/tema.js"></script>
+
   <script>
     const results = [];
     function assert(cond, name) {
@@ -69,7 +79,7 @@
       assert(document.body.classList.contains("theme-retro") && state.theme === "retro", "applyTheme('retro') activa la clase theme-retro");
       applyTheme("modern");
       assert(document.body.classList.contains("theme-modern") && state.theme === "modern", "applyTheme('modern') activa la clase theme-modern");
-      applyTheme("retro"); // Dejar en retro por defecto
+      applyTheme("retro");
 
       // Resumen final
       const allPassed = results.every(r => r.pass);
@@ -83,4 +93,3 @@
   </script>
 </body>
 </html>
-

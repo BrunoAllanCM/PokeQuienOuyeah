@@ -1,0 +1,991 @@
+/* ========================================================
+   TEMA ALTERNATIVO: POKÉDEX CLÁSICA RETRO (KANTO)
+   Diseño Cálido, Vívido, Tierno y Colorido estilo Pokémon
+   Carcasa Personalizable y Textos con Alto Contraste
+   ======================================================== */
+body.theme-retro {
+  --bg-primary: var(--casing-primary, #dc2626);
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f8fafc;
+  --bg-surface-highlight: #f1f5f9;
+
+  --border-subtle: #e2e8f0;
+  --border-focus: var(--casing-primary, #dc2626);
+
+  --poke-red: var(--casing-primary, #dc2626);
+  --poke-red-hover: var(--casing-dark, #b91c1c);
+  --poke-red-glow: var(--casing-glow, rgba(220, 38, 38, 0.4));
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  background-color: var(--casing-primary);
+  background-image: none !important;
+  font-family: var(--font-pixel, 'Pixelify Sans', monospace);
+  letter-spacing: 0.02em;
+  position: relative;
+}
+
+/* Patrón sutil y elegante de sprites de tipos Pokémon según la carcasa activa */
+body.theme-retro::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--casing-pattern);
+  background-repeat: repeat;
+  background-size: var(--casing-pattern-size, 80px) var(--casing-pattern-size, 80px);
+  opacity: var(--casing-pattern-opacity, 0.08);
+  transition: opacity var(--trans-normal), background-image var(--trans-fast);
+}
+
+/* Header Pokédex Retro con alta prioridad de capas para que el selector de carcasas nunca se tape */
+body.theme-retro .pokedex-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--casing-primary);
+  border-bottom: 5px solid var(--casing-dark);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* El contenido del juego queda encima del patrón de fondo pero debajo del header */
+body.theme-retro .view-section {
+  position: relative;
+  z-index: 1;
+}
+
+body.theme-retro .pokedex-lights {
+  background: var(--casing-darker, #7f1d1d);
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-full);
+}
+
+body.theme-retro .big-lens {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #ffffff;
+  background: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+body.theme-retro .small-led {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 8px currentColor;
+}
+
+body.theme-retro .app-title {
+  color: #ffffff;
+  font-family: var(--font-arcade, 'Press Start 2P', monospace);
+  font-size: 1.35rem;
+  letter-spacing: 0.06em;
+  text-shadow: 2px 2px 0px var(--casing-darker, #7f1d1d);
+}
+
+body.theme-retro .app-title .highlight {
+  color: #facc15;
+  text-shadow: 2px 2px 0px var(--casing-darker, #7f1d1d), 0 0 12px rgba(250, 204, 21, 0.5);
+}
+
+body.theme-retro .app-subtitle {
+  color: #fef2f2;
+  font-family: var(--font-pixel, 'Pixelify Sans', monospace);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-shadow: 1px 1px 0px var(--casing-darker, #7f1d1d);
+}
+
+body.theme-retro .badge-version,
+body.theme-retro .btn-icon,
+body.theme-retro .btn-theme-switch,
+body.theme-retro .btn-casing-picker {
+  background: var(--casing-darker, #7f1d1d);
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+  font-family: var(--font-arcade, 'Press Start 2P', monospace);
+  font-size: 0.65rem;
+}
+
+body.theme-retro .btn-icon:hover,
+body.theme-retro .btn-theme-switch:hover,
+body.theme-retro .btn-casing-picker:hover {
+  background: var(--casing-dark, #b91c1c);
+  transform: translateY(-1px);
+}
+
+body.theme-retro .btn-icon:active,
+body.theme-retro .btn-theme-switch:active,
+body.theme-retro .btn-casing-picker:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* ========================================================
+   PANTALLA 1: SETUP RETRO VÍVIDO Y TIERNO (TEXTOS 100% VISIBLES)
+   ======================================================== */
+
+/* Sombras de alto contraste para las letras del encabezado de Configuración */
+body.theme-retro .setup-intro h2 {
+  color: #ffffff !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 1.55rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.04em;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8), 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+body.theme-retro .setup-intro p {
+  font-family: var(--font-desc, 'Squares', monospace);
+  font-size: var(--tamano-explicaciones, 0.95rem);
+  color: #ffffff !important;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8), 0 0 4px rgba(0, 0, 0, 0.4);
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+body.theme-retro .setup-intro p strong {
+  color: #facc15;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+}
+
+body.theme-retro .setup-card {
+  background: #ffffff !important;
+  border: 3px solid var(--casing-light, #fee2e2) !important;
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-lg);
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.16));
+  box-shadow: none !important;
+  color: #0f172a !important;
+}
+
+body.theme-retro .card-header {
+  border-bottom: 2px dashed #e2e8f0;
+}
+
+body.theme-retro .card-header .header-text h3 {
+  font-family: var(--font-pixel);
+  color: #0f172a !important;
+  font-weight: 800;
+}
+
+body.theme-retro .card-header .header-text p {
+  font-family: var(--font-desc, 'Squares', monospace);
+  color: #475569 !important;
+}
+
+body.theme-retro .form-group label {
+  color: #334155 !important;
+  font-weight: 700;
+}
+
+body.theme-retro .range-selector-box {
+  background: #f8fafc !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-md);
+  box-shadow: none;
+}
+
+body.theme-retro .custom-select,
+body.theme-retro .custom-input {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-sm);
+  color: #0f172a !important;
+}
+
+body.theme-retro .custom-select:focus,
+body.theme-retro .custom-input:focus {
+  border-color: var(--casing-primary, #dc2626) !important;
+  box-shadow: 0 0 0 3px var(--casing-glow, rgba(220, 38, 38, 0.2)) !important;
+}
+
+body.theme-retro .gen-grid-label {
+  color: #334155 !important;
+  font-weight: 800;
+}
+
+/* Tarjetas de Selección de Generación */
+body.theme-retro .gen-card {
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-sm);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.04));
+  box-shadow: none !important;
+}
+
+body.theme-retro .gen-card:hover {
+  background: #fff7ed !important;
+  border-color: #f97316 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(249, 115, 22, 0.15);
+}
+
+body.theme-retro .gen-card.active {
+  background: #fef2f2 !important;
+  border-color: var(--casing-primary, #dc2626) !important;
+  box-shadow: 0 3px 8px var(--casing-glow, rgba(220, 38, 38, 0.2)) !important;
+}
+
+body.theme-retro .gen-number {
+  color: var(--casing-primary, #dc2626) !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+body.theme-retro .gen-region {
+  color: #0f172a !important;
+  font-weight: 800;
+}
+
+body.theme-retro .gen-card-footer {
+  color: #64748b !important;
+  font-weight: 600;
+}
+
+body.theme-retro .gen-count-badge {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  font-weight: 700;
+}
+
+body.theme-retro .pool-summary-banner {
+  background: #f8fafc !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #334155;
+}
+
+body.theme-retro .stat-number {
+  color: #0f172a !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 1.25rem;
+}
+
+body.theme-retro .stat-number.highlight-blue {
+  color: #2563eb !important;
+}
+
+body.theme-retro .stat-label {
+  color: #475569 !important;
+}
+
+body.theme-retro .stat-divider {
+  background: #e2e8f0 !important;
+}
+
+/* Opciones de la columna derecha con Checkbox Palomita ✓ o X ✕ */
+body.theme-retro .toggle-option-item {
+  padding: 0.75rem 0.6rem;
+  border-radius: var(--radius-md);
+  border-bottom: 1.5px dashed #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+body.theme-retro .toggle-option-item:last-child {
+  border-bottom: none;
+}
+
+body.theme-retro .toggle-option-item:hover {
+  background: #f8fafc;
+}
+
+body.theme-retro .toggle-title {
+  font-family: var(--font-pixel);
+  color: #0f172a !important;
+  font-weight: 700;
+}
+
+body.theme-retro .toggle-desc {
+  font-family: var(--font-desc, 'Squares', monospace);
+  color: #475569 !important;
+}
+
+body.theme-retro .pro-warning-desc {
+  color: #dc2626 !important;
+  font-size: 0.65rem !important;
+  line-height: 1.35;
+  margin-top: 0.25rem;
+}
+
+body.theme-retro .option-pro-mode {
+  border-top: 1.5px dashed rgba(220, 38, 38, 0.35);
+  background: rgba(254, 242, 242, 0.4);
+  margin-top: 0.35rem;
+  padding: 0.75rem 0.6rem;
+}
+
+body.theme-retro .option-pro-mode:hover {
+  background: #fef2f2 !important;
+}
+
+body.theme-retro .checkbox-box {
+  width: 34px;
+  height: 34px;
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-sm);
+  font-size: 1.05rem;
+}
+
+/* Estado DESMARCADO: Cajita con ✕ roja */
+body.theme-retro .custom-chk-input:not(:checked) + .checkbox-box {
+  background-color: #fee2e2 !important;
+  border: 2px solid #ef4444 !important;
+  border-bottom: 4px solid #b91c1c !important;
+  color: #dc2626 !important;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.15) !important;
+}
+
+body.theme-retro .custom-chk-input:not(:checked) + .checkbox-box .check-icon-no {
+  color: #dc2626 !important;
+  font-weight: 900;
+  transform: translateY(-1px);
+}
+
+/* Estado MARCADO: Cajita con ✓ verde */
+body.theme-retro .custom-chk-input:checked + .checkbox-box {
+  background-color: #dcfce7 !important;
+  border: 2px solid #16a34a !important;
+  border-bottom: 4px solid #15803d !important;
+  color: #15803d !important;
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.15) !important;
+}
+
+body.theme-retro .custom-chk-input:checked + .checkbox-box .check-icon-yes {
+  color: #15803d !important;
+  font-weight: 900;
+  transform: translateY(-1px);
+}
+
+body.theme-retro .toggle-option-item:active .checkbox-box {
+  transform: translateY(2px);
+  border-bottom-width: 2px !important;
+}
+
+/* Badge de generación en la carta retro */
+body.theme-retro .card-gen-badge {
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: var(--casing-primary, #dc2626);
+  background: #fee2e2;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+/* Botones Físicos Chunky estilo Nintendo (Color Plano) */
+body.theme-retro .btn-primary {
+  background: var(--casing-primary) !important;
+  border: 2px solid var(--casing-dark) !important;
+  border-bottom: 5px solid var(--casing-darker) !important;
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-sm);
+  filter: drop-shadow(0 4px 8px var(--casing-glow, rgba(220, 38, 38, 0.35))) !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  justify-content: center;
+}
+
+body.theme-retro .btn-primary:hover {
+  background: var(--casing-dark) !important;
+  transform: translateY(-1px);
+}
+
+body.theme-retro .btn-primary:active {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+
+body.theme-retro .btn-secondary {
+  background: #3b82f6 !important;
+  border: 2px solid #2563eb !important;
+  border-bottom: 4px solid #1d4ed8 !important;
+  border-radius: var(--radius-md);
+  color: #ffffff !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+body.theme-retro .btn-secondary:hover {
+  background: #60a5fa !important;
+  transform: translateY(-1px);
+}
+
+body.theme-retro .btn-secondary:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+/* ========================================================
+   PANTALLA 2: TABLERO DE JUEGO Y CARTAS
+   ======================================================== */
+
+body.theme-retro .board-topbar {
+  background: #ffffff;
+  border: 2px solid var(--casing-light, #fee2e2);
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-md);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+  box-shadow: none !important;
+}
+
+/* Pastilla de código de sala retro */
+body.theme-retro .room-info-pill {
+  background: #ffffff !important;
+  border: 2px solid var(--casing-light, #fee2e2) !important;
+  border-radius: var(--radius-full) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 0.3rem 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+body.theme-retro .room-pill-label {
+  color: var(--casing-primary, #e05353) !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+body.theme-retro .room-pill-code {
+  color: #0f172a !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  font-weight: 800;
+}
+
+body.theme-retro .btn-icon-subtle {
+  color: #64748b !important;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+body.theme-retro .btn-icon-subtle:hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+}
+
+/* Pantalla LCD Verde/Cyan Game Boy para Pokémon Secreto (Color Plano) */
+body.theme-retro .secret-pokemon-card {
+  background: #d1fae5;
+  border: 2px solid #10b981;
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-md);
+  filter: drop-shadow(0 3px 6px rgba(16, 185, 129, 0.15));
+  box-shadow: none !important;
+  color: #064e3b;
+}
+
+body.theme-retro .secret-title {
+  color: #065f46 !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+}
+
+body.theme-retro .secret-pulse-dot {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+body.theme-retro .btn-secret-action {
+  background: #ffffff;
+  border: 1.5px solid #a7f3d0;
+  color: #065f46;
+  font-weight: 800;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+body.theme-retro .btn-secret-action:hover {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+}
+
+/* Botones laterales al lado de la caja de Pokémon Secreto (Retro) */
+body.theme-retro .btn-side-action {
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.44rem 0.85rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.03em;
+}
+
+body.theme-retro .btn-side-action.btn-change {
+  background: #ffffff;
+  color: #0f172a;
+  border: 2px solid #94a3b8;
+  box-shadow: 0 2px 0 #64748b;
+}
+
+body.theme-retro .btn-side-action.btn-change:hover {
+  background: #f8fafc;
+  border-color: #64748b;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 #475569;
+}
+
+body.theme-retro .btn-side-action.btn-change:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 transparent;
+}
+
+body.theme-retro .btn-side-action.btn-ready {
+  background: #10b981;
+  color: #ffffff;
+  border: 2px solid #059669;
+  box-shadow: 0 2px 0 #047857;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+body.theme-retro .btn-side-action.btn-ready:hover {
+  background: #059669;
+  border-color: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 #065f46;
+}
+
+body.theme-retro .btn-side-action.btn-ready:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 transparent;
+}
+
+body.theme-retro .badge-game-locked {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 2px solid #10b981;
+  box-shadow: 0 2px 0 #059669;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.45rem 0.8rem;
+}
+
+body.theme-retro .rival-ready-note {
+  background: #dcfce7;
+  color: #14532d;
+  border: 2px solid #22c55e;
+  box-shadow: 0 2px 0 #16a34a;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+body.theme-retro .btn-side-action.btn-ready.ready-active {
+  background: #059669;
+  border-color: #047857;
+  box-shadow: 0 2px 0 #065f46;
+}
+
+/* Botón Adivinar Rival (Retro) */
+body.theme-retro .btn-guess-action {
+  background: #f59e0b;
+  color: #ffffff;
+  border: 2px solid #d97706;
+  box-shadow: 0 2px 0 #b45309;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-sm);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+body.theme-retro .btn-guess-action:hover {
+  background: #d97706;
+  border-color: #b45309;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 #92400e;
+}
+
+body.theme-retro .btn-guess-action:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 transparent;
+}
+
+/* Modales en Retro con esquinas pixel art */
+body.theme-retro .modal-card {
+  background: #ffffff;
+  border: 3px solid var(--casing-primary, #dc2626);
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-lg);
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.25));
+  box-shadow: none !important;
+}
+
+body.theme-retro .guess-item {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 2px 0 #cbd5e1;
+}
+
+body.theme-retro .guess-item:hover {
+  background: #ecfdf5;
+  border-color: #10b981;
+  box-shadow: 0 3px 0 #059669;
+}
+
+body.theme-retro .secret-avatar-wrap {
+  background: #ffffff;
+  border: 2px solid #34d399;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+body.theme-retro .secret-num {
+  color: #059669 !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.68rem;
+}
+
+body.theme-retro .secret-name {
+  color: #064e3b !important;
+  font-weight: 800;
+}
+
+body.theme-retro .secret-details-masked .secret-name {
+  color: #064e3b !important;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+body.theme-retro .type-badge-masked {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1.5px dashed #cbd5e1;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.58rem;
+}
+
+body.theme-retro .secret-mask-cover {
+  background: #d1fae5;
+  color: #065f46;
+  border: 2px dashed #059669;
+}
+
+/* Barra de Estado Dinámica en Tablero */
+body.theme-retro .status-counter-box {
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #1e293b;
+}
+
+body.theme-retro .counter-val {
+  color: var(--casing-primary, #dc2626) !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 1.1rem;
+}
+
+body.theme-retro .mini-progress-track {
+  background: #e2e8f0;
+}
+
+body.theme-retro .mini-progress-fill {
+  background: var(--casing-primary);
+}
+
+/* Cartas de Pokémon en Modo Retro: Vívidas, Tiernas y Claras (Colores Planos) */
+body.theme-retro .poke-card {
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 0 !important;
+  clip-path: var(--clip-pixel-md);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.08));
+  box-shadow: none !important;
+  background-image: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease, opacity 0.25s ease;
+}
+
+body.theme-retro .poke-card::before {
+  display: none !important;
+}
+
+body.theme-retro .poke-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: #f59e0b !important;
+  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.25), 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+body.theme-retro .card-num {
+  color: var(--casing-primary, #dc2626) !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+body.theme-retro .card-name-wrap {
+  position: relative;
+  z-index: 4;
+  margin: 0.1rem 0 0.2rem 0;
+}
+
+body.theme-retro .card-name {
+  color: #0f172a !important;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+body.theme-retro .card-img,
+body.theme-retro .secret-img {
+  filter: none;
+}
+
+/* Modo Desafío Retro: Escala de Grises (Sprites en Blanco y Negro) */
+.sprite-grayscale,
+.grayscale-mode .card-img,
+.grayscale-mode .secret-img,
+body.theme-retro .sprite-grayscale,
+body.theme-retro .grayscale-mode .card-img,
+body.theme-retro .grayscale-mode .secret-img,
+body.theme-retro #view-board.grayscale-mode .card-img,
+body.theme-retro #view-board.grayscale-mode .secret-img {
+  filter: grayscale(100%) contrast(1.15) !important;
+}
+
+body.theme-retro .card-img-wrap {
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  position: relative;
+  overflow: visible;
+}
+
+/* Sello Retro de Descarte */
+body.theme-retro .poke-card.descartada {
+  opacity: 0.35;
+  filter: grayscale(100%);
+  transform: scale(0.92);
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: none;
+}
+
+body.theme-retro .poke-card.descartada:hover {
+  opacity: 0.55;
+  transform: scale(0.94);
+}
+
+body.theme-retro .poke-card.descartada::after {
+  content: "✕ DESCARTADO";
+  background: #ef4444;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.4);
+}
+
+body.theme-retro .poke-card.is-secret-pokemon {
+  border: 3px solid #facc15 !important;
+  box-shadow: 0 0 18px rgba(250, 204, 21, 0.5), 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+body.theme-retro .secret-owner-badge {
+  background: #facc15;
+  color: #713f12;
+  border: 1px solid #eab308;
+  font-weight: 800;
+}
+
+/* ========================================================
+   CHAT SIDEBAR RETRO VÍVIDO
+   ======================================================== */
+body.theme-retro .chat-sidebar {
+  background: #ffffff;
+  border: 2.5px solid var(--casing-light, #fee2e2);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+body.theme-retro .chat-header {
+  background: var(--casing-light, #fee2e2);
+  border-bottom: 2px solid #e2e8f0;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+body.theme-retro .chat-header-title {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+body.theme-retro .chat-header-title h3 {
+  color: #0f172a !important;
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  margin: 0;
+  font-weight: 800;
+}
+
+body.theme-retro .chat-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* Estado: Esperando rival (Alto contraste) */
+body.theme-retro .chat-status.esperando {
+  background: #fef3c7 !important;
+  color: #78350f !important;
+  border: 1.5px solid #d97706 !important;
+}
+
+body.theme-retro .chat-status.esperando .status-dot {
+  background: #d97706 !important;
+  box-shadow: none !important;
+}
+
+/* Estado: Conectado (Alto contraste) */
+body.theme-retro .chat-status.conectado {
+  background: #dcfce7 !important;
+  color: #14532d !important;
+  border: 1.5px solid #16a34a !important;
+}
+
+body.theme-retro .chat-status.conectado .status-dot {
+  background: #16a34a !important;
+  box-shadow: none !important;
+}
+
+/* Estado: Desconectado (Alto contraste) */
+body.theme-retro .chat-status.desconectado {
+  background: #fee2e2 !important;
+  color: #7f1d1d !important;
+  border: 1.5px solid #dc2626 !important;
+}
+
+body.theme-retro .chat-status.desconectado .status-dot {
+  background: #dc2626 !important;
+  box-shadow: none !important;
+}
+
+body.theme-retro .rival-status-bar {
+  background: #f0fdf4 !important;
+  color: #166534 !important;
+  font-family: var(--font-pixel, monospace);
+  font-weight: 600;
+  border-bottom: 1.5px solid #bbf7d0 !important;
+}
+
+body.theme-retro .chat-messages {
+  background: #fafaf9;
+}
+
+body.theme-retro .chat-bubble-user {
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: 14px 14px 2px 14px;
+}
+
+body.theme-retro .chat-bubble-rival {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px 14px 14px 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+body.theme-retro .chat-bubble-system {
+  background: #fef9c3;
+  border: 1.5px dashed #facc15;
+  color: #713f12;
+}
+
+body.theme-retro .chat-form {
+  background: #ffffff;
+  border-top: 2px solid #e2e8f0;
+}
+
+body.theme-retro .chat-input {
+  background: #f8fafc;
+  border: 2px solid #cbd5e1;
+  color: #0f172a;
+}
+
+body.theme-retro .chat-input:focus {
+  border-color: var(--casing-primary, #dc2626);
+  background: #ffffff;
+}
+
+body.theme-retro .chat-send-btn {
+  background: var(--casing-primary, #dc2626);
+  color: #ffffff;
+}
+
+body.theme-retro .chat-send-btn:hover {
+  background: var(--casing-dark, #b91c1c);
+}
+
+/* Footer Retro */
+body.theme-retro .app-footer {
+  background: var(--casing-darker, #7f1d1d);
+  border-top: 3px solid rgba(0, 0, 0, 0.3);
+  color: #fecaca;
+}
+
+body.theme-retro .footer-credits a {
+  color: #fef08a;
+}
+
+/* Modo Pro Retro */
+body.theme-retro.pro-mode-active .card-img,
+body.theme-retro.pro-mode-active .secret-img,
+body.theme-retro .pro-mode-active .card-img,
+body.theme-retro .pro-mode-active .secret-img,
+body.theme-retro .pro-mode-active .guess-thumb {
+  display: none !important;
+}
+
+body.theme-retro .pro-mystery-icon {
+  color: var(--casing-primary, #dc2626);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+body.theme-retro .guess-thumb-pro {
+  color: var(--casing-primary, #dc2626);
+  background: #fee2e2;
+  border: 1.5px solid #ef4444;
+}
