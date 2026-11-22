@@ -196,6 +196,36 @@ class SoundController {
     } catch (e) {}
   }
 
+  // Efecto de sonido brillante y mágico para Pokémon Shiny
+  playShinySparkle() {
+    if (!state.soundEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === "suspended") this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+      // Arpegio brillante y cristalino (C6 -> E6 -> G6 -> C7 -> E7)
+      const notes = [1046.5, 1318.5, 1567.98, 2093.0, 2637.0];
+      notes.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const start = now + i * 0.055;
+
+        osc.type = state.theme === "retro" ? "square" : "sine";
+        osc.frequency.setValueAtTime(freq, start);
+
+        gain.gain.setValueAtTime(0.048, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.18);
+      });
+    } catch (e) {}
+  }
+
   // Reproduce el grito del Pokémon; si falla el legacy usa el actual
   playPokemonCry(id, cryUrl) {
     if (!state.soundEnabled || !id) return;

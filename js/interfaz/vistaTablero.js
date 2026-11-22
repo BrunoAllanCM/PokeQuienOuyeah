@@ -178,7 +178,9 @@ function preloadBoardSprites(pokemonList, timeoutMs = 2500) {
   // Carga cada imagen sin bloquear si falla
   const preloadPromises = pokemonList.map(p => {
     return new Promise(resolve => {
-      const src = p.animatedImage || p.image;
+      const src = p.isShiny
+        ? (p.animatedShinyImage || p.shinyImage || p.animatedImage || p.image)
+        : (p.animatedImage || p.image);
       if (!src) return resolve();
       const img = new Image();
       img.onload = () => resolve();
@@ -205,6 +207,15 @@ async function renderAndFetchBoardPokemon() {
     // Descarga los datos de todos los Pokémon
     const promises = state.boardPokemonIds.map(id => fetchPokemonData(id));
     state.boardPokemonData = await Promise.all(promises);
+
+    // Determina el único Pokémon Shiny del tablero (máximo 1 por partida para mantenerlo especial)
+    const shinyId = typeof getBoardShinyPokemonId === "function"
+      ? getBoardShinyPokemonId(state.roomCode, state.boardPokemonIds)
+      : null;
+
+    state.boardPokemonData.forEach(poke => {
+      poke.isShiny = Boolean(shinyId !== null && poke.id === shinyId);
+    });
 
     // Pre-cargar todos los sprites animados antes de renderizar el tablero
     await preloadBoardSprites(state.boardPokemonData);
@@ -238,8 +249,11 @@ function renderBoardCards() {
     const card = document.createElement("div");
     const isDiscarded = state.discardedIds.has(pokemon.id);
     const isSecret = state.secretPokemon && state.secretPokemon.id === pokemon.id;
+    const isShiny = Boolean(pokemon.isShiny);
+    const animSrc = isShiny ? (pokemon.animatedShinyImage || pokemon.shinyImage || pokemon.animatedImage) : pokemon.animatedImage;
+    const staticSrc = isShiny ? (pokemon.shinyImage || pokemon.image) : pokemon.image;
 
-    card.className = `poke-card ${isDiscarded ? "descartada" : ""} ${isSecret ? "is-secret-pokemon" : ""}`;
+    card.className = `poke-card ${isDiscarded ? "descartada" : ""} ${isSecret ? "is-secret-pokemon" : ""} ${isShiny ? "is-shiny-card" : ""}`;
     card.dataset.id = pokemon.id;
     card.dataset.name = pokemon.name.toLowerCase();
     card.dataset.types = (typeof getCombinedTypeSearchString === "function")
@@ -262,24 +276,24 @@ function renderBoardCards() {
     const secretOwnerBadgeHtml = isSecret ? `<span class="secret-owner-badge">★ TU SECRETO</span>` : "";
     const genBadgeHtml = (state.roomShowGens && !state.roomProMode) ? `<span class="card-gen-badge">${getGenForPokemonId(pokemon.id)}</span>` : "";
     const cardNumHtml = !state.roomProMode ? `<span class="card-num">#${String(pokemon.id).padStart(3, "0")}</span>` : "";
-    const nameHtml = `<span class="card-name" title="${pokemon.name}">${pokemon.name}</span>`;
+    const nameHtml = `<span class="card-name" title="${pokemon.name}">${isShiny ? '✨ ' : ''}${pokemon.name}</span>`;
 
     // Imagen de la carta (signo ? en modo pro)
     const imgWrapHtml = state.roomProMode
       ? `<div class="card-img-wrap pro-mystery-wrap"><div class="pro-mystery-icon">?</div></div>`
       : `
         <div class="card-img-wrap">
-          ${pokemon.animatedImage ? `
+          ${animSrc ? `
             <img
-              src="${pokemon.animatedImage}"
-              alt="${pokemon.name} animado"
+              src="${animSrc}"
+              alt="${pokemon.name} animado ${isShiny ? 'shiny' : ''}"
               class="card-img card-img-animated ${state.roomGrayscale ? 'sprite-grayscale' : ''}"
               onerror="this.classList.add('hidden')"
             >
           ` : ""}
           <img
-            src="${pokemon.image}"
-            alt="${pokemon.name}"
+            src="${staticSrc}"
+            alt="${pokemon.name} ${isShiny ? 'shiny' : ''}"
             class="card-img card-img-static ${state.roomGrayscale ? 'sprite-grayscale' : ''}"
           >
         </div>
@@ -312,6 +326,11 @@ function renderBoardCards() {
  * @param {{ id: number, name: string, image: string, types: string[] }} pokemon
  */
 function handleCardClick(pokemon) {
+  // Efecto de sonido brillante si el Pokémon es Shiny
+  if (pokemon.isShiny && typeof sounds !== "undefined" && sounds.playShinySparkle) {
+    sounds.playShinySparkle();
+  }
+
   // Modo elegir Pokémon secreto
   if (state.isSelectingSecretMode) {
     setSecretPokemon(pokemon, true);
@@ -799,8 +818,13 @@ function setSecretPokemon(pokemon, playCry = false) {
       imgEl.style.display = "";
       const proIcon = document.getElementById("secret-pro-icon");
       if (proIcon) proIcon.style.display = "none";
-      imgEl.dataset.static = pokemon.image;
-      imgEl.src = pokemon.animatedImage || pokemon.image;
+      const isShiny = Boolean(pokemon.isShiny);
+      const staticSrc = isShiny ? (pokemon.shinyImage || pokemon.image) : pokemon.image;
+      const animSrc = isShiny
+        ? (pokemon.animatedShinyImage || pokemon.shinyImage || pokemon.animatedImage || pokemon.image)
+        : (pokemon.animatedImage || pokemon.image);
+      imgEl.dataset.static = staticSrc;
+      imgEl.src = animSrc;
       imgEl.alt = pokemon.name;
       imgEl.classList.toggle("sprite-grayscale", !!state.roomGrayscale);
     }
@@ -815,7 +839,7 @@ function setSecretPokemon(pokemon, playCry = false) {
     }
   }
   if (nameEl) {
-    nameEl.textContent = pokemon.name;
+    nameEl.innerHTML = pokemon.isShiny ? `<span class="shiny-star-icon">✨</span> ${pokemon.name}` : pokemon.name;
   }
   // Tipos del secreto
   if (typesEl) {

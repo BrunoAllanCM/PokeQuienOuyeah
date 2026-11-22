@@ -2,6 +2,23 @@
  * Constantes y Datos Estáticos de Pokémon
  */
 
+/**
+ * ========================================================
+ * 🌟 PROBABILIDAD DE POKÉMON SHINY (VARIOCOLOR)
+ * ========================================================
+ * Controla la probabilidad de que aparezca UN Pokémon Shiny en el tablero (máximo 1).
+ * Puedes modificar este valor libremente:
+ * - 1 / 3000  -> Probabilidad clásica (por defecto, ultra raro)
+ * - 1 / 512   -> Probabilidad método Masuda
+ * - 1 / 2     -> 50% de probabilidad de que haya un Shiny en la partida
+ * - 1         -> 100% garantizado: SIEMPRE habrá exactamente 1 Shiny en cada partida
+ * - 0         -> Desactivar shinies
+ */
+var PROBABILIDAD_SHINY = 1 / 20;
+if (typeof window !== "undefined") {
+  window.PROBABILIDAD_SHINY = PROBABILIDAD_SHINY;
+}
+
 // Lista de generaciones con su rango de IDs
 const GENERATIONS = [
   { id: 1, name: "Kanto", start: 1, end: 151, count: 151, roman: "GEN I" },

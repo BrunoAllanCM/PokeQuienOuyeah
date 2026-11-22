@@ -1453,6 +1453,52 @@
   to { transform: translateY(-6px); }
 }
 
+/* ========================================================
+   ESTILOS PARA POKÉMON SHINY (VARIOCOLOR)
+   ======================================================== */
+.poke-card.is-shiny-card {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4), inset 0 0 6px rgba(251, 191, 36, 0.25) !important;
+}
+
+.poke-card.is-shiny-card:hover {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.65), inset 0 0 10px rgba(251, 191, 36, 0.4) !important;
+}
+
+.card-shiny-badge {
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 0.12rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+  display: inline-block;
+  animation: shiny-glow 2s infinite ease-in-out;
+}
+
+.shiny-star-icon {
+  display: inline-block;
+  color: #fbbf24;
+  text-shadow: 0 0 6px rgba(245, 158, 11, 0.7);
+  animation: shiny-glow 1.8s infinite ease-in-out;
+}
+
+@keyframes shiny-glow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.4);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.85);
+  }
+}
+
 .restart-pulse-ring {
   width: 22px;
   height: 22px;

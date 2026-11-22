@@ -60,6 +60,15 @@ async function fetchPokemonData(id) {
       if (!parsed.cry) {
         parsed.cry = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
       }
+      if (!parsed.shinyImage) {
+        parsed.shinyImage = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`;
+      }
+      if (!parsed.animatedShinyImage) {
+        parsed.animatedShinyImage =
+          id <= 649
+            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
+            : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/${id}.gif`;
+      }
       return parsed;
     }
     // Si existe v1 o v2 en caché, actualizar con la URL animada Pixel Art adecuada
@@ -71,6 +80,12 @@ async function fetchPokemonData(id) {
           ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`
           : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${id}.gif`;
       parsed.cry = parsed.cry || `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
+      parsed.shinyImage = parsed.shinyImage || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`;
+      parsed.animatedShinyImage =
+        parsed.animatedShinyImage ||
+        (id <= 649
+          ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
+          : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/${id}.gif`);
       try {
         localStorage.setItem(cacheKey, JSON.stringify(parsed));
       } catch (e) {}
@@ -104,6 +119,13 @@ async function fetchPokemonData(id) {
       artwork ||
       `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 
+    const shinyPixelSprite = data.sprites?.front_shiny;
+    const shinyArtwork = data.sprites?.other?.["official-artwork"]?.front_shiny;
+    const shinyImage =
+      shinyPixelSprite ||
+      shinyArtwork ||
+      `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`;
+
     // Priorizar el sprite animado 2D Pixel Art oficial de Blanco y Negro (Gen V)
     const gen5Pixel = data.sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_default;
     const showdown = data.sprites?.other?.showdown?.front_default;
@@ -112,6 +134,14 @@ async function fetchPokemonData(id) {
       (id <= 649
         ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`
         : (showdown || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${id}.gif`));
+
+    const gen5ShinyPixel = data.sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_shiny;
+    const showdownShiny = data.sprites?.other?.showdown?.front_shiny;
+    const animatedShinySprite =
+      gen5ShinyPixel ||
+      (id <= 649
+        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
+        : (showdownShiny || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/${id}.gif`));
 
     // Tipos, gritos y registro final del Pokémon
     const types = data.types.map(t => t.type.name);
@@ -125,6 +155,8 @@ async function fetchPokemonData(id) {
       rawName: data.name,
       image,
       animatedImage: animatedSprite,
+      shinyImage,
+      animatedShinyImage: animatedShinySprite,
       types,
       cry,
       legacyCry

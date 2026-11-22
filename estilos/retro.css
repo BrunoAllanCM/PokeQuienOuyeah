@@ -1207,3 +1207,17 @@ body.theme-retro .restart-hint {
   border: 1.5px dashed #94a3b8;
   color: #334155;
 }
+
+/* Modo Retro para Pokémon Shiny */
+body.theme-retro .poke-card.is-shiny-card {
+  border-color: #d97706 !important;
+  box-shadow: 2.5px 2.5px 0 #b45309 !important;
+}
+
+body.theme-retro .card-shiny-badge {
+  font-family: "EAS VHS", monospace;
+  font-size: 0.55rem;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1.5px dashed #d97706;
+}

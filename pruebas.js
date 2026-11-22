@@ -38,7 +38,7 @@ for (const file of filesToLoad) {
   vm.runInContext(code, context);
 }
 
-const { computeBoardIds, buildRoomCode, parseRoomCode, formatPokemonName, getGenForPokemonId, seguridadAntiTrampas, normalizeSearchText, getCombinedTypeSearchString } = context;
+const { computeBoardIds, buildRoomCode, parseRoomCode, formatPokemonName, getGenForPokemonId, seguridadAntiTrampas, normalizeSearchText, getCombinedTypeSearchString, isPokemonShiny, getBoardShinyPokemonId, PROBABILIDAD_SHINY } = context;
 
 // Guarda el resultado de cada prueba
 const results = [];
@@ -345,6 +345,24 @@ assert(boardLegGen1.every(id => getGenForPokemonId(id) === "GEN I"), "Todos los 
 const boardIniGen1 = computeBoardIds("SEED12", [1], "starters");
 assert(boardIniGen1.length === 3, "computeBoardIds con solo Gen 1 en modo iniciales genera exactamente 3 Pokémon");
 assert(boardIniGen1.every(id => getGenForPokemonId(id) === "GEN I"), "Todos los iniciales generados con solo Gen 1 pertenecen a la GEN I");
+
+// 10. Módulo Pokémon Shiny (Variocolor)
+console.log("\n📦 10. Módulo Pokémon Shiny (Variocolor):");
+assert(typeof PROBABILIDAD_SHINY === "number" && PROBABILIDAD_SHINY > 0, "PROBABILIDAD_SHINY está configurada como número positivo");
+assert(isPokemonShiny("SALA1", 25, 1) === true, "isPokemonShiny con probabilidad 1 retorna true");
+assert(isPokemonShiny("SALA1", 25, 0) === false, "isPokemonShiny con probabilidad 0 retorna false");
+const shinyResultA = isPokemonShiny("TEST_SEED_123", 6, 0.5);
+const shinyResultB = isPokemonShiny("TEST_SEED_123", 6, 0.5);
+assert(shinyResultA === shinyResultB, "isPokemonShiny es 100% determinista para la misma semilla y mismo Pokémon");
+
+const testIds = [1, 4, 7, 25, 150];
+const guaranteedShinyId = getBoardShinyPokemonId("ROOM_ALPHA", testIds, 1);
+assert(testIds.includes(guaranteedShinyId), "getBoardShinyPokemonId con probabilidad 1 elige exactamente un Pokémon de la lista");
+const noShinyId = getBoardShinyPokemonId("ROOM_ALPHA", testIds, 0);
+assert(noShinyId === null, "getBoardShinyPokemonId con probabilidad 0 no genera ningún shiny (null)");
+const detShiny1 = getBoardShinyPokemonId("ROOM_BETA", testIds, 1);
+const detShiny2 = getBoardShinyPokemonId("ROOM_BETA", testIds, 1);
+assert(detShiny1 === detShiny2, "getBoardShinyPokemonId es 100% determinista (misma sala = mismo shiny exacto)");
 
 // Resumen final
 const passedCount = results.filter(r => r.pass).length;

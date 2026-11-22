@@ -110,3 +110,50 @@ function computeBoardIds(seed, gensArray, gameMode = "standard") {
   const shuffled = seededShuffle(pool, prng);
   return shuffled.slice(0, 30);
 }
+
+/**
+ * Determina qué Pokémon del tablero es Shiny (MÁXIMO 1 POR TABLERO para que sea especial).
+ * Usa la semilla de la sala para que ambos jugadores vean exactamente al mismo Shiny.
+ * @param {string} seed Semilla o código de la sala
+ * @param {number[]} boardPokemonIds Array con los IDs de Pokémon del tablero
+ * @param {number} [odds] Probabilidad opcional (por defecto usa PROBABILIDAD_SHINY)
+ * @returns {number|null} ID del Pokémon que es shiny en este tablero, o null si ninguno lo es
+ */
+function getBoardShinyPokemonId(seed, boardPokemonIds, odds) {
+  const currentOdds = typeof odds === "number"
+    ? odds
+    : (typeof window !== "undefined" && typeof window.PROBABILIDAD_SHINY === "number"
+        ? window.PROBABILIDAD_SHINY
+        : (typeof PROBABILIDAD_SHINY === "number" ? PROBABILIDAD_SHINY : 1 / 3000));
+
+  if (!currentOdds || currentOdds <= 0 || !boardPokemonIds || boardPokemonIds.length === 0) {
+    return null;
+  }
+
+  // PRNG determinista basado en la semilla de la sala
+  const seedHash = fnv1a(`${seed || "DEFAULT"}_board_shiny`);
+  const prng = mulberry32(seedHash);
+
+  // Tirada de probabilidad: ¿este tablero tiene la fortuna de tener un shiny?
+  if (currentOdds < 1 && prng() >= currentOdds) {
+    return null;
+  }
+
+  // Si tiene shiny, se elige exactamente a UNO de los Pokémon del tablero
+  const shinyIndex = Math.floor(prng() * boardPokemonIds.length);
+  return boardPokemonIds[shinyIndex];
+}
+
+/**
+ * Función de compatibilidad para verificar si un ID de Pokémon específico es el shiny del tablero
+ * @param {string} seed Semilla de la sala
+ * @param {number} pokemonId ID del Pokémon a verificar
+ * @param {number} [odds] Probabilidad
+ * @returns {boolean}
+ */
+function isPokemonShiny(seed, pokemonId, odds) {
+  if (typeof odds === "number" && odds <= 0) return false;
+  if (typeof odds === "number" && odds >= 1) return true;
+  const shinyId = getBoardShinyPokemonId(seed, [pokemonId], odds);
+  return shinyId === pokemonId;
+}
