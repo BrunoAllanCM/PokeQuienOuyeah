@@ -153,6 +153,30 @@ function renderSkeletonGrid() {
 }
 
 /**
+ * Pre-carga en memoria todos los sprites animados antes de renderizar el tablero
+ * para evitar micro-cortes visuales o parpadeos.
+ * @param {Array<{ animatedImage?: string, image: string }>} pokemonList
+ * @param {number} [timeoutMs=2500]
+ * @returns {Promise<void>}
+ */
+function preloadBoardSprites(pokemonList, timeoutMs = 2500) {
+  if (!pokemonList || pokemonList.length === 0) return Promise.resolve();
+  const preloadPromises = pokemonList.map(p => {
+    return new Promise(resolve => {
+      const src = p.animatedImage || p.image;
+      if (!src) return resolve();
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      img.src = src;
+    });
+  });
+
+  const timeoutPromise = new Promise(resolve => setTimeout(resolve, timeoutMs));
+  return Promise.race([Promise.all(preloadPromises), timeoutPromise]);
+}
+
+/**
  * Descarga los 30 Pokémon en paralelo y renderiza las cartas reales
  */
 async function renderAndFetchBoardPokemon() {
@@ -164,6 +188,9 @@ async function renderAndFetchBoardPokemon() {
   try {
     const promises = state.boardPokemonIds.map(id => fetchPokemonData(id));
     state.boardPokemonData = await Promise.all(promises);
+
+    // Pre-cargar todos los sprites animados antes de renderizar el tablero
+    await preloadBoardSprites(state.boardPokemonData);
 
     initSecretPokemon();
     renderBoardCards();
@@ -226,7 +253,6 @@ function renderBoardCards() {
               src="${pokemon.animatedImage}"
               alt="${pokemon.name} animado"
               class="card-img card-img-animated ${state.roomGrayscale ? 'sprite-grayscale' : ''}"
-              loading="lazy"
               onerror="this.classList.add('hidden')"
             >
           ` : ""}
@@ -234,7 +260,6 @@ function renderBoardCards() {
             src="${pokemon.image}"
             alt="${pokemon.name}"
             class="card-img card-img-static ${state.roomGrayscale ? 'sprite-grayscale' : ''}"
-            loading="lazy"
           >
         </div>
       `;
