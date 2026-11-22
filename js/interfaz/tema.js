@@ -5,6 +5,7 @@
 
 const CASING_COLORS = {
   rojo: { name: "Rojo Clásico", color: "#dc2626" },
+  verde: { name: "Verde Planta", color: "#22c55e" },
   celeste: { name: "Azul Pokédex", color: "#0ea5e9" },
   rosa: { name: "Rosita", color: "#ec4899" },
   gris: { name: "Gris Clásico", color: "#64748b" },
@@ -19,6 +20,7 @@ function applyCasingColor(colorKey) {
   if (!CASING_COLORS[colorKey]) {
     if (colorKey === "azul") colorKey = "celeste";
     else if (colorKey === "pink") colorKey = "rosa";
+    else if (colorKey === "green") colorKey = "verde";
     else colorKey = "rojo";
   }
 

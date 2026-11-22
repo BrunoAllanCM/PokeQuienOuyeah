@@ -1143,3 +1143,284 @@
   border-radius: var(--radius-sm, 6px);
   flex-shrink: 0;
 }
+
+/* ========================================================
+   BARRA DE SISTEMA DE TURNOS
+   ======================================================== */
+.board-turn-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1rem;
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estado: Mi Turno */
+.board-turn-bar.is-my-turn {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%);
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.board-turn-bar.is-my-turn .turn-dot {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981, 0 0 20px rgba(16, 185, 129, 0.6);
+  animation: pulseGreen 1.5s infinite;
+}
+
+.board-turn-bar.is-my-turn .turn-title {
+  color: #34d399;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+/* Estado: Turno del Rival */
+.board-turn-bar.is-rival-turn {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.1);
+}
+
+.board-turn-bar.is-rival-turn .turn-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+  animation: pulseAmber 2s infinite;
+}
+
+.board-turn-bar.is-rival-turn .turn-title {
+  color: #fbbf24;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+@keyframes pulseAmber {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.2); opacity: 0.5; }
+}
+
+.turn-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.turn-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.turn-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.turn-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.turn-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+}
+
+.turn-round-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+}
+
+.turn-sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.turn-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-finish-turn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-finish-turn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+}
+
+.btn-finish-turn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-finish-turn.disabled,
+.btn-finish-turn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(80%);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Botón especial de pre-partida: Ceder 1er turno al rival */
+.btn-finish-turn.btn-ceder-turno {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.btn-finish-turn.btn-ceder-turno:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-finish-turn.btn-ceder-turno.cedido,
+.btn-finish-turn.btn-ceder-turno:disabled {
+  background: #64748b;
+  border-color: #475569;
+  box-shadow: none;
+  opacity: 0.6;
+  filter: grayscale(50%);
+}
+
+/* Tablero bloqueado durante el turno del rival */
+.tablero-bloqueado-turno {
+  position: relative;
+}
+
+.tablero-bloqueado-turno .poke-card {
+  cursor: not-allowed;
+  opacity: 0.78;
+}
+
+.tablero-bloqueado-turno .poke-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ========================================================
+   SISTEMA DE REINICIO / REVANCHA CON CONFIRMACIÓN MUTUA
+   ======================================================== */
+#btn-restart-match {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#btn-restart-match:hover {
+  transform: translateY(-1px);
+}
+
+.modal-restart-card {
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+}
+
+.restart-dialog-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.restart-desc {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.restart-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-sm, 6px);
+  margin: 0;
+}
+
+.restart-status-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 0;
+}
+
+.restart-status-box h4 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-family: var(--font-arcade, monospace);
+  color: var(--text-primary);
+}
+
+.restart-status-box p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  max-width: 360px;
+}
+
+.restart-icon-big {
+  font-size: 2.8rem;
+  animation: bounce 1s infinite alternate ease-in-out;
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-6px); }
+}
+
+.restart-pulse-ring {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--poke-cyan, #06b6d4);
+  box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7);
+  animation: pulse-ring 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
+  margin-bottom: 0.4rem;
+}
+
+@keyframes pulse-ring {
+  to {
+    box-shadow: 0 0 0 16px rgba(6, 182, 212, 0);
+  }
+}

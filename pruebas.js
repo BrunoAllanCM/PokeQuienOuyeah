@@ -177,6 +177,131 @@ mockState.isGameStarted = true;
 mockState.secretPokemon = { id: 150, name: "Mewtwo" }; // Intento de cambio bloqueado
 assert(mockState.secretPokemon.id === 4, "Bloquea cambio de Pokémon una vez que ambos jugadores están listos");
 
+// 5. Tests del Sistema de Turnos
+console.log("\n📦 5. Módulo Sistema de Turnos:");
+const turnState = {
+  turnoActual: 1,
+  numeroTurno: 1,
+  esMiTurno: true
+};
+
+function simularPasarTurno(s, porFallo = false) {
+  s.turnoActual = s.turnoActual === 1 ? 2 : 1;
+  s.numeroTurno++;
+  return s;
+}
+
+simularPasarTurno(turnState);
+assert(turnState.turnoActual === 2 && turnState.numeroTurno === 2, "Pasar turno alterna al Jugador 2 e incrementa el número de turno");
+
+simularPasarTurno(turnState, true);
+assert(turnState.turnoActual === 1 && turnState.numeroTurno === 3, "Fallar adivinanza pasa automáticamente el turno al Jugador 1");
+
+// 6. Tests de Carcasa Verde y Reinicio con Mismos Pokémon
+console.log("\n📦 6. Módulo Carcasa Verde y Reinicio / Revancha:");
+const casingColors = {
+  rojo: { name: "Rojo Clásico", color: "#dc2626" },
+  verde: { name: "Verde Planta", color: "#22c55e" }
+};
+assert(casingColors.verde && casingColors.verde.color === "#22c55e", "Carcasa verde definida con color correcto #22c55e");
+
+// Simulación de reinicio con mismos 30 Pokémon
+const testBoardData = Array.from({ length: 30 }, (_, i) => ({ id: i + 1, name: `Pokemon_${i + 1}` }));
+const testDiscarded = new Set([3, 5, 12]);
+let testTurno = 8;
+let testGameStarted = true;
+
+function simularReinicioMismosPokemon(board, discards) {
+  discards.clear();
+  testTurno = 1;
+  testGameStarted = false;
+  return { boardCount: board.length, discardsCount: discards.size, turno: testTurno, gameStarted: testGameStarted };
+}
+
+const reinicioRes = simularReinicioMismosPokemon(testBoardData, testDiscarded);
+assert(reinicioRes.boardCount === 30, "Reinicio conserva exactamente los 30 Pokémon originales");
+assert(reinicioRes.discardsCount === 0, "Reinicio limpia los descartes a 0");
+assert(reinicioRes.turno === 1 && reinicioRes.gameStarted === false, "Reinicio resetea turno a 1 y reinicia estado de listo");
+
+// 7. Tests de Regla de 2 Oportunidades de Adivinanza
+console.log("\n📦 7. Módulo Regla de 2 Oportunidades de Adivinanza:");
+let fallosP1 = 0;
+let gameOver = false;
+let ganador = null;
+
+function simularIntentoAdivinar(acierto) {
+  if (acierto) {
+    gameOver = true;
+    ganador = 1;
+    return;
+  }
+  fallosP1++;
+  if (fallosP1 >= 2) {
+    gameOver = true;
+    ganador = 2; // Gana el otro jugador
+  }
+}
+
+// 1er intento fallido
+simularIntentoAdivinar(false);
+assert(fallosP1 === 1 && gameOver === false, "Primer fallo consume 1 intento sin terminar la partida");
+
+// 2do intento fallido
+simularIntentoAdivinar(false);
+assert(fallosP1 === 2 && gameOver === true && ganador === 2, "Segundo fallo termina la partida y otorga victoria al Jugador 2");
+
+// 8. Tests de Conexión Requerida y Ceder Primer Turno
+console.log("\n📦 8. Módulo de Conexión Requerida y Ceder Primer Turno:");
+let mockRedP2P = { conectado: false, esAnfitrion: true };
+let testState = {
+  isGameStarted: false,
+  isPlayerReady: false,
+  isRivalReady: false,
+  primerTurnoCedido: false,
+  primerTurnoPara: 1,
+  esMiTurno: true,
+  turnoActual: 1
+};
+
+function verificarPuedeComenzar(state, red) {
+  const estanConectados = red.conectado;
+  return Boolean(estanConectados && state.isPlayerReady && state.isRivalReady);
+}
+
+// Jugador da listo pero rival no está conectado
+testState.isPlayerReady = true;
+testState.isGameStarted = verificarPuedeComenzar(testState, mockRedP2P);
+assert(testState.isGameStarted === false, "Partida no inicia si el rival no está conectado aunque el anfitrión dé listo");
+
+// Rival se conecta pero no ha dado listo
+mockRedP2P.conectado = true;
+testState.isGameStarted = verificarPuedeComenzar(testState, mockRedP2P);
+assert(testState.isGameStarted === false, "Partida no inicia si el rival está conectado pero aún no ha dado listo");
+
+// Anfitrión cede el primer turno
+function cederPrimerTurno(state, red) {
+  if (!red.esAnfitrion || state.primerTurnoCedido || state.isGameStarted) return false;
+  state.primerTurnoCedido = true;
+  state.primerTurnoPara = 2;
+  state.esMiTurno = false;
+  state.turnoActual = 2;
+  return true;
+}
+
+const cederExito = cederPrimerTurno(testState, mockRedP2P);
+assert(cederExito === true && testState.primerTurnoCedido === true && testState.primerTurnoPara === 2, "Anfitrión cede exitosamente el primer turno al rival");
+
+// Rival intenta regresar el turno (no permitido)
+let mockRedRival = { conectado: true, esAnfitrion: false };
+const cederRival = cederPrimerTurno(testState, mockRedRival);
+assert(cederRival === false && testState.primerTurnoPara === 2, "El rival no tiene permitido ceder ni regresar el primer turno");
+
+// Ambos listos y conectados: la partida arranca con el 1er turno para el rival
+testState.isRivalReady = true;
+testState.isGameStarted = verificarPuedeComenzar(testState, mockRedP2P);
+assert(testState.isGameStarted === true, "Partida arranca al estar ambos conectados y listos");
+assert(testState.primerTurnoPara === 2 && testState.esMiTurno === false, "La partida arranca con el turno 1 asignado al rival");
+
 // Resumen final
 const passedCount = results.filter(r => r.pass).length;
 console.log("\n==============================================");

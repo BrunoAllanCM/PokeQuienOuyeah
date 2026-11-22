@@ -989,3 +989,136 @@ body.theme-retro .guess-thumb-pro {
   background: #fee2e2;
   border: 1.5px solid #ef4444;
 }
+
+/* Barra de Turnos en Modo Retro */
+body.theme-retro .board-turn-bar {
+  background: #ffffff;
+  border: 2.5px solid #0f172a;
+  border-radius: var(--radius-sm, 6px);
+  box-shadow: 0 3px 0 #0f172a;
+  font-family: var(--font-arcade, monospace);
+}
+
+body.theme-retro .board-turn-bar.is-my-turn {
+  background: #ecfdf5;
+  border-color: #059669;
+  box-shadow: 0 3px 0 #047857;
+}
+
+body.theme-retro .board-turn-bar.is-my-turn .turn-title {
+  color: #065f46;
+}
+
+body.theme-retro .board-turn-bar.is-rival-turn {
+  background: #fffbeb;
+  border-color: #d97706;
+  box-shadow: 0 3px 0 #b45309;
+}
+
+body.theme-retro .board-turn-bar.is-rival-turn .turn-title {
+  color: #92400e;
+}
+
+body.theme-retro .turn-round-chip {
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  color: #1e293b;
+  font-family: var(--font-pixel, monospace);
+  font-weight: 700;
+}
+
+body.theme-retro .turn-sub {
+  color: #475569;
+  font-family: var(--font-pixel, monospace);
+  font-size: 0.85rem;
+}
+
+body.theme-retro .btn-finish-turn {
+  background: #10b981;
+  color: #ffffff;
+  border: 2px solid #059669;
+  border-bottom: 4px solid #047857;
+  border-radius: var(--radius-sm, 6px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+body.theme-retro .btn-finish-turn:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+body.theme-retro .btn-finish-turn:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+body.theme-retro .btn-finish-turn.disabled,
+body.theme-retro .btn-finish-turn:disabled {
+  background: #94a3b8;
+  border-color: #64748b;
+  border-bottom-color: #475569;
+  color: #e2e8f0;
+  opacity: 0.6;
+}
+
+body.theme-retro .btn-finish-turn.btn-ceder-turno {
+  background: #f59e0b;
+  border-color: #d97706;
+  border-bottom-color: #b45309;
+}
+
+body.theme-retro .btn-finish-turn.btn-ceder-turno:hover:not(:disabled) {
+  background: #fbbf24;
+}
+
+body.theme-retro .btn-finish-turn.btn-ceder-turno.cedido,
+body.theme-retro .btn-finish-turn.btn-ceder-turno:disabled {
+  background: #94a3b8;
+  border-color: #64748b;
+  border-bottom-color: #475569;
+  color: #e2e8f0;
+}
+
+/* Botón de Reinicio y Modal de Revancha en Tema Retro */
+body.theme-retro #btn-restart-match {
+  background: #ffffff;
+  color: #0f172a;
+  border: 2px solid #0f172a;
+  border-bottom: 4px solid #0f172a;
+  border-radius: var(--radius-sm, 6px);
+  font-family: var(--font-arcade, monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+body.theme-retro #btn-restart-match:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+body.theme-retro #btn-restart-match:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+body.theme-retro .modal-restart-card {
+  border: 3.5px solid #0f172a !important;
+  box-shadow: 6px 6px 0px #0f172a !important;
+  font-family: var(--font-arcade, monospace);
+}
+
+body.theme-retro .restart-desc {
+  font-family: var(--font-arcade, monospace);
+  color: #0f172a;
+}
+
+body.theme-retro .restart-hint {
+  font-family: var(--font-pixel, monospace);
+  background: #f8fafc;
+  border: 1.5px dashed #94a3b8;
+  color: #334155;
+}

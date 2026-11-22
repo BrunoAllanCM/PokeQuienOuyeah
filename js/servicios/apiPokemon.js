@@ -117,6 +117,7 @@ async function fetchPokemonData(id) {
 
     try {
       localStorage.setItem(cacheKey, JSON.stringify(pokemonRecord));
+      localStorage.setItem(`poke_v1_${id}`, JSON.stringify(pokemonRecord));
     } catch (err) {
       console.warn("No se pudo escribir en localStorage:", err);
     }

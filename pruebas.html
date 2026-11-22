@@ -8,6 +8,37 @@
   <h1>Running Tests...</h1>
   <div id="results"></div>
 
+  <!-- Contenedores DOM de prueba para controladores de vista -->
+  <div style="display:none;">
+    <button id="btn-restart-match" class="hidden"></button>
+    <div id="modal-game-result" class="hidden">
+      <h3 id="result-modal-title"></h3>
+      <div id="result-modal-body"></div>
+    </div>
+    <div id="modal-restart-confirm" class="hidden">
+      <div id="restart-state-prompt"></div>
+      <div id="restart-state-waiting" class="hidden"></div>
+      <div id="restart-state-received" class="hidden"></div>
+      <button id="btn-restart-cancel"></button>
+      <button id="btn-restart-send"></button>
+      <button id="btn-restart-accept" class="hidden"></button>
+      <button id="btn-restart-reject" class="hidden"></button>
+    </div>
+    <div id="board-turn-bar">
+      <span id="turn-title"></span>
+      <span id="turn-round-chip"></span>
+      <span id="turn-sub"></span>
+    </div>
+    <span id="counter-remaining">30</span>
+    <button id="btn-finish-turn"></button>
+    <button id="btn-guess-rival"></button>
+    <button id="btn-change-secret"></button>
+    <button id="btn-ready-game"><span id="btn-ready-text">¡Listo!</span></button>
+    <span id="rival-ready-note" class="hidden"></span>
+    <span id="badge-game-locked" class="hidden"></span>
+    <div id="board-cards-grid"></div>
+  </div>
+
   <script src="js/constantes/datosPokemon.js"></script>
   <script src="js/logica/aleatorio.js"></script>
   <script src="js/logica/codigoSala.js"></script>
@@ -17,6 +48,7 @@
   <script src="js/servicios/audio.js"></script>
   <script src="js/interfaz/notificaciones.js"></script>
   <script src="js/interfaz/tema.js"></script>
+  <script src="js/interfaz/vistaTablero.js"></script>
 
   <script>
     const results = [];
@@ -67,9 +99,10 @@
 
       // Test 6: Caché LocalStorage en fetchPokemonData
       localStorage.removeItem("poke_v1_25");
+      localStorage.removeItem("poke_pixel_v3_25");
       const p1 = await fetchPokemonData(25);
       assert(p1.id === 25 && p1.name === "Pikachu", "fetchPokemonData obtiene Pikachu correctamente");
-      const inCache = localStorage.getItem("poke_v1_25");
+      const inCache = localStorage.getItem("poke_pixel_v3_25") || localStorage.getItem("poke_v1_25");
       assert(inCache !== null, "fetchPokemonData guarda el Pokémon en localStorage");
       const p2 = await fetchPokemonData(25);
       assert(JSON.stringify(p1) === JSON.stringify(p2), "fetchPokemonData lee de localStorage en la segunda llamada");
@@ -81,10 +114,150 @@
       assert(document.body.classList.contains("theme-modern") && state.theme === "modern", "applyTheme('modern') activa la clase theme-modern");
       applyTheme("retro");
 
+      // Test 8: Sistema de Turnos
+      state.roomCode = "TEST-123";
+      state.isGameStarted = true;
+      state.turnoActual = 1;
+      state.numeroTurno = 1;
+      state.esMiTurno = true;
+      saveTurnToSession();
+
+      state.turnoActual = 2;
+      state.numeroTurno = 2;
+      state.esMiTurno = false;
+      loadTurnFromSession();
+      assert(state.turnoActual === 1 && state.numeroTurno === 1 && state.esMiTurno === true, "Persistencia de estado de turnos en sesión funciona correctamente");
+
+      // Simular cambio de turno normal
+      terminarTurno();
+      assert(state.turnoActual === 2 && state.numeroTurno === 2, "terminarTurno alterna al Jugador 2 e incrementa el número de turno");
+
+      // Simular intento fallido de adivinanza
+      state.esMiTurno = true;
+      terminarTurno({ porFallo: true });
+      assert(state.turnoActual === 1 && state.numeroTurno === 3, "Fallar adivinanza pasa automáticamente el turno al siguiente jugador");
+
+      // Test 9: Carcasa Verde Pokédex
+      applyCasingColor("verde");
+      assert(document.body.dataset.casing === "verde" && CASING_COLORS.verde && CASING_COLORS.verde.color === "#22c55e", "applyCasingColor('verde') aplica la carcasa verde correctamente");
+
+      // Test 10: Reinicio de partida con mismos Pokémon y reseteo de turnos
+      state.boardPokemonData = Array.from({ length: 30 }, (_, i) => ({ id: i + 1, name: `Pokemon_${i+1}`, types: ["normal"], image: "" }));
+      state.discardedIds.add(1);
+      state.discardedIds.add(2);
+      state.isGameStarted = true;
+      state.isPlayerReady = true;
+      state.isRivalReady = true;
+      state.numeroTurno = 7;
+      state.turnoActual = 2;
+
+      reiniciarPartidaMismosPokemon();
+
+      assert(state.boardPokemonData.length === 30, "El reinicio conserva exactamente los mismos 30 Pokémon");
+      assert(state.discardedIds.size === 0, "El reinicio limpia todas las cartas descartadas");
+      assert(state.isGameStarted === false && state.isPlayerReady === false, "El reinicio restablece los estados de listo para la nueva ronda");
+      assert(state.numeroTurno === 1 && state.turnoActual === 1, "El reinicio restablece el contador de turnos al Turno #1");
+      assert(state.secretPokemon !== null, "El reinicio asigna un nuevo Pokémon secreto para la revancha");
+
+      // Test 11: Visibilidad condicional del botón de reinicio
+      const btnRestart = document.getElementById("btn-restart-match");
+      // En partida normal debe estar oculto
+      reiniciarPartidaMismosPokemon();
+      assert(btnRestart ? btnRestart.classList.contains("hidden") : true, "El botón de reiniciar partida está oculto durante la partida");
+      // Al terminar la partida debe mostrarse
+      showGameResultModal({ titulo: "Prueba Fin", subtitulo: "Sub", esTrampa: false, pokemonRival: { id: 25, name: "Pikachu", image: "", types: [] } });
+      assert(btnRestart ? !btnRestart.classList.contains("hidden") : true, "El botón de reiniciar partida aparece cuando la partida ha finalizado");
+      document.getElementById("modal-game-result")?.classList.add("hidden");
+
+      // Test 12: Regla de las dos oportunidades de adivinanza
+      state.isGameOver = false;
+      state.isGameStarted = true;
+      state.esMiTurno = true;
+      state.turnoActual = 1;
+      state.fallosAdivinanzaJ1 = 0;
+      state.fallosAdivinanzaJ2 = 0;
+      state.secretPokemonRival = { id: 1, name: "Bulbasaur", image: "", types: [] };
+
+      // Intento 1 fallido:
+      sendGuessAttempt({ id: 999, name: "Incorrecto_1" });
+      assert(state.fallosAdivinanzaJ1 === 1 && state.isGameOver === false, "Primer fallo de adivinanza: consume 1 oportunidad y no finaliza la partida");
+      assert(state.turnoActual === 2, "Primer fallo de adivinanza: pasa automáticamente el turno al rival");
+
+      // Intento 2 fallido (Jugador 1 vuelve a adivinar en su turno):
+      state.turnoActual = 1;
+      state.esMiTurno = true;
+      sendGuessAttempt({ id: 998, name: "Incorrecto_2" });
+      assert(state.fallosAdivinanzaJ1 === 2 && state.isGameOver === true, "Segundo fallo de adivinanza: jugador queda eliminado y partida termina");
+      const modalResultTitle = document.getElementById("result-modal-title")?.textContent || "";
+      assert(modalResultTitle.includes("VICTORIA DEL JUGADOR 2"), "Segundo fallo de adivinanza: declara victoria automática al rival");
+
+      // Test 13: La partida NO arranca si el rival no está conectado, incluso si el jugador pulsa ¡Listo!
+      window.redP2P = { conectado: false, esAnfitrion: true, enviarAccionJuego: () => {} };
+      state.isGameStarted = false;
+      state.isPlayerReady = false;
+      state.isRivalReady = false;
+      state.secretPokemon = { id: 25, name: "Pikachu" };
+      await handleReadyClick();
+      assert(state.isPlayerReady === true, "Jugador puede marcarse como listo localmente");
+      assert(state.isGameStarted === false, "Partida NO inicia si el rival aún no está conectado");
+      const btnGuessPre = document.getElementById("btn-guess-rival");
+      assert(btnGuessPre.classList.contains("hidden"), "El botón de adivinar Pokémon está estrictamente oculto antes de iniciar la partida");
+
+      // Test 14: Botón de ceder primer turno en fase previa
+      actualizarUITurno();
+      const btnFinishTurnEl = document.getElementById("btn-finish-turn");
+      assert(btnFinishTurnEl.classList.contains("btn-ceder-turno") && btnFinishTurnEl.disabled === true, "Anfitrión tiene botón de ceder 1er turno deshabilitado mientras rival no esté conectado");
+
+      // Si es el rival (no anfitrión), el botón de turno está completamente oculto en pre-partida
+      window.redP2P.esAnfitrion = false;
+      actualizarUITurno();
+      assert(btnFinishTurnEl.classList.contains("hidden"), "El rival NO tiene botón de turno antes de comenzar la partida");
+
+      // Test 15: Anfitrión cede el primer turno al rival conectado
+      window.redP2P.esAnfitrion = true;
+      window.redP2P.conectado = true; // Rival se conecta
+      state.primerTurnoCedido = false;
+      state.primerTurnoPara = 1;
+      actualizarUITurno();
+      assert(btnFinishTurnEl.disabled === false, "Al conectarse el rival, el botón de ceder 1er turno se habilita para el anfitrión");
+      
+      cederPrimerTurnoAlRival();
+      assert(state.primerTurnoCedido === true && state.primerTurnoPara === 2 && state.turnoActual === 2 && state.esMiTurno === false, "Ceder turno asigna el primer turno al rival (Jugador 2) y no a sí mismo");
+      assert(btnFinishTurnEl.disabled === true && btnFinishTurnEl.classList.contains("cedido"), "Tras cederlo, el botón queda deshabilitado con estado 'cedido' y no puede revertirse");
+
+      // Test 16: Ambos jugadores conectados y listos -> Inicio de partida
+      state.isRivalReady = true;
+      syncReadyUI();
+      assert(state.isGameStarted === true, "Al estar ambos jugadores conectados y listos, la partida inicia oficialmente");
+      assert(!btnFinishTurnEl.classList.contains("btn-ceder-turno"), "El botón se transforma en el botón regular de pasar turno");
+      assert(btnFinishTurnEl.textContent.includes("Terminar Turno"), "El texto del botón es ahora 'Terminar Turno'");
+
+      // Test 17: Rival derrotado visualiza el Pokémon elegido por el ganador
+      state.secretPokemon = { id: 25, name: "Pikachu", image: "", types: ["electric"] };
+      const ganadorPokemon = { id: 6, name: "Charizard", image: "", types: ["fire", "flying"] };
+      
+      showGameResultModal({
+        titulo: "💀 ¡DERROTA! TU RIVAL HA ADIVINADO",
+        subtitulo: `Tu rival adivinó correctamente que tu Pokémon era ${state.secretPokemon.name}. ¡Ha ganado la partida!`,
+        esTrampa: false,
+        pokemonRival: ganadorPokemon,
+        etiquetaPokemon: "Pokémon que eligió tu rival:"
+      });
+
+      const bodyModal = document.getElementById("result-modal-body")?.innerHTML || "";
+      assert(bodyModal.includes("Charizard"), "El modal del perdedor muestra el nombre del Pokémon que eligió el rival ganador (Charizard)");
+      assert(bodyModal.includes("Pokémon que eligió tu rival:"), "El modal muestra la etiqueta 'Pokémon que eligió tu rival:'");
+      assert(!bodyModal.includes("<h4>#025 Pikachu</h4>"), "El modal NO muestra el Pokémon del propio perdedor en la vitrina destacada");
+
       // Resumen final
       const allPassed = results.every(r => r.pass);
       const resDiv = document.getElementById("results");
-      resDiv.innerHTML = `<h2>Total Tests: ${results.length} | Aprobados: ${results.filter(r=>r.pass).length}</h2>`;
+      let html = `<h2>Total Tests: ${results.length} | Aprobados: ${results.filter(r=>r.pass).length}</h2><ul>`;
+      results.forEach(r => {
+        html += `<li style="color:${r.pass ? 'green' : 'red'}">${r.pass ? '✅' : '❌'} ${r.name}</li>`;
+      });
+      html += `</ul>`;
+      resDiv.innerHTML = html;
       console.log(`=== TEST RESULT: ${allPassed ? "ALL TESTS PASSED!" : "SOME TESTS FAILED!"} ===`);
       window.__TEST_RESULTS__ = { allPassed, results };
     }

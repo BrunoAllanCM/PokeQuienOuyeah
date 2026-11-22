@@ -98,10 +98,16 @@
 
   .topbar-right {
     width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
-  .topbar-right .btn-primary {
-    width: 100%;
+  .topbar-right .btn-primary,
+  .topbar-right #btn-restart-match,
+  .topbar-right .btn-guess-action {
+    flex: 1 1 100%;
+    justify-content: center;
   }
 
   .board-statusbar {
@@ -154,6 +160,27 @@
   .secret-pokemon-card {
     min-width: 100%;
     width: 100%;
+  }
+
+  .board-turn-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.75rem;
+  }
+
+  .turn-status-badge {
+    align-items: flex-start;
+  }
+
+  .turn-actions {
+    width: 100%;
+  }
+
+  .btn-finish-turn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.65rem 1rem;
   }
 }
 

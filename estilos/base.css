@@ -12,8 +12,10 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'Pixel Operator 8 Heavy'; /* Alias retrocompatible */
+  font-family: 'Pixel Operator 8 Heavy';
+  /* Alias retrocompatible */
   src: url('../letrasfuentes/PixelOperatorHB8.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
@@ -37,8 +39,10 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
-  font-family: 'PP'; /* Alias corto */
+  font-family: 'PP';
+  /* Alias corto */
   src: url('../letrasfuentes/PublicPixel.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
@@ -64,20 +68,24 @@
   /* ------------------------------------------------------------------------
      OPCIONES DISPONIBLES:
      ------------------------------------------------------------------------ */
-  --opcion-hb8:      'Pixel Operator HB 8', monospace;   /* 1. Gruesa 8-bit Arcade */
-  --opcion-eas-vhs:  'EAS VHS', monospace;               /* 2. EAS VHS retro */
-  --opcion-pp:       'Public Pixel', 'PP', monospace;    /* 3. Public Pixel (PP) */
-  --opcion-squares:  'Squares', monospace;               /* 4. Squares (Explicaciones) */
+  --opcion-hb8: 'Pixel Operator HB 8', monospace;
+  /* 1. Gruesa 8-bit Arcade */
+  --opcion-eas-vhs: 'EAS VHS', monospace;
+  /* 2. EAS VHS retro */
+  --opcion-pp: 'Public Pixel', 'PP', monospace;
+  /* 3. Public Pixel (PP) */
+  --opcion-squares: 'Squares', monospace;
+  /* 4. Squares (Explicaciones) */
 
   /* ------------------------------------------------------------------------
      EDITA AQUÍ PARA CAMBIAR FUENTE Y TAMAÑO DEL JUEGO
      ------------------------------------------------------------------------ */
-  
+
   /* [1] Fuente para TÍTULOS PRINCIPALES Y BOTONES GRANDES (Arcade): */
   --font-arcade: 'Public Pixel', monospace;
 
   /* [2] Fuente para TITULITOS (las más negras: opciones, encabezados): */
-  --font-pixel: 'Public Pixel', 'PP', monospace;  
+  --font-pixel: 'Public Pixel', 'PP', monospace;
 
   /* [3] Fuente para TEXTOS EXPLICATIVOS (las letras grises de explicaciones): */
   --font-desc: 'EAS VHS', monospace;
@@ -90,39 +98,36 @@
   /* [5] AJUSTE DE TAMAÑOS POR SEPARADO (Títulos vs Explicaciones):
      Edita estos valores libremente para calibrar cada texto a tu gusto:
   */
-  --tamano-titulos:          1.15rem; /* Títulos grandes de sección ("1. Selección...", "2. Opciones...") */
-  --tamano-titulitos-opcion: 0.92rem; /* Titulitos de opciones ("Mostrar tipo", "Mostrar generación", etc.) */
-  --tamano-explicaciones:    1.0rem; /* Letras grises de explicaciones y subtítulos */
+  --tamano-titulos: 1.15rem;
+  /* Títulos grandes de sección ("1. Selección...", "2. Opciones...") */
+  --tamano-titulitos-opcion: 0.92rem;
+  /* Titulitos de opciones ("Mostrar tipo", "Mostrar generación", etc.) */
+  --tamano-explicaciones: 1.0rem;
+  /* Letras grises de explicaciones y subtítulos */
 
   /* [6] 🌟 PATRÓN RETRO DE FONDO (Sprites de tipos Pokémon según color de carcasa):
      - Opacidad del patrón (0.08 = sutil y elegante, 0 = sin patrón, 0.20 = muy visible):
      - Tamaño de repetición del mosaico en píxeles:
   */
-  --casing-pattern-opacity:  0.08;
-  --casing-pattern-size:     80px;
-  --casing-pattern:          url('../recursos/patrones/patron-fuego.svg');
+  --casing-pattern-opacity: 0.08;
+  --casing-pattern-size: 80px;
+  --casing-pattern: url('../recursos/patrones/patron-fuego.svg');
 
   /* [7] 👾 ESQUINAS PIXEL ART RETRO (Polígonos escalonados estilo 8-bit / Game Boy): */
-  --clip-pixel-sm: polygon(
-    0 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0,
-    calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px,
-    100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%,
-    4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px)
-  );
+  --clip-pixel-sm: polygon(0 4px, 2px 4px, 2px 2px, 4px 2px, 4px 0,
+      calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px,
+      100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%,
+      4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px));
 
-  --clip-pixel-md: polygon(
-    0 8px, 4px 8px, 4px 4px, 8px 4px, 8px 0,
-    calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
-    100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
-    8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px)
-  );
+  --clip-pixel-md: polygon(0 8px, 4px 8px, 4px 4px, 8px 4px, 8px 0,
+      calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+      100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
+      8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px));
 
-  --clip-pixel-lg: polygon(
-    0 12px, 4px 12px, 4px 8px, 8px 8px, 8px 4px, 12px 4px, 12px 0,
-    calc(100% - 12px) 0, calc(100% - 12px) 4px, calc(100% - 8px) 4px, calc(100% - 8px) 8px, calc(100% - 4px) 8px, calc(100% - 4px) 12px, 100% 12px,
-    100% calc(100% - 12px), calc(100% - 4px) calc(100% - 12px), calc(100% - 4px) calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) calc(100% - 4px), calc(100% - 12px) calc(100% - 4px), calc(100% - 12px) 100%,
-    12px 100%, 12px calc(100% - 4px), 8px calc(100% - 4px), 8px calc(100% - 8px), 4px calc(100% - 8px), 4px calc(100% - 12px), 0 calc(100% - 12px)
-  );
+  --clip-pixel-lg: polygon(0 12px, 4px 12px, 4px 8px, 8px 8px, 8px 4px, 12px 4px, 12px 0,
+      calc(100% - 12px) 0, calc(100% - 12px) 4px, calc(100% - 8px) 4px, calc(100% - 8px) 8px, calc(100% - 4px) 8px, calc(100% - 4px) 12px, 100% 12px,
+      100% calc(100% - 12px), calc(100% - 4px) calc(100% - 12px), calc(100% - 4px) calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) calc(100% - 4px), calc(100% - 12px) calc(100% - 4px), calc(100% - 12px) 100%,
+      12px 100%, 12px calc(100% - 4px), 8px calc(100% - 4px), 8px calc(100% - 8px), 4px calc(100% - 8px), 4px calc(100% - 12px), 0 calc(100% - 12px));
 
   /* ------------------------------------------------------------------------ */
   /* Paleta Base Pokédex Dark */
@@ -130,7 +135,7 @@
   --bg-surface: #121824;
   --bg-surface-elevated: #1a2332;
   --bg-surface-highlight: #232e42;
-  
+
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-focus: rgba(239, 68, 68, 0.5);
   --border-neon-cyan: rgba(6, 182, 212, 0.6);
@@ -148,56 +153,63 @@
      ------------------------------------------------------------------------ */
 
   /* 🔴 1. CARCASA ROJA (Kanto Original) */
-  --carcasa-rojo-base:       #d22d2d;
-  --carcasa-rojo-sombra:     #b91c1c;
-  --carcasa-rojo-luces:      #7f1d1d;
-  --carcasa-rojo-claro:      #fee2e2;
-  --carcasa-rojo-brillo:     rgba(220, 38, 38, 0.4);
+  --carcasa-rojo-base: #d22d2d;
+  --carcasa-rojo-sombra: #b91c1c;
+  --carcasa-rojo-luces: #7f1d1d;
+  --carcasa-rojo-claro: #fee2e2;
+  --carcasa-rojo-brillo: rgba(220, 38, 38, 0.4);
 
   /* 🔵 2. CARCASA AZUL / CELESTE (Agua / Hoenn) */
-  --carcasa-azul-base:       #3ca9dc;
-  --carcasa-azul-sombra:     #0284c7;
-  --carcasa-azul-luces:      #0369a1;
-  --carcasa-azul-claro:      #e0f2fe;
-  --carcasa-azul-brillo:     rgba(14, 165, 233, 0.4);
+  --carcasa-azul-base: #3ca9dc;
+  --carcasa-azul-sombra: #0284c7;
+  --carcasa-azul-luces: #0369a1;
+  --carcasa-azul-claro: #e0f2fe;
+  --carcasa-azul-brillo: rgba(14, 165, 233, 0.4);
 
   /* 🌸 3. CARCASA ROSA (Tierno / Hada) */
-  --carcasa-rosa-base:       #e95da3;
-  --carcasa-rosa-sombra:     #be185d;
-  --carcasa-rosa-luces:      #831843;
-  --carcasa-rosa-claro:      #fce7f3;
-  --carcasa-rosa-brillo:     rgba(236, 72, 153, 0.4);
+  --carcasa-rosa-base: #e95da3;
+  --carcasa-rosa-sombra: #be185d;
+  --carcasa-rosa-luces: #831843;
+  --carcasa-rosa-claro: #fce7f3;
+  --carcasa-rosa-brillo: rgba(236, 72, 153, 0.4);
 
   /* ⚪ 4. CARCASA GRIS (Acero / Game Boy Clásica) */
-  --carcasa-gris-base:       #64748b;
-  --carcasa-gris-sombra:     #334155;
-  --carcasa-gris-luces:      #0f172a;
-  --carcasa-gris-claro:      #f1f5f9;
-  --carcasa-gris-brillo:     rgba(100, 116, 139, 0.4);
+  --carcasa-gris-base: #64748b;
+  --carcasa-gris-sombra: #334155;
+  --carcasa-gris-luces: #0f172a;
+  --carcasa-gris-claro: #f1f5f9;
+  --carcasa-gris-brillo: rgba(100, 116, 139, 0.4);
 
-  /* ⚫ 5. CARCASA NEGRA (Ónix / Siniestro) */
-  --carcasa-negro-base:      #1e293b;
-  --carcasa-negro-sombra:    #0f172a;
-  --carcasa-negro-luces:     #020617;
-  --carcasa-negro-claro:     #e2e8f0;
-  --carcasa-negro-brillo:    rgba(30, 41, 59, 0.4);
+  /* 🟢 5. CARCASA VERDE (Planta / Game Boy / Esmeralda) */
+  --carcasa-verde-base: #16a34a;
+  --carcasa-verde-sombra: #15803d;
+  --carcasa-verde-luces: #14532d;
+  --carcasa-verde-claro: #dcfce7;
+  --carcasa-verde-brillo: rgba(22, 163, 74, 0.4);
+
+  /* ⚫ 6. CARCASA NEGRA (Ónix / Siniestro) */
+  --carcasa-negro-base: #1e293b;
+  --carcasa-negro-sombra: #0f172a;
+  --carcasa-negro-luces: #020617;
+  --carcasa-negro-claro: #e2e8f0;
+  --carcasa-negro-brillo: rgba(30, 41, 59, 0.4);
 
   /* Valores activos por defecto (Carcasa inicial): */
   --casing-primary: var(--carcasa-rojo-base);
-  --casing-dark:    var(--carcasa-rojo-sombra);
-  --casing-darker:  var(--carcasa-rojo-luces);
-  --casing-light:   var(--carcasa-rojo-claro);
-  --casing-glow:    var(--carcasa-rojo-brillo);
+  --casing-dark: var(--carcasa-rojo-sombra);
+  --casing-darker: var(--carcasa-rojo-luces);
+  --casing-light: var(--carcasa-rojo-claro);
+  --casing-glow: var(--carcasa-rojo-brillo);
 
   /* Acentos Temáticos */
   --poke-red: #ef4444;
   --poke-red-hover: #dc2626;
   --poke-red-glow: rgba(239, 68, 68, 0.35);
-  
+
   --poke-blue: #3b82f6;
   --poke-cyan: #06b6d4;
   --poke-cyan-glow: rgba(6, 182, 212, 0.3);
-  
+
   --poke-yellow: #facc15;
   --poke-green: #10b981;
 
@@ -257,7 +269,9 @@
 }
 
 /* Reset y Base */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -271,7 +285,7 @@ body {
   font-family: var(--font-pixel);
   letter-spacing: 0.02em;
   background-color: var(--bg-primary);
-  background-image: 
+  background-image:
     radial-gradient(circle at 15% 15%, rgba(239, 68, 68, 0.08) 0%, transparent 40%),
     radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.07) 0%, transparent 40%),
     linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
@@ -285,7 +299,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -294,13 +311,16 @@ button, input, select, textarea {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--bg-surface-highlight);
   border-radius: var(--radius-full);
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--poke-red);
 }
@@ -354,8 +374,15 @@ button, input, select, textarea {
 }
 
 @keyframes pulseBlue {
-  0%, 100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.8); }
-  50% { box-shadow: 0 0 18px rgba(96, 165, 250, 1), 0 0 25px rgba(59, 130, 246, 0.5); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+  }
+
+  50% {
+    box-shadow: 0 0 18px rgba(96, 165, 250, 1), 0 0 25px rgba(59, 130, 246, 0.5);
+  }
 }
 
 .small-led {
@@ -363,9 +390,21 @@ button, input, select, textarea {
   height: 10px;
   border-radius: 50%;
 }
-.led-red { background: #ef4444; box-shadow: 0 0 5px #ef4444; }
-.led-yellow { background: #facc15; box-shadow: 0 0 5px #facc15; }
-.led-green { background: #10b981; box-shadow: 0 0 5px #10b981; }
+
+.led-red {
+  background: #ef4444;
+  box-shadow: 0 0 5px #ef4444;
+}
+
+.led-yellow {
+  background: #facc15;
+  box-shadow: 0 0 5px #facc15;
+}
+
+.led-green {
+  background: #10b981;
+  box-shadow: 0 0 5px #10b981;
+}
 
 .title-group {
   display: flex;
@@ -406,56 +445,87 @@ button, input, select, textarea {
    ======================================================== */
 body[data-casing="rojo"] {
   --casing-primary: var(--carcasa-rojo-base);
-  --casing-dark:    var(--carcasa-rojo-sombra);
-  --casing-darker:  var(--carcasa-rojo-luces);
-  --casing-light:   var(--carcasa-rojo-claro);
-  --casing-glow:    var(--carcasa-rojo-brillo);
+  --casing-dark: var(--carcasa-rojo-sombra);
+  --casing-darker: var(--carcasa-rojo-luces);
+  --casing-light: var(--carcasa-rojo-claro);
+  --casing-glow: var(--carcasa-rojo-brillo);
   --casing-pattern: url('../recursos/patrones/patron-fuego.svg');
 }
 
-body[data-casing="celeste"], body[data-casing="azul"] {
+body[data-casing="celeste"],
+body[data-casing="azul"] {
   --casing-primary: var(--carcasa-azul-base);
-  --casing-dark:    var(--carcasa-azul-sombra);
-  --casing-darker:  var(--carcasa-azul-luces);
-  --casing-light:   var(--carcasa-azul-claro);
-  --casing-glow:    var(--carcasa-azul-brillo);
+  --casing-dark: var(--carcasa-azul-sombra);
+  --casing-darker: var(--carcasa-azul-luces);
+  --casing-light: var(--carcasa-azul-claro);
+  --casing-glow: var(--carcasa-azul-brillo);
   --casing-pattern: url('../recursos/patrones/patron-agua.svg');
 }
 
 body[data-casing="rosa"] {
   --casing-primary: var(--carcasa-rosa-base);
-  --casing-dark:    var(--carcasa-rosa-sombra);
-  --casing-darker:  var(--carcasa-rosa-luces);
-  --casing-light:   var(--carcasa-rosa-claro);
-  --casing-glow:    var(--carcasa-rosa-brillo);
+  --casing-dark: var(--carcasa-rosa-sombra);
+  --casing-darker: var(--carcasa-rosa-luces);
+  --casing-light: var(--carcasa-rosa-claro);
+  --casing-glow: var(--carcasa-rosa-brillo);
   --casing-pattern: url('../recursos/patrones/patron-hada.svg');
 }
 
 body[data-casing="gris"] {
   --casing-primary: var(--carcasa-gris-base);
-  --casing-dark:    var(--carcasa-gris-sombra);
-  --casing-darker:  var(--carcasa-gris-luces);
-  --casing-light:   var(--carcasa-gris-claro);
-  --casing-glow:    var(--carcasa-gris-brillo);
+  --casing-dark: var(--carcasa-gris-sombra);
+  --casing-darker: var(--carcasa-gris-luces);
+  --casing-light: var(--carcasa-gris-claro);
+  --casing-glow: var(--carcasa-gris-brillo);
   --casing-pattern: url('../recursos/patrones/patron-acero.svg');
+}
+
+body[data-casing="verde"] {
+  --casing-primary: var(--carcasa-verde-base);
+  --casing-dark: var(--carcasa-verde-sombra);
+  --casing-darker: var(--carcasa-verde-luces);
+  --casing-light: var(--carcasa-verde-claro);
+  --casing-glow: var(--carcasa-verde-brillo);
+  --casing-pattern: url('../recursos/patrones/patron-planta.svg');
 }
 
 body[data-casing="negro"] {
   --casing-primary: var(--carcasa-negro-base);
-  --casing-dark:    var(--carcasa-negro-sombra);
-  --casing-darker:  var(--carcasa-negro-luces);
-  --casing-light:   var(--carcasa-negro-claro);
-  --casing-glow:    var(--carcasa-negro-brillo);
+  --casing-dark: var(--carcasa-negro-sombra);
+  --casing-darker: var(--carcasa-negro-luces);
+  --casing-light: var(--carcasa-negro-claro);
+  --casing-glow: var(--carcasa-negro-brillo);
   --casing-pattern: url('../recursos/patrones/patron-siniestro.svg');
 }
 
 /* Sincronización automática de las muestras circulares de color del menú y header */
-.casing-swatch[data-color="rojo"]    { background-color: var(--carcasa-rojo-base) !important; }
-.casing-swatch[data-color="celeste"] { background-color: var(--carcasa-azul-base) !important; }
-.casing-swatch[data-color="rosa"]    { background-color: var(--carcasa-rosa-base) !important; }
-.casing-swatch[data-color="gris"]    { background-color: var(--carcasa-gris-base) !important; }
-.casing-swatch[data-color="negro"]   { background-color: var(--carcasa-negro-base) !important; }
-#casing-active-swatch                { background-color: var(--casing-primary) !important; }
+.casing-swatch[data-color="rojo"] {
+  background-color: var(--carcasa-rojo-base) !important;
+}
+
+.casing-swatch[data-color="celeste"] {
+  background-color: var(--carcasa-azul-base) !important;
+}
+
+.casing-swatch[data-color="rosa"] {
+  background-color: var(--carcasa-rosa-base) !important;
+}
+
+.casing-swatch[data-color="gris"] {
+  background-color: var(--carcasa-gris-base) !important;
+}
+
+.casing-swatch[data-color="verde"] {
+  background-color: var(--carcasa-verde-base) !important;
+}
+
+.casing-swatch[data-color="negro"] {
+  background-color: var(--carcasa-negro-base) !important;
+}
+
+#casing-active-swatch {
+  background-color: var(--casing-primary) !important;
+}
 
 .btn-theme-switch {
   display: none !important;
@@ -630,21 +700,37 @@ body.theme-retro .casing-picker-wrap {
 .toast.toast-success {
   border-left: 4px solid var(--poke-green);
 }
+
 .toast.toast-info {
   border-left: 4px solid var(--poke-cyan);
 }
+
 .toast.toast-error {
   border-left: 4px solid var(--poke-red);
 }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes toastOut {
-  from { opacity: 1; transform: translateY(0) scale(1); }
-  to { opacity: 0; transform: translateY(-8px) scale(0.95); }
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
 }
 
 /* Contenido Principal */
@@ -660,12 +746,20 @@ body.theme-retro .casing-picker-wrap {
 .view-section {
   display: none;
 }
+
 .view-section.active {
   display: block;
   animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

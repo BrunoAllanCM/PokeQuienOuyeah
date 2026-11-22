@@ -21,6 +21,17 @@ function configurarEventosP2P() {
       const restantes = 30 - state.discardedIds.size;
       redP2P.enviarAccionJuego("DESCARTE", { restantes });
 
+      // Configurar turno inicial: Por defecto el anfitrión empieza, salvo que ya haya cedido el turno
+      state.turnoActual = state.primerTurnoCedido ? 2 : 1;
+      state.numeroTurno = 1;
+      state.esMiTurno = redP2P.esAnfitrion ? !state.primerTurnoCedido : Boolean(state.primerTurnoCedido);
+      if (typeof saveTurnToSession === "function") saveTurnToSession();
+
+      // Si el anfitrión ya había cedido el turno al rival antes de la conexión, notificárselo
+      if (redP2P.esAnfitrion && state.primerTurnoCedido) {
+        redP2P.enviarAccionJuego("CEDER_PRIMER_TURNO", { primerTurnoPara: 2 });
+      }
+
       // Si ya estábamos listos antes de la conexión, avisar al rival con compromiso
       if (state.isPlayerReady) {
         if (state.secretHash) {
@@ -29,6 +40,9 @@ function configurarEventosP2P() {
           redP2P.enviarAccionJuego("LISTO", { listo: true });
         }
       }
+
+      if (typeof syncReadyUI === "function") syncReadyUI();
+      if (typeof actualizarUITurno === "function") actualizarUITurno();
     }
   };
 
@@ -62,20 +76,47 @@ function configurarEventosP2P() {
         texto: "El rival ha reiniciado todos sus descartes (30 restantes).",
         tipo: "system"
       });
+    } else if (tipoAccion === "CEDER_PRIMER_TURNO") {
+      state.primerTurnoCedido = true;
+      state.primerTurnoPara = 2;
+      state.turnoActual = 2;
+      state.esMiTurno = true; // El rival comenzará jugando cuando ambos den Listo
+      if (typeof saveTurnToSession === "function") saveTurnToSession();
+
+      if (typeof sounds !== "undefined" && sounds.playTurnStart) {
+        sounds.playTurnStart();
+      }
+
+      showToast("👑 ¡El anfitrión te ha cedido el primer turno de la partida!", "info", 5000);
+
+      if (typeof vistaChat !== "undefined") {
+        vistaChat.agregarBurbuja({
+          texto: "👑 ¡El anfitrión te ha cedido el primer turno de la partida! Comenzarás jugando cuando ambos confirmen ¡Listo!.",
+          tipo: "system"
+        });
+      }
+
+      if (typeof actualizarUITurno === "function") {
+        actualizarUITurno();
+      }
     } else if ((tipoAccion === "LISTO" || tipoAccion === "COMPROMISO_HASH") && typeof vistaChat !== "undefined") {
       state.isRivalReady = true;
       if (datos.hash) {
         state.rivalSecretHash = datos.hash;
       }
 
-      // Si este jugador ya estaba listo, ambos lo están ahora: la partida se bloquea
-      if (state.isPlayerReady) {
+      // Regla: La partida solo arranca si AMBOS están conectados y listos
+      const estanConectados = typeof redP2P !== "undefined" && redP2P.conectado;
+      if (estanConectados && state.isPlayerReady) {
         state.isGameStarted = true;
         if (typeof saveReadyToSession === "function") saveReadyToSession();
       }
 
       if (typeof syncReadyUI === "function") {
         syncReadyUI();
+      }
+      if (typeof actualizarUITurno === "function") {
+        actualizarUITurno();
       }
 
       const hashCorto = datos.hash ? ` (Hash SHA-256: ${datos.hash.substring(0, 8)}...)` : "";
@@ -84,7 +125,7 @@ function configurarEventosP2P() {
         tipo: "system"
       });
 
-      if (state.isPlayerReady) {
+      if (state.isGameStarted) {
         vistaChat.agregarBurbuja({
           texto: "🎮 ¡Ambos jugadores están listos y protegidos con Anti-Trampas! ¡Que comience la partida!",
           tipo: "system"
@@ -101,7 +142,13 @@ function configurarEventosP2P() {
       const guessedId = Number(datos.guessedPokemonId);
       const acierto = Boolean(state.secretPokemon && state.secretPokemon.id === guessedId);
 
+      // Si el rival envió los datos de su Pokémon elegido, guardarlo en el estado
+      if (datos.guesserPokemon) {
+        state.secretPokemonRival = datos.guesserPokemon;
+      }
+
       if (acierto) {
+        state.isGameOver = true;
         redP2P.enviarAccionJuego("RESPUESTA_ADIVINAR", {
           acierto: true,
           pokemon: {
@@ -121,34 +168,106 @@ function configurarEventosP2P() {
           });
         }
 
+        // Mostrar al rival perdedor el Pokémon que eligió el rival ganador
+        const pokemonElegidoPorRival = datos.guesserPokemon || state.secretPokemonRival;
+
         if (typeof showGameResultModal === "function") {
           showGameResultModal({
-            titulo: "¡Tu rival ha adivinado tu Pokémon!",
-            subtitulo: `Tu Pokémon secreto era ${state.secretPokemon.name}. Tu rival ha ganado la partida.`,
+            titulo: "💀 ¡DERROTA! TU RIVAL HA ADIVINADO",
+            subtitulo: `Tu rival adivinó correctamente que tu Pokémon era ${state.secretPokemon.name}. ¡Ha ganado la partida!`,
             esTrampa: false,
-            pokemonRival: state.secretPokemon
+            pokemonRival: pokemonElegidoPorRival,
+            etiquetaPokemon: "Pokémon que eligió tu rival:"
           });
         }
       } else {
         const guessedPoke = state.boardPokemonData.find(p => p.id === guessedId);
         const guessedName = guessedPoke ? guessedPoke.name : "un Pokémon";
 
+        state.fallosAdivinanzaRival = (state.fallosAdivinanzaRival || 0) + 1;
+        const esSegundoFallo = state.fallosAdivinanzaRival >= 2;
+
         redP2P.enviarAccionJuego("RESPUESTA_ADIVINAR", {
           acierto: false,
-          guessedPokemonId: guessedId
+          guessedPokemonId: guessedId,
+          esSegundoFallo,
+          rivalPokemon: esSegundoFallo ? {
+            id: state.secretPokemon.id,
+            name: state.secretPokemon.name,
+            image: state.secretPokemon.image,
+            animatedImage: state.secretPokemon.animatedImage,
+            types: state.secretPokemon.types
+          } : null,
+          salt: esSegundoFallo ? state.secretSalt : null
         });
 
+        if (esSegundoFallo) {
+          state.isGameOver = true;
+          // ¡Segundo fallo del rival! Este jugador gana automáticamente y se muestran los Pokémon elegidos
+          if (state.soundEnabled && sounds.playSelectSecret) sounds.playSelectSecret();
+          const pokemonElegidoPorRival = datos.guesserPokemon || state.secretPokemonRival;
+          if (typeof showGameResultModal === "function") {
+            showGameResultModal({
+              titulo: "🏆 ¡VICTORIA! EL RIVAL AGOTÓ SUS INTENTOS",
+              subtitulo: `Tu rival intentó adivinar "${guessedName}" y falló por segunda vez. ¡Has ganado la partida automáticamente!`,
+              esTrampa: false,
+              pokemonRival: pokemonElegidoPorRival,
+              etiquetaPokemon: "Pokémon que eligió tu rival:"
+            });
+          }
+          if (typeof vistaChat !== "undefined") {
+            vistaChat.agregarBurbuja({
+              texto: `🏆 ¡VICTORIA! Tu rival falló por 2da vez al intentar adivinar y ha quedado eliminado. ¡Has ganado la partida!`,
+              tipo: "system"
+            });
+          }
+        } else {
+          // Primer fallo del rival: el turno pasa AHORA a este jugador
+          state.turnoActual = redP2P.esAnfitrion ? 1 : 2;
+          state.numeroTurno++;
+          state.esMiTurno = true;
+          if (typeof saveTurnToSession === "function") saveTurnToSession();
+          if (typeof actualizarUITurno === "function") actualizarUITurno();
+          if (state.soundEnabled && sounds.playTurnStart) sounds.playTurnStart();
+
+          if (typeof vistaChat !== "undefined") {
+            vistaChat.agregarBurbuja({
+              texto: `🎯 Tu rival intentó adivinar "${guessedName}", ¡pero falló! Pierde el turno. ¡Es tu turno!`,
+              tipo: "system"
+            });
+          }
+          showToast(`Tu rival intentó adivinar (${guessedName}) y falló. ¡Es tu turno!`, "info", 4500);
+        }
+      }
+    } else if (tipoAccion === "PASAR_TURNO") {
+      state.turnoActual = datos.nuevoTurno;
+      state.numeroTurno = datos.numeroTurno || (state.numeroTurno + 1);
+      state.esMiTurno = true;
+      if (typeof saveTurnToSession === "function") saveTurnToSession();
+      if (typeof actualizarUITurno === "function") actualizarUITurno();
+      if (state.soundEnabled && sounds.playTurnStart) sounds.playTurnStart();
+
+      if (datos.porFallo) {
+        showToast("❌ ¡Tu rival falló al intentar adivinar! Pierde su turno. ¡Es tu turno!", "info", 4500);
         if (typeof vistaChat !== "undefined") {
           vistaChat.agregarBurbuja({
-            texto: `🎯 Tu rival intentó adivinar "${guessedName}", ¡pero falló!`,
+            texto: "❌ Tu rival falló al intentar adivinar. Ha perdido su turno. ¡Ahora es tu turno!",
             tipo: "system"
           });
         }
-        showToast(`Tu rival intentó adivinar (${guessedName}) pero falló.`, "info", 4000);
+      } else {
+        showToast("🔔 ¡Es tu turno! Haz tus preguntas y descarta Pokémon.", "success", 4000);
+        if (typeof vistaChat !== "undefined") {
+          vistaChat.agregarBurbuja({
+            texto: `🔔 ¡Tu rival terminó su turno! Es tu turno (#${state.numeroTurno}).`,
+            tipo: "system"
+          });
+        }
       }
     } else if (tipoAccion === "RESPUESTA_ADIVINAR") {
       // El rival respondió a nuestro intento de adivinanza
       if (datos.acierto) {
+        state.isGameOver = true;
         let esLimpio = true;
         if (typeof seguridadAntiTrampas !== "undefined" && state.rivalSecretHash) {
           esLimpio = await seguridadAntiTrampas.verificarHashPokemon(
@@ -159,6 +278,21 @@ function configurarEventosP2P() {
           );
         }
 
+        // Enviar nuestro Pokémon al rival para asegurar que el rival sepa cuál habíamos elegido
+        if (state.secretPokemon) {
+          redP2P.enviarAccionJuego("REVELAR_FINAL", {
+            pokemon: {
+              id: state.secretPokemon.id,
+              name: state.secretPokemon.name,
+              image: state.secretPokemon.image,
+              animatedImage: state.secretPokemon.animatedImage,
+              types: state.secretPokemon.types
+            },
+            salt: state.secretSalt,
+            esRespuesta: true
+          });
+        }
+
         if (esLimpio) {
           if (state.soundEnabled && sounds.playSelectSecret) sounds.playSelectSecret();
           if (typeof showGameResultModal === "function") {
@@ -166,7 +300,8 @@ function configurarEventosP2P() {
               titulo: "🏆 ¡VICTORIA! ¡ADIVINASTE!",
               subtitulo: `¡Adivinaste correctamente! El Pokémon secreto de tu rival era ${datos.pokemon.name}.`,
               esTrampa: false,
-              pokemonRival: datos.pokemon
+              pokemonRival: datos.pokemon,
+              etiquetaPokemon: "Pokémon que eligió tu rival:"
             });
           }
           if (typeof vistaChat !== "undefined") {
@@ -181,7 +316,8 @@ function configurarEventosP2P() {
               titulo: "🚨 ¡TRAMPA DETECTADA!",
               subtitulo: `El rival alteró su Pokémon secreto durante la partida. La firma SHA-256 no coincide con el sello inicial.`,
               esTrampa: true,
-              pokemonRival: datos.pokemon
+              pokemonRival: datos.pokemon,
+              etiquetaPokemon: "Pokémon que eligió tu rival:"
             });
           }
           if (typeof vistaChat !== "undefined") {
@@ -192,15 +328,67 @@ function configurarEventosP2P() {
           }
         }
       } else {
-        showToast("❌ ¡Fallaste! Ese no es el Pokémon secreto de tu rival.", "error", 4000);
-        if (typeof vistaChat !== "undefined") {
-          vistaChat.agregarBurbuja({
-            texto: "❌ Tu intento de adivinanza fue incorrecto. ¡Sigue preguntando!",
-            tipo: "system"
-          });
+        state.fallosAdivinanza = (state.fallosAdivinanza || 0) + 1;
+        const esSegundoFallo = Boolean(datos.esSegundoFallo || state.fallosAdivinanza >= 2);
+
+        if (esSegundoFallo) {
+          // ¡Segundo fallo! El jugador pierde y el rival gana automáticamente. Se muestra el Pokémon del rival.
+          if (typeof sounds !== "undefined" && sounds.playFail) sounds.playFail();
+
+          // Enviar también nuestro Pokémon para que el rival pueda ver el nuestro
+          if (state.secretPokemon) {
+            redP2P.enviarAccionJuego("REVELAR_FINAL", {
+              pokemon: {
+                id: state.secretPokemon.id,
+                name: state.secretPokemon.name,
+                image: state.secretPokemon.image,
+                animatedImage: state.secretPokemon.animatedImage,
+                types: state.secretPokemon.types
+              },
+              salt: state.secretSalt,
+              esRespuesta: true
+            });
+          }
+
+          const rivalPoke = datos.rivalPokemon;
+          const rivalName = rivalPoke ? rivalPoke.name : "el del rival";
+
+          if (typeof showGameResultModal === "function") {
+            showGameResultModal({
+              titulo: "💀 ¡DERROTA! AGOTASTE TUS INTENTOS",
+              subtitulo: `Has fallado tu segundo intento de adivinanza. Tu rival ha ganado la partida automáticamente. Su Pokémon secreto era ${rivalName}.`,
+              esTrampa: false,
+              pokemonRival: rivalPoke
+            });
+          }
+
+          if (typeof vistaChat !== "undefined") {
+            vistaChat.agregarBurbuja({
+              texto: `💀 Has fallado tus 2 oportunidades de adivinanza y has quedado eliminado. Tu rival gana la partida automáticamente. Su Pokémon era ${rivalName}.`,
+              tipo: "system"
+            });
+          }
+        } else {
+          // Primer fallo: NO se avisa que le queda una oportunidad más (según la instrucción del usuario)
+          showToast("❌ ¡Fallaste! Ese no es el Pokémon secreto de tu rival.", "error", 4000);
+          if (typeof sounds !== "undefined" && sounds.playFail) sounds.playFail();
+          if (typeof vistaChat !== "undefined") {
+            vistaChat.agregarBurbuja({
+              texto: "❌ Tu intento de adivinanza fue incorrecto. ¡Has perdido tu turno!",
+              tipo: "system"
+            });
+          }
+          if (typeof terminarTurno === "function") {
+            terminarTurno({ porFallo: true });
+          }
         }
       }
     } else if (tipoAccion === "REVELAR_FINAL") {
+      state.isGameOver = true;
+      if (datos.pokemon) {
+        state.secretPokemonRival = datos.pokemon;
+      }
+
       // Solicitud de revelación mutua al terminar
       if (!datos.esRespuesta && state.secretPokemon) {
         redP2P.enviarAccionJuego("REVELAR_FINAL", {
@@ -230,12 +418,51 @@ function configurarEventosP2P() {
         showGameResultModal({
           titulo: esLimpio ? "Partida Finalizada" : "🚨 ¡TRAMPA DETECTADA!",
           subtitulo: esLimpio
-            ? `El Pokémon secreto del rival era ${datos.pokemon.name}. Partida 100% limpia y verificada.`
+            ? (state.secretPokemon
+                ? `El Pokémon que eligió tu rival era ${datos.pokemon.name}. Partida 100% limpia y verificada.`
+                : `El Pokémon secreto del rival era ${datos.pokemon.name}.`)
             : `El rival intentó alterar su Pokémon secreto. El hash SHA-256 no coincide.`,
           esTrampa: !esLimpio,
-          pokemonRival: datos.pokemon
+          pokemonRival: datos.pokemon,
+          etiquetaPokemon: "Pokémon que eligió tu rival:"
         });
       }
+    } else if (tipoAccion === "SOLICITAR_REINICIO") {
+      // El rival solicita reiniciar la partida con los mismos Pokémon
+      if (state.solicitudReinicioEnviada) {
+        if (typeof aceptarReinicioPartida === "function") {
+          aceptarReinicioPartida();
+        }
+      } else {
+        if (typeof mostrarModalSolicitudReinicioRecibida === "function") {
+          mostrarModalSolicitudReinicioRecibida();
+        }
+      }
+    } else if (tipoAccion === "ACEPTAR_REINICIO") {
+      // El rival aceptó nuestra solicitud de reinicio
+      if (typeof reiniciarPartidaMismosPokemon === "function") {
+        reiniciarPartidaMismosPokemon();
+      }
+    } else if (tipoAccion === "RECHAZAR_REINICIO") {
+      // El rival rechazó la solicitud de revancha
+      state.solicitudReinicioEnviada = false;
+      if (typeof cerrarModalReinicio === "function") {
+        cerrarModalReinicio();
+      }
+      showToast("❌ Tu rival ha rechazado la solicitud de reinicio.", "warning", 4500);
+      if (typeof vistaChat !== "undefined") {
+        vistaChat.agregarBurbuja({
+          texto: "Tu rival ha rechazado reiniciar la partida.",
+          tipo: "system"
+        });
+      }
+    } else if (tipoAccion === "CANCELAR_REINICIO") {
+      // El rival canceló la solicitud mientras esperábamos
+      state.solicitudReinicioRecibida = false;
+      if (typeof cerrarModalReinicio === "function") {
+        cerrarModalReinicio();
+      }
+      showToast("El rival ha cancelado su solicitud de reinicio.", "info", 3000);
     }
   };
 
