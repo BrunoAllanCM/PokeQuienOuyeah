@@ -69,6 +69,7 @@ function updatePoolSummary() {
 
   const mode = state.gameModeConfig || "standard";
 
+  // Modo iniciales: cuenta los iniciales de las gens elegidas
   if (mode === "starters") {
     let startersCount = 27;
     if (typeof STARTER_POKEMON_IDS !== "undefined") {
@@ -85,6 +86,7 @@ function updatePoolSummary() {
     return;
   }
 
+  // Modo legendarios: cuenta los legendarios (máx. 30 en tablero)
   if (mode === "legendaries") {
     let legCount = typeof LEGENDARY_POKEMON_IDS !== "undefined" ? LEGENDARY_POKEMON_IDS.length : 79;
     if (typeof LEGENDARY_POKEMON_IDS !== "undefined") {
@@ -102,6 +104,7 @@ function updatePoolSummary() {
     return;
   }
 
+  // Modo estándar: suma los Pokémon de cada generación
   let totalPokemon = 0;
   state.selectedGens.forEach(genId => {
     const genDef = GENERATIONS.find(g => g.id === genId);
@@ -183,6 +186,7 @@ function bindSetupEvents(onLoadRoom) {
     });
   }
 
+  // Botón rápido: todas las generaciones
   const btnQuickAll = document.getElementById("btn-quick-all");
   if (btnQuickAll) {
     btnQuickAll.addEventListener("click", () => {
@@ -193,6 +197,7 @@ function bindSetupEvents(onLoadRoom) {
     });
   }
 
+  // Botón rápido: generaciones clásicas (1-3)
   const btnQuickClassic = document.getElementById("btn-quick-classic");
   if (btnQuickClassic) {
     btnQuickClassic.addEventListener("click", () => {
@@ -254,6 +259,7 @@ function bindSetupEvents(onLoadRoom) {
     });
   });
 
+  // Casillas de opciones del tablero
   const chkShowTypes = document.getElementById("chk-show-types");
   const chkShowGens = document.getElementById("chk-show-gens");
   const chkGrayscale = document.getElementById("chk-grayscale");
@@ -322,6 +328,7 @@ function bindSetupEvents(onLoadRoom) {
     });
   }
 
+  // Crear sala: lee opciones, genera semilla y código
   const btnCreateRoom = document.getElementById("btn-create-room");
   if (btnCreateRoom) {
     btnCreateRoom.addEventListener("click", () => {
@@ -357,10 +364,12 @@ function bindSetupEvents(onLoadRoom) {
     });
   }
 
+  // Unirse a sala: valida el código ingresado
   const formJoin = document.getElementById("form-join-room");
   const inputJoin = document.getElementById("input-room-code");
   const errorJoin = document.getElementById("join-error-msg");
 
+  // Valida el código y entra a la sala o muestra el error
   const handleJoinSubmit = () => {
     if (!inputJoin) return;
     const rawVal = inputJoin.value.trim();

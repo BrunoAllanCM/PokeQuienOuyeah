@@ -350,6 +350,7 @@ textarea {
   gap: 1rem;
 }
 
+/* Luces del Pokédex (lente y LEDs) */
 .pokedex-lights {
   display: flex;
   align-items: center;
@@ -373,6 +374,7 @@ textarea {
   animation: pulseBlue 2.5s infinite;
 }
 
+/* Animación de pulso azul de la lente */
 @keyframes pulseBlue {
 
   0%,
@@ -406,6 +408,7 @@ textarea {
   box-shadow: 0 0 5px #10b981;
 }
 
+/* Título y subtítulo de la app */
 .title-group {
   display: flex;
   flex-direction: column;
@@ -433,6 +436,7 @@ textarea {
   font-weight: 600;
 }
 
+/* Botones de acciones del encabezado */
 .header-actions {
   display: flex;
   align-items: center;
@@ -584,6 +588,7 @@ body.theme-retro .casing-picker-wrap {
   opacity: 0.7;
 }
 
+/* Menú desplegable de colores de carcasa */
 .casing-color-menu {
   position: absolute;
   top: calc(100% + 8px);
@@ -638,6 +643,7 @@ body.theme-retro .casing-picker-wrap {
 }
 
 
+/* Botones de icono */
 .btn-icon {
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
@@ -658,6 +664,7 @@ body.theme-retro .casing-picker-wrap {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
+/* Etiqueta de versión */
 .badge-version {
   font-size: 0.75rem;
   font-weight: 700;
@@ -709,6 +716,7 @@ body.theme-retro .casing-picker-wrap {
   border-left: 4px solid var(--poke-red);
 }
 
+/* Animaciones de entrada y salida de las notificaciones */
 @keyframes toastIn {
   from {
     opacity: 0;
@@ -752,6 +760,7 @@ body.theme-retro .casing-picker-wrap {
   animation: fadeIn 0.3s ease;
 }
 
+/* Animación de aparición de vistas */
 @keyframes fadeIn {
   from {
     opacity: 0;

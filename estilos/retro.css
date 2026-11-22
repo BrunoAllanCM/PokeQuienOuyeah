@@ -57,6 +57,7 @@ body.theme-retro .view-section {
   z-index: 1;
 }
 
+/* Estilos de las luces de la Pokédex */
 body.theme-retro .pokedex-lights {
   background: var(--casing-darker, #7f1d1d);
   border: 2px solid rgba(0, 0, 0, 0.3);
@@ -80,6 +81,7 @@ body.theme-retro .small-led {
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 8px currentColor;
 }
 
+/* Estilos del título y subtítulo de la app */
 body.theme-retro .app-title {
   color: #ffffff;
   font-family: var(--font-arcade, 'Press Start 2P', monospace);
@@ -104,6 +106,7 @@ body.theme-retro .app-subtitle {
 body.theme-retro .badge-version,
 body.theme-retro .btn-icon,
 body.theme-retro .btn-theme-switch,
+/* Estilos del botón selector de carcasa */
 body.theme-retro .btn-casing-picker {
   background: var(--casing-darker, #7f1d1d);
   border: 2px solid rgba(0, 0, 0, 0.25);
@@ -155,6 +158,7 @@ body.theme-retro .setup-intro p strong {
   text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
 }
 
+/* Estilos de la tarjeta de configuración y sus formularios */
 body.theme-retro .setup-card {
   background: #ffffff !important;
   border: 3px solid var(--casing-light, #fee2e2) !important;
@@ -259,6 +263,7 @@ body.theme-retro .gen-count-badge {
   font-weight: 700;
 }
 
+/* Estilos del resumen de Pokémon seleccionados */
 body.theme-retro .pool-summary-banner {
   background: #f8fafc !important;
   border: 2px solid #e2e8f0 !important;
@@ -360,6 +365,7 @@ body.theme-retro .toggle-desc {
   color: #475569 !important;
 }
 
+/* Estilos del Modo Pro en la configuración */
 body.theme-retro .pro-warning-desc {
   color: #dc2626 !important;
   font-size: 0.65rem !important;
@@ -378,6 +384,7 @@ body.theme-retro .option-pro-mode:hover {
   background: #fef2f2 !important;
 }
 
+/* Estilos base de las casillas de opciones */
 body.theme-retro .checkbox-box {
   width: 34px;
   height: 34px;
@@ -486,6 +493,7 @@ body.theme-retro .btn-secondary:active {
    PANTALLA 2: TABLERO DE JUEGO Y CARTAS
    ======================================================== */
 
+/* Estilos de la barra superior del tablero retro */
 body.theme-retro .board-topbar {
   background: #ffffff;
   border: 2px solid var(--casing-light, #fee2e2);
@@ -570,6 +578,7 @@ body.theme-retro .secret-pulse-dot {
   box-shadow: 0 0 8px #10b981;
 }
 
+/* Estilos de los botones de la tarjeta secreta */
 body.theme-retro .btn-secret-action {
   background: #ffffff;
   border: 1.5px solid #a7f3d0;
@@ -696,6 +705,7 @@ body.theme-retro .modal-card {
   box-shadow: none !important;
 }
 
+/* Estilos de los elementos de la lista de adivinar */
 body.theme-retro .guess-item {
   background: #f8fafc;
   border: 2px solid #e2e8f0;
@@ -708,6 +718,7 @@ body.theme-retro .guess-item:hover {
   box-shadow: 0 3px 0 #059669;
 }
 
+/* Estilos de los datos del Pokémon secreto retro */
 body.theme-retro .secret-avatar-wrap {
   background: #ffffff;
   border: 2px solid #34d399;
@@ -966,6 +977,7 @@ body.theme-retro .chat-status.desconectado .status-dot {
   box-shadow: none !important;
 }
 
+/* Estilos de la barra de estado del rival */
 body.theme-retro .rival-status-bar {
   background: #f0fdf4 !important;
   color: #166534 !important;
@@ -974,6 +986,7 @@ body.theme-retro .rival-status-bar {
   border-bottom: 1.5px solid #bbf7d0 !important;
 }
 
+/* Estilos de los mensajes y el formulario del chat */
 body.theme-retro .chat-messages {
   background: #fafaf9;
 }

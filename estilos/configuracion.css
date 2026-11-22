@@ -25,6 +25,7 @@
   margin: 0 auto;
 }
 
+/* Tarjetas de configuración */
 .setup-grid {
   display: grid;
   grid-template-columns: 1.35fr 1fr;
@@ -45,6 +46,7 @@
   border-color: rgba(255, 255, 255, 0.14);
 }
 
+/* Encabezado de cada tarjeta */
 .card-header {
   display: flex;
   gap: 0.85rem;
@@ -391,6 +393,7 @@
   margin-top: 0.15rem;
 }
 
+/* Opción de modo pro */
 .option-pro-mode {
   border-top: 1px dashed rgba(239, 68, 68, 0.25);
   padding-top: 0.85rem;
@@ -503,6 +506,7 @@
   transform: translateY(1px);
 }
 
+/* Tamaños de botones */
 .btn-large {
   width: 100%;
   padding: 1.15rem 1.5rem;
@@ -577,6 +581,7 @@
   background: #2563eb;
 }
 
+/* Mensaje de error y utilidad para ocultar */
 .form-error-msg {
   color: #f87171;
   font-size: 0.8rem;

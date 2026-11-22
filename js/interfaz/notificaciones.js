@@ -2,6 +2,7 @@
  * Componente UI de Notificaciones Toast
  */
 
+// Último toast mostrado, para evitar duplicados seguidos
 let lastToastMsg = "";
 let lastToastTime = 0;
 
@@ -23,6 +24,7 @@ function showToast(message, type = "info", duration = 3000) {
   const container = document.getElementById("toast-container");
   if (!container) return;
 
+  // Crea el toast con su icono y lo agrega al contenedor
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
 
@@ -33,6 +35,7 @@ function showToast(message, type = "info", duration = 3000) {
   toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
   container.appendChild(toast);
 
+  // Pasada la duración, lo anima de salida y lo elimina
   setTimeout(() => {
     toast.style.animation = "toastOut 0.3s ease forwards";
     setTimeout(() => {

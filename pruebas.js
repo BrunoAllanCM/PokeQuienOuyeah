@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 
+// Contexto aislado con lo mínimo que necesitan los módulos
 const context = {
   console,
   setTimeout,
@@ -23,6 +24,7 @@ const context = {
 
 vm.createContext(context);
 
+// Módulos de lógica que se cargan para probar
 const filesToLoad = [
   './js/constantes/datosPokemon.js',
   './js/logica/aleatorio.js',
@@ -38,8 +40,10 @@ for (const file of filesToLoad) {
 
 const { computeBoardIds, buildRoomCode, parseRoomCode, formatPokemonName, getGenForPokemonId, seguridadAntiTrampas, normalizeSearchText, getCombinedTypeSearchString } = context;
 
+// Guarda el resultado de cada prueba
 const results = [];
 
+// Registra y muestra si una prueba pasó o falló
 function assert(condition, testName) {
   if (condition) {
     results.push({ name: testName, pass: true });
@@ -185,6 +189,7 @@ const turnState = {
   esMiTurno: true
 };
 
+// Simula pasar turno alternando jugador
 function simularPasarTurno(s, porFallo = false) {
   s.turnoActual = s.turnoActual === 1 ? 2 : 1;
   s.numeroTurno++;
@@ -211,6 +216,7 @@ const testDiscarded = new Set([3, 5, 12]);
 let testTurno = 8;
 let testGameStarted = true;
 
+// Simula revancha: mismo tablero, descartes y turno reiniciados
 function simularReinicioMismosPokemon(board, discards) {
   discards.clear();
   testTurno = 1;
@@ -229,6 +235,7 @@ let fallosP1 = 0;
 let gameOver = false;
 let ganador = null;
 
+// Simula la regla: 2 fallos pierden la partida
 function simularIntentoAdivinar(acierto) {
   if (acierto) {
     gameOver = true;
@@ -263,6 +270,7 @@ let testState = {
   turnoActual: 1
 };
 
+// Solo inicia si hay conexión y ambos están listos
 function verificarPuedeComenzar(state, red) {
   const estanConectados = red.conectado;
   return Boolean(estanConectados && state.isPlayerReady && state.isRivalReady);
@@ -279,6 +287,7 @@ testState.isGameStarted = verificarPuedeComenzar(testState, mockRedP2P);
 assert(testState.isGameStarted === false, "Partida no inicia si el rival está conectado pero aún no ha dado listo");
 
 // Anfitrión cede el primer turno
+// Solo el anfitrión puede ceder el primer turno, una vez
 function cederPrimerTurno(state, red) {
   if (!red.esAnfitrion || state.primerTurnoCedido || state.isGameStarted) return false;
   state.primerTurnoCedido = true;

@@ -15,6 +15,7 @@
   flex-wrap: wrap;
 }
 
+/* Estilos del lado izquierdo de la barra (sala e insignias) */
 .topbar-left {
   display: flex;
   align-items: center;
@@ -22,6 +23,7 @@
   flex-wrap: wrap;
 }
 
+/* Estilos de la pastilla con el código de sala */
 .room-info-pill {
   display: inline-flex;
   align-items: center;
@@ -68,6 +70,7 @@
   gap: 0.4rem;
 }
 
+/* Estilos de las insignias informativas (HUD) */
 .badge-hud {
   font-family: var(--font-desc, 'EAS VHS', monospace);
   font-size: 0.85rem;
@@ -97,6 +100,7 @@
   justify-content: center;
 }
 
+/* Estilos de los botones laterales (cambiar y listo) */
 .btn-side-action {
   font-family: var(--font-arcade, monospace);
   font-size: 0.72rem;
@@ -145,6 +149,7 @@
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
+/* Estilos del aviso de que el rival está listo */
 .rival-ready-note {
   display: inline-flex;
   align-items: center;
@@ -194,6 +199,7 @@
   letter-spacing: 0.05em;
 }
 
+/* Estilos de la tarjeta del Pokémon secreto */
 .secret-pokemon-card {
   background: linear-gradient(135deg, #182334 0%, #0d1422 100%);
   border: 1.5px solid rgba(250, 204, 21, 0.4);
@@ -260,6 +266,7 @@
   background: rgba(255, 255, 255, 0.15);
 }
 
+/* Estilos del cuerpo de la tarjeta secreta (imagen y datos) */
 .secret-body {
   display: flex;
   align-items: center;
@@ -291,6 +298,7 @@
   image-rendering: crisp-edges;
 }
 
+/* Estilos de la máscara que oculta el secreto */
 .secret-mask-cover {
   position: absolute;
   top: 0;
@@ -326,6 +334,7 @@
   gap: 0.2rem;
 }
 
+/* Estilos de los tipos ocultos o pendientes */
 .type-badge-masked {
   display: inline-block;
   font-size: 0.62rem;
@@ -391,6 +400,7 @@
   margin-top: 0.2rem;
 }
 
+/* Estilos del lado derecho de la barra (botón adivinar) */
 .topbar-right {
   display: flex;
   align-items: center;
@@ -508,6 +518,7 @@
   50% { transform: scale(1.4); opacity: 0.6; }
 }
 
+/* Estilos de los controles de búsqueda y filtros */
 .status-controls {
   display: flex;
   align-items: center;
@@ -701,6 +712,7 @@
   filter: grayscale(100%) contrast(1.15) !important;
 }
 
+/* Estilos de las imágenes estática y animada de la carta */
 .card-img-static {
   display: block;
   opacity: 1;
@@ -737,6 +749,7 @@
   transform: scale(1.52);
 }
 
+/* Estilos de la parte inferior de la carta (nombre y tipos) */
 .card-bottom {
   width: 100%;
   text-align: center;
@@ -991,6 +1004,7 @@
   box-sizing: border-box;
 }
 
+/* Estilos de la lista de Pokémon para adivinar */
 .guess-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -1045,6 +1059,7 @@
   text-align: center;
 }
 
+/* Estilos del pie del modal */
 .modal-footer {
   padding: 0.75rem 1.25rem;
   border-top: 1px solid var(--border-subtle, #e2e8f0);
@@ -1126,6 +1141,7 @@
    ======================================================== */
 .pro-mode-active .card-img,
 .pro-mode-active .secret-img,
+/* Estilos del Modo Pro (Pokémon misteriosos) */
 .pro-mode-active .guess-thumb {
   display: none !important;
 }
@@ -1230,6 +1246,7 @@
   50% { transform: scale(1.2); opacity: 0.5; }
 }
 
+/* Estilos de los elementos internos de la barra de turnos */
 .turn-status-badge {
   display: flex;
   align-items: center;
@@ -1285,6 +1302,7 @@
   gap: 0.6rem;
 }
 
+/* Estilos del botón de terminar turno */
 .btn-finish-turn {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;

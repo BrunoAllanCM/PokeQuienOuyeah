@@ -3,6 +3,7 @@
  * Permite partidas multijugador y chat en tiempo real sin servidor backend.
  */
 
+// Objeto global de red P2P
 const redP2P = {
   peer: null,
   conexion: null,
@@ -45,6 +46,7 @@ const redP2P = {
         debug: 1
       });
 
+      // Sala lista en el servidor de señalización
       this.peer.on("open", (id) => {
         console.log(`[P2P] Sala creada con ID Peer: ${id}. Esperando rival...`);
         showToast("Sala P2P lista. Esperando que el rival se una...", "info", 4000);
@@ -71,6 +73,7 @@ const redP2P = {
         this.configurarConexion(conn);
       });
 
+      // Avisa errores como código de sala repetido
       this.peer.on("error", (err) => {
         console.warn("[P2P Error Anfitrión]:", err);
         if (err.type === "unavailable-id") {
@@ -134,6 +137,7 @@ const redP2P = {
    */
   configurarConexion(conn) {
     conn.on("open", () => {
+      // Canal abierto: ya hay rival conectado
       this.conectado = true;
       console.log("[P2P] Canal de datos abierto y sincronizado.");
       showToast("¡Rival conectado! La partida en tiempo real está activa.", "success", 4000);
@@ -148,10 +152,12 @@ const redP2P = {
       }
     });
 
+    // Llegó un paquete del rival
     conn.on("data", (datos) => {
       this.procesarDatosRecibidos(datos);
     });
 
+    // El rival se fue
     conn.on("close", () => {
       this.conectado = false;
       console.log("[P2P] El rival se ha desconectado.");
@@ -174,6 +180,7 @@ const redP2P = {
   procesarDatosRecibidos(paquete) {
     if (!paquete || typeof paquete !== "object") return;
 
+    // Según el tipo: sala llena, chat o acción de juego
     switch (paquete.tipo) {
       case "ERROR_SALA_LLENA":
         showToast(paquete.mensaje || "🚫 La sala ya está llena (máximo 2 jugadores).", "error", 6000);
@@ -207,6 +214,7 @@ const redP2P = {
     const limpio = (texto || "").trim();
     if (!limpio) return null;
 
+    // Arma el mensaje con la hora local
     const ahora = new Date();
     const hora = ahora.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 

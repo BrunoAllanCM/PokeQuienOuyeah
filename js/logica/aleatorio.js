@@ -56,6 +56,7 @@ function seededShuffle(array, randomFn) {
  * @returns {number[]} Array con los IDs de Pokémon para el tablero
  */
 function computeBoardIds(seed, gensArray, gameMode = "standard") {
+  // Arma el pool de IDs según el modo de juego
   let pool = [];
   const sortedGens = [...gensArray].sort((a, b) => a - b);
 
@@ -71,6 +72,7 @@ function computeBoardIds(seed, gensArray, gameMode = "standard") {
       return sortedGens.includes(genNum);
     });
 
+    // Baraja el pool con la semilla (misma semilla, mismo resultado)
     const seedHash = fnv1a(seed);
     const prng = mulberry32(seedHash);
     const shuffled = seededShuffle(pool, prng);
@@ -93,6 +95,7 @@ function computeBoardIds(seed, gensArray, gameMode = "standard") {
   }
 
   // Modo Estándar
+  // Agrega todos los IDs de cada generación elegida
   for (const genId of sortedGens) {
     const genDef = GENERATIONS.find(g => g.id === genId);
     if (genDef) {

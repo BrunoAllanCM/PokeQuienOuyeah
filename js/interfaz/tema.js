@@ -3,6 +3,7 @@
  * y Personalización de Color de Carcasa
  */
 
+// Colores disponibles para la carcasa de la Pokédex
 const CASING_COLORS = {
   rojo: { name: "Rojo Clásico", color: "#dc2626" },
   verde: { name: "Verde Planta", color: "#22c55e" },
@@ -24,6 +25,7 @@ function applyCasingColor(colorKey) {
     else colorKey = "rojo";
   }
 
+  // Guarda y marca el color elegido en la interfaz
   document.body.dataset.casing = colorKey;
   localStorage.setItem("poke_casing_color", colorKey);
 
@@ -46,11 +48,13 @@ function initCasingPicker() {
 
   if (!btnPicker || !menu) return;
 
+  // Abre/cierra el menú de colores
   btnPicker.addEventListener("click", (e) => {
     e.stopPropagation();
     menu.classList.toggle("hidden");
   });
 
+  // Al elegir un color: aplicarlo, cerrar menú y avisar
   document.querySelectorAll(".casing-swatch").forEach((swatch) => {
     swatch.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -64,6 +68,7 @@ function initCasingPicker() {
     });
   });
 
+  // Cierra el menú al hacer clic fuera
   document.addEventListener("click", (e) => {
     if (!menu.contains(e.target) && e.target !== btnPicker) {
       menu.classList.add("hidden");
@@ -94,6 +99,7 @@ function applyTheme(themeName) {
     casingMenu.classList.add("hidden");
   }
 
+  // Actualiza icono, texto y título del botón según el tema
   if (themeName === "retro") {
     if (switchIcon) switchIcon.textContent = "📟";
     if (switchText) switchText.textContent = "Pokédex Clásica";

@@ -111,6 +111,7 @@
   <!-- Notification Toast Container -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
+  <!-- Contenido principal: contiene las vistas del juego -->
   <main class="main-content">
     <!-- ========================================== -->
     <!-- PANTALLA 1: CONFIGURACIÓN / EDITOR DE SALA -->
@@ -360,6 +361,7 @@
     <!-- ========================================== -->
     <!-- PANTALLA 2: TABLERO DE JUEGO (30 POKÉMON)  -->
     <!-- ========================================== -->
+    <!-- Vista del tablero (se muestra al empezar la partida) -->
     <section id="view-board" class="view-section">
       <div class="board-main-layout">
         <!-- Columna Principal: Tablero y Controles -->
@@ -610,6 +612,7 @@
         </div>
 
         <!-- Columna Lateral: Panel de Chat y Estado P2P en Vivo -->
+        <!-- Sección del chat lateral -->
         <aside id="chat-sidebar" class="chat-sidebar">
           <div class="chat-header">
             <div class="chat-header-title">
@@ -628,6 +631,7 @@
           </div>
 
           <!-- Contenedor de Mensajes del Chat -->
+          <!-- Lista de mensajes del chat -->
           <div id="chat-messages-container" class="chat-messages" aria-live="polite">
             <div class="chat-bubble chat-bubble-system">
               <span>¡Bienvenidos! Comparte el código de sala para conectar con tu rival.</span>
@@ -739,6 +743,7 @@
     </div>
   </div>
 
+  <!-- Pie de página -->
   <footer class="app-footer">
     <div class="footer-content">
       <span>PokéQuién • Adivina Quién con Pokémon • 2 Jugadores en Tiempo Real</span>

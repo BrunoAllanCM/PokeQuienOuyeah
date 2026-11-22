@@ -8,9 +8,11 @@
  * @param {"view-setup"|"view-board"} viewId
  */
 function showView(viewId) {
+  // Oculta todas las vistas
   document.querySelectorAll(".view-section").forEach(view => {
     view.classList.remove("active");
   });
+  // Muestra la vista pedida
   const target = document.getElementById(viewId);
   if (target) {
     target.classList.add("active");
@@ -23,12 +25,14 @@ function showView(viewId) {
  * @param {string} code
  */
 async function loadRoom(code) {
+  // Valida el código de sala
   const parsed = parseRoomCode(code);
   if (!parsed.valid) {
     showToast(parsed.error, "error");
     return;
   }
 
+  // Guarda la configuración de la sala en el estado
   state.roomCode = parsed.code;
   state.roomSeed = parsed.seed;
   state.roomGens = parsed.gens;
@@ -38,16 +42,20 @@ async function loadRoom(code) {
   state.roomProMode = Boolean(parsed.proMode);
   state.roomGameMode = parsed.gameMode || "standard";
 
+  // Actualiza la URL con el código de sala
   const newUrl = `${window.location.pathname}?sala=${encodeURIComponent(state.roomCode)}`;
   window.history.replaceState({ sala: state.roomCode }, "", newUrl);
 
+  // Muestra el tablero y calcula los Pokémon
   showView("view-board");
   renderBoardHeader();
   state.boardPokemonIds = computeBoardIds(state.roomSeed, state.roomGens, state.roomGameMode);
+  // Recupera datos guardados de la sesión
   loadDiscardsFromSession();
   loadReadyFromSession();
   loadCryptoCommitmentFromSession();
   loadTurnFromSession();
+  // Protege el estado contra trampas
   if (typeof seguridadAntiTrampas !== "undefined") {
     seguridadAntiTrampas.blindarEstadoJuego(state);
   }
@@ -79,11 +87,13 @@ function renderBoardHeader() {
     guessModal.classList.toggle("pro-mode-active", !!state.roomProMode);
   }
 
+  // Muestra u oculta el código de sala
   if (codeEl) {
     codeEl.dataset.fullCode = state.roomCode || "";
     codeEl.textContent = isRoomCodeHidden ? "••••••••••" : (state.roomCode || "------");
   }
 
+  // Texto de la insignia de generaciones
   if (gensBadge) {
     if (state.roomProMode) {
       gensBadge.textContent = "Datos: Ocultos";
@@ -94,6 +104,7 @@ function renderBoardHeader() {
     }
   }
 
+  // Texto de la insignia de tipos
   if (typesBadge) {
     if (state.roomProMode) {
       typesBadge.textContent = "Modo: Solo Nombre";
@@ -102,6 +113,7 @@ function renderBoardHeader() {
     }
   }
 
+  // Texto de la insignia de sprites
   if (grayscaleBadge) {
     if (state.roomProMode) {
       grayscaleBadge.textContent = "Sprites: Desactivados";
@@ -110,6 +122,7 @@ function renderBoardHeader() {
     }
   }
 
+  // Insignia del modo de juego
   const modeBadge = document.getElementById("board-badge-mode");
   if (modeBadge) {
     const boardCount = state.boardPokemonIds?.length || (state.roomGameMode === "starters" ? 27 : 30);
@@ -134,6 +147,7 @@ function renderSkeletonGrid() {
   grid.innerHTML = "";
 
   const count = state.boardPokemonIds?.length || (state.roomGameMode === "starters" ? 27 : 30);
+  // Crea tarjetas de carga vacías
   for (let i = 0; i < count; i++) {
     const skel = document.createElement("div");
     skel.className = "skeleton-card";
@@ -161,6 +175,7 @@ function renderSkeletonGrid() {
  */
 function preloadBoardSprites(pokemonList, timeoutMs = 2500) {
   if (!pokemonList || pokemonList.length === 0) return Promise.resolve();
+  // Carga cada imagen sin bloquear si falla
   const preloadPromises = pokemonList.map(p => {
     return new Promise(resolve => {
       const src = p.animatedImage || p.image;
@@ -172,6 +187,7 @@ function preloadBoardSprites(pokemonList, timeoutMs = 2500) {
     });
   });
 
+  // Límite de espera para no bloquear el tablero
   const timeoutPromise = new Promise(resolve => setTimeout(resolve, timeoutMs));
   return Promise.race([Promise.all(preloadPromises), timeoutPromise]);
 }
@@ -186,6 +202,7 @@ async function renderAndFetchBoardPokemon() {
   renderSkeletonGrid();
 
   try {
+    // Descarga los datos de todos los Pokémon
     const promises = state.boardPokemonIds.map(id => fetchPokemonData(id));
     state.boardPokemonData = await Promise.all(promises);
 
@@ -195,6 +212,7 @@ async function renderAndFetchBoardPokemon() {
     initSecretPokemon();
     renderBoardCards();
     updateCounterAndProgress();
+  // Muestra el error de red
   } catch (error) {
     console.error("Error al cargar los Pokémon del tablero:", error);
     if (errorPanel) {
@@ -228,6 +246,7 @@ function renderBoardCards() {
       ? getCombinedTypeSearchString(pokemon.types)
       : pokemon.types.join(" ");
 
+    // Arma las insignias de tipo
     let typesHtml = "";
     if (state.roomShowTypes && !state.roomProMode) {
       typesHtml = pokemon.types
@@ -239,11 +258,13 @@ function renderBoardCards() {
         .join("");
     }
 
+    // Prepara las piezas HTML de la carta
     const secretOwnerBadgeHtml = isSecret ? `<span class="secret-owner-badge">★ TU SECRETO</span>` : "";
     const genBadgeHtml = (state.roomShowGens && !state.roomProMode) ? `<span class="card-gen-badge">${getGenForPokemonId(pokemon.id)}</span>` : "";
     const cardNumHtml = !state.roomProMode ? `<span class="card-num">#${String(pokemon.id).padStart(3, "0")}</span>` : "";
     const nameHtml = `<span class="card-name" title="${pokemon.name}">${pokemon.name}</span>`;
 
+    // Imagen de la carta (signo ? en modo pro)
     const imgWrapHtml = state.roomProMode
       ? `<div class="card-img-wrap pro-mystery-wrap"><div class="pro-mystery-icon">?</div></div>`
       : `
@@ -264,6 +285,7 @@ function renderBoardCards() {
         </div>
       `;
 
+    // Arma el HTML de la carta
     card.innerHTML = `
       ${secretOwnerBadgeHtml}
       <div class="card-top">
@@ -279,6 +301,7 @@ function renderBoardCards() {
       </div>
     `;
 
+    // Clic en la carta
     card.addEventListener("click", () => handleCardClick(pokemon));
     grid.appendChild(card);
   });
@@ -289,6 +312,7 @@ function renderBoardCards() {
  * @param {{ id: number, name: string, image: string, types: string[] }} pokemon
  */
 function handleCardClick(pokemon) {
+  // Modo elegir Pokémon secreto
   if (state.isSelectingSecretMode) {
     setSecretPokemon(pokemon, true);
     exitSelectingSecretMode();
@@ -322,6 +346,7 @@ function handleCardClick(pokemon) {
     return;
   }
 
+  // Alterna el descarte de la carta
   if (state.discardedIds.has(pokemon.id)) {
     state.discardedIds.delete(pokemon.id);
   } else {
@@ -331,6 +356,7 @@ function handleCardClick(pokemon) {
 
   saveDiscardsToSession();
 
+  // Actualiza la carta en pantalla
   const card = document.querySelector(`.poke-card[data-id="${pokemon.id}"]`);
   if (card) {
     card.classList.toggle("descartada", state.discardedIds.has(pokemon.id));
@@ -363,6 +389,7 @@ function updateCounterAndProgress() {
     counterTotalEl.textContent = `/ ${total}`;
   }
 
+  // Ajusta ancho y color de la barra
   if (progressFill) {
     const percent = Math.max(0, Math.min(100, (remainingCount / total) * 100));
     progressFill.style.width = `${percent}%`;
@@ -383,6 +410,7 @@ function resetDiscards() {
   state.discardedIds.clear();
   saveDiscardsToSession();
 
+  // Quita la marca visual de descarte
   document.querySelectorAll(".poke-card").forEach(card => {
     card.classList.remove("descartada");
   });
@@ -411,6 +439,7 @@ function actualizarUITurno() {
 
   if (!turnBar) return;
 
+  // Datos de conexión y estado de la partida
   const estaConectado = typeof redP2P !== "undefined" ? redP2P.conectado : true;
   const esAnfitrion = typeof redP2P !== "undefined" ? redP2P.esAnfitrion : true;
   const juegoIniciado = Boolean(state.isGameStarted);
@@ -475,6 +504,7 @@ function actualizarUITurno() {
       }
     }
 
+    // Título de la barra de turno
     if (turnTitle) {
       if (esAnfitrion) {
         turnTitle.textContent = state.primerTurnoCedido
@@ -487,6 +517,7 @@ function actualizarUITurno() {
       }
     }
 
+    // Subtítulo según el estado de ambos jugadores
     if (turnSub) {
       if (!estaConectado) {
         turnSub.textContent = "Esperando a que tu rival se conecte a la sala... Comparte el enlace de sala.";
@@ -583,6 +614,7 @@ function terminarTurno({ porFallo = false } = {}) {
     return;
   }
 
+  // Turno con rival conectado (P2P)
   if (typeof redP2P !== "undefined" && redP2P.conectado) {
     state.esMiTurno = false;
     state.turnoActual = redP2P.esAnfitrion ? 2 : 1;
@@ -597,6 +629,7 @@ function terminarTurno({ porFallo = false } = {}) {
       porFallo
     });
 
+    // Mensajes según si falló o terminó voluntariamente
     if (porFallo) {
       showToast("❌ ¡Fallaste! Has perdido tu turno y pasa a tu rival.", "error", 4500);
       if (typeof vistaChat !== "undefined") {
@@ -651,11 +684,13 @@ function terminarTurno({ porFallo = false } = {}) {
  * Limpia la selección del Pokémon secreto, dejando la casilla lista para que el usuario elija
  */
 function clearSecretPokemon() {
+  // Borra el secreto guardado
   state.secretPokemon = null;
   try {
     sessionStorage.removeItem(`poke_secret_${state.roomCode}`);
   } catch (e) {}
 
+  // Restablece el widget del secreto
   const imgEl = document.getElementById("secret-img");
   const numEl = document.getElementById("secret-num");
   const nameEl = document.getElementById("secret-name");
@@ -684,6 +719,7 @@ function clearSecretPokemon() {
     typesEl.innerHTML = `<span class="type-badge-pending">Elige del tablero</span>`;
   }
 
+  // Quita la marca de secreto de las cartas
   document.querySelectorAll(".poke-card").forEach(card => {
     card.classList.remove("is-secret-pokemon");
     const existingBadge = card.querySelector(".secret-owner-badge");
@@ -695,6 +731,7 @@ function clearSecretPokemon() {
  * Inicializa el Pokémon secreto usando sessionStorage o esperando selección manual del usuario
  */
 function initSecretPokemon() {
+  // Lee el secreto guardado en la sesión
   const sessionKey = `poke_secret_${state.roomCode}`;
   let secretId = null;
 
@@ -723,12 +760,14 @@ function initSecretPokemon() {
  */
 function setSecretPokemon(pokemon, playCry = false) {
   if (!pokemon) return;
+  // Guarda el secreto en el estado y la sesión
   state.secretPokemon = pokemon;
 
   try {
     sessionStorage.setItem(`poke_secret_${state.roomCode}`, String(pokemon.id));
   } catch (e) {}
 
+  // Reproduce el grito si se pidió
   if (playCry && typeof sounds !== "undefined" && sounds.playPokemonCry) {
     sounds.playPokemonCry(pokemon.id, pokemon.cry);
   }
@@ -743,6 +782,7 @@ function setSecretPokemon(pokemon, playCry = false) {
   const nameEl = document.getElementById("secret-name");
   const typesEl = document.getElementById("secret-types");
 
+  // Imagen del secreto (oculta en modo pro)
   if (imgEl) {
     if (state.roomProMode) {
       imgEl.style.display = "none";
@@ -765,6 +805,7 @@ function setSecretPokemon(pokemon, playCry = false) {
       imgEl.classList.toggle("sprite-grayscale", !!state.roomGrayscale);
     }
   }
+  // Número del secreto
   if (numEl) {
     if (state.roomProMode) {
       numEl.textContent = "MODO PRO";
@@ -776,6 +817,7 @@ function setSecretPokemon(pokemon, playCry = false) {
   if (nameEl) {
     nameEl.textContent = pokemon.name;
   }
+  // Tipos del secreto
   if (typesEl) {
     if (state.roomShowTypes && !state.roomProMode) {
       typesEl.innerHTML = pokemon.types
@@ -800,6 +842,7 @@ function setSecretPokemon(pokemon, playCry = false) {
     detailsMaskedEl.classList.toggle("hidden", !state.isSecretHidden);
   }
 
+  // Marca la carta secreta en el tablero
   document.querySelectorAll(".poke-card").forEach(card => {
     const id = parseInt(card.dataset.id, 10);
     const isSecret = id === pokemon.id;
@@ -830,6 +873,7 @@ function toggleSecretHide() {
   const eyeOpen = document.getElementById("secret-eye-open");
   const eyeClosed = document.getElementById("secret-eye-closed");
 
+  // Muestra u oculta los detalles
   if (cover) cover.classList.toggle("hidden", !state.isSecretHidden);
   if (details) details.classList.toggle("hidden", state.isSecretHidden);
   if (detailsMasked) detailsMasked.classList.toggle("hidden", !state.isSecretHidden);
@@ -844,6 +888,7 @@ function toggleSecretHide() {
     btn.setAttribute("aria-label", btn.title);
   }
 
+  // Oculta también las insignias del tablero
   const grid = document.getElementById("board-cards-grid");
   if (grid) grid.classList.toggle("hide-secret-badges", state.isSecretHidden);
 }
@@ -859,10 +904,12 @@ function syncReadyUI() {
   const badgeLocked = document.getElementById("badge-game-locked");
   const btnGuess = document.getElementById("btn-guess-rival");
 
+  // Revisa si ambos están conectados y listos
   const estanConectados = typeof redP2P !== "undefined" ? redP2P.conectado : true;
   // Regla estricta: La partida SOLO puede arrancar y bloquearse si AMBOS están conectados Y AMBOS están listos
   const ambosListosYConectados = Boolean(estanConectados && state.isPlayerReady && state.isRivalReady);
 
+  // Partida iniciada: bloquea los controles
   if (ambosListosYConectados || state.isGameStarted) {
     if (ambosListosYConectados) {
       state.isGameStarted = true;
@@ -916,6 +963,7 @@ async function handleReadyClick() {
 
   // Si la partida ya empezó oficialmente (ambos listos y conectados), no hacer nada
   if (state.isGameStarted || (estanConectados && state.isPlayerReady && state.isRivalReady)) return;
+  // Exige haber elegido un secreto
   if (!state.secretPokemon) {
     showToast("⚠️ Primero debes elegir tu Pokémon secreto en el tablero.", "warning");
     enterSelectingSecretMode();
@@ -937,6 +985,7 @@ async function handleReadyClick() {
     saveCryptoCommitmentToSession(state.secretSalt, state.secretHash);
   }
 
+  // Marca al jugador como listo
   state.isPlayerReady = true;
 
   // Regla: La partida solo arranca cuando ambos están conectados Y listos
@@ -949,6 +998,7 @@ async function handleReadyClick() {
   syncReadyUI();
   actualizarUITurno();
 
+  // Sonido de confirmación
   if (state.soundEnabled && sounds.playSelectSecret) {
     sounds.playSelectSecret();
   }
@@ -961,6 +1011,7 @@ async function handleReadyClick() {
     });
   }
 
+  // Avisa en el chat según el estado
   if (typeof vistaChat !== "undefined") {
     vistaChat.agregarBurbuja({
       texto: "👍 Te has declarado listo.",
@@ -1007,6 +1058,7 @@ function cederPrimerTurnoAlRival() {
     return;
   }
 
+  // Registra la cesión del turno
   state.primerTurnoCedido = true;
   state.primerTurnoPara = 2; // El jugador 2 (rival) empezará la partida
   state.esMiTurno = false;
@@ -1043,6 +1095,7 @@ function openGuessModal() {
     if (typeof sounds !== "undefined" && sounds.playFail) sounds.playFail();
     return;
   }
+  // Prepara y abre el modal
   const modal = document.getElementById("modal-guess-pokemon");
   if (!modal) return;
   renderGuessGrid();
@@ -1066,9 +1119,11 @@ function closeGuessModal() {
  * Filtra los Pokémon dentro del modal de adivinar (por nombre o tipo, en español o inglés)
  */
 function handleGuessFilter(query) {
+  // Texto de búsqueda normalizado
   const clean = (typeof normalizeSearchText === "function")
     ? normalizeSearchText(query)
     : (query || "").trim().toLowerCase();
+  // Muestra solo las coincidencias
   const items = document.querySelectorAll(".guess-item");
   items.forEach(el => {
     const name = (typeof normalizeSearchText === "function")
@@ -1099,9 +1154,11 @@ function renderGuessGrid() {
       ? getCombinedTypeSearchString(pokemon.types)
       : (pokemon.types || []).join(" ").toLowerCase();
 
+    // Marca los ya descartados
     const isDiscarded = state.discardedIds.has(pokemon.id);
     if (isDiscarded) item.classList.add("is-discarded");
 
+    // Miniatura y número del candidato
     const guessThumbHtml = state.roomProMode
       ? `<span class="guess-thumb-pro">?</span>`
       : `<img src="${pokemon.image}" alt="${pokemon.name}" class="guess-thumb ${state.roomGrayscale ? 'sprite-grayscale' : ''}">`;
@@ -1116,6 +1173,7 @@ function renderGuessGrid() {
       <span class="guess-name">${pokemon.name}</span>
     `;
 
+    // Confirma antes de enviar el intento
     item.addEventListener("click", () => {
       const confirmGuess = confirm(`¿Estás seguro de adivinar que el Pokémon secreto de tu rival es ${pokemon.name}?`);
       if (!confirmGuess) return;
@@ -1131,6 +1189,7 @@ function renderGuessGrid() {
  * Envía el intento oficial de adivinanza al rival por P2P o lo evalúa en modo local
  */
 function sendGuessAttempt(pokemon) {
+  // Validaciones de partida y turno
   if (state.isGameOver) {
     showToast("La partida ha finalizado. Pulsa Revancha para empezar de nuevo.", "info");
     return;
@@ -1141,6 +1200,7 @@ function sendGuessAttempt(pokemon) {
     return;
   }
 
+  // Con P2P envía el intento al rival
   if (typeof redP2P !== "undefined" && redP2P.conectado) {
     showToast(`Enviando conjetura: "${pokemon.name}"...`, "info", 3000);
     redP2P.enviarAccionJuego("ADIVINAR", {
@@ -1167,6 +1227,7 @@ function sendGuessAttempt(pokemon) {
     const rivalSecret = state.secretPokemonRival || state.secretPokemon;
     const acierto = Boolean(rivalSecret && rivalSecret.id === pokemon.id);
 
+    // Acierto en modo local: muestra victoria
     if (acierto) {
       if (state.soundEnabled && sounds.playSelectSecret) sounds.playSelectSecret();
       if (typeof showGameResultModal === "function") {
@@ -1252,6 +1313,7 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
   const bodyEl = document.getElementById("result-modal-body");
   if (!modal || !bodyEl) return;
 
+  // Marca el fin de la partida
   state.isGameOver = true;
 
   // El botón de reiniciar partida solo aparece cuando la partida se haya acabado
@@ -1266,6 +1328,7 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
 
   if (titleEl) titleEl.textContent = titulo;
 
+  // Aviso si hubo trampa
   let badgeHtml = "";
   if (esTrampa) {
     badgeHtml = `
@@ -1279,6 +1342,7 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
     `;
   }
 
+  // Muestra el Pokémon del rival
   let pokeHtml = "";
   if (pokemonRival) {
     const labelTexto = etiquetaPokemon || "Pokémon que eligió tu rival:";
@@ -1291,6 +1355,7 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
     `;
   }
 
+  // Rellena y abre el modal
   bodyEl.innerHTML = `
     <p class="result-subtitle">${subtitulo}</p>
     ${pokeHtml}
@@ -1304,6 +1369,7 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
  * Entra al modo de selección de Pokémon secreto desde el tablero
  */
 function enterSelectingSecretMode() {
+  // No permite cambiar si ya empezó
   const partidaBloqueada = state.isGameStarted || (state.isPlayerReady && state.isRivalReady);
   if (partidaBloqueada) {
     showToast("La partida ya comenzó. No puedes cambiar tu Pokémon secreto.", "warning");
@@ -1336,11 +1402,13 @@ function exitSelectingSecretMode() {
  * @param {string} query
  */
 function handleBoardFilter(query) {
+  // Normaliza el texto de búsqueda
   const clean = (typeof normalizeSearchText === "function")
     ? normalizeSearchText(query)
     : (query || "").trim().toLowerCase();
   const cards = document.querySelectorAll(".poke-card");
 
+  // Oculta las cartas que no coinciden
   cards.forEach(card => {
     if (!clean) {
       card.style.display = "";
@@ -1361,6 +1429,7 @@ function handleBoardFilter(query) {
  * Vincula todos los event listeners de la Pantalla 2 (Tablero)
  */
 function bindBoardEvents() {
+  // Botón de nueva configuración
   const btnNewConfig = document.getElementById("btn-new-config");
   if (btnNewConfig) {
     btnNewConfig.addEventListener("click", () => {
@@ -1373,6 +1442,7 @@ function bindBoardEvents() {
     });
   }
 
+  // Botón de copiar enlace (con alternativa)
   const btnCopyLink = document.getElementById("btn-copy-link");
   if (btnCopyLink) {
     btnCopyLink.addEventListener("click", async () => {
@@ -1393,6 +1463,7 @@ function bindBoardEvents() {
     });
   }
 
+  // Botón de ocultar código de sala
   const btnToggleCodeHide = document.getElementById("btn-toggle-code-hide");
   if (btnToggleCodeHide) {
     btnToggleCodeHide.addEventListener("click", () => {
@@ -1414,6 +1485,7 @@ function bindBoardEvents() {
     });
   }
 
+  // Botón de copiar código
   const btnCopyCode = document.getElementById("btn-copy-code");
   if (btnCopyCode) {
     btnCopyCode.addEventListener("click", async () => {
@@ -1433,16 +1505,19 @@ function bindBoardEvents() {
     });
   }
 
+  // Botón de quitar todos los descartes
   const btnReset = document.getElementById("btn-reset-discards");
   if (btnReset) {
     btnReset.addEventListener("click", resetDiscards);
   }
 
+  // Botón de ocultar secreto
   const btnToggleSecretHide = document.getElementById("btn-toggle-secret-hide");
   if (btnToggleSecretHide) {
     btnToggleSecretHide.addEventListener("click", toggleSecretHide);
   }
 
+  // Botón de grito del secreto
   const btnPlaySecretCry = document.getElementById("btn-play-secret-cry");
   if (btnPlaySecretCry) {
     btnPlaySecretCry.addEventListener("click", () => {
@@ -1456,6 +1531,7 @@ function bindBoardEvents() {
     });
   }
 
+  // Clic en el secreto reproduce su grito
   const secretBody = document.getElementById("secret-body");
   if (secretBody) {
     secretBody.addEventListener("click", () => {
@@ -1467,6 +1543,7 @@ function bindBoardEvents() {
     });
   }
 
+  // Botones de elegir y confirmar secreto
   const btnChangeSecret = document.getElementById("btn-change-secret");
   if (btnChangeSecret) {
     btnChangeSecret.addEventListener("click", enterSelectingSecretMode);
@@ -1482,6 +1559,7 @@ function bindBoardEvents() {
     btnCancelSecret.addEventListener("click", exitSelectingSecretMode);
   }
 
+  // Buscador del tablero
   const inputFilter = document.getElementById("input-board-filter");
   if (inputFilter) {
     inputFilter.addEventListener("input", e => {
@@ -1489,6 +1567,7 @@ function bindBoardEvents() {
     });
   }
 
+  // Botón de reintentar la carga
   const btnRetry = document.getElementById("btn-retry-fetch");
   if (btnRetry) {
     btnRetry.addEventListener("click", renderAndFetchBoardPokemon);
@@ -1536,6 +1615,7 @@ function bindBoardEvents() {
     btnRevealAll.addEventListener("click", sendRevealAll);
   }
 
+  // Cierre del modal de resultado
   const btnCloseResult = document.getElementById("btn-close-result-modal");
   const btnAckResult = document.getElementById("btn-ack-result");
   const modalResult = document.getElementById("modal-game-result");
@@ -1551,6 +1631,7 @@ function bindBoardEvents() {
     btnRestartMatch.addEventListener("click", abrirModalReinicio);
   }
 
+  // Botón de revancha desde el resultado
   const btnRestartFromModal = document.getElementById("btn-restart-from-modal");
   if (btnRestartFromModal) {
     btnRestartFromModal.addEventListener("click", () => {
@@ -1559,6 +1640,7 @@ function bindBoardEvents() {
     });
   }
 
+  // Botones del modal de reinicio
   const btnCloseRestart = document.getElementById("btn-close-restart-modal");
   if (btnCloseRestart) {
     btnCloseRestart.addEventListener("click", cancelarSolicitudReinicio);
@@ -1589,6 +1671,7 @@ function bindBoardEvents() {
  * Abre el modal de confirmación de reinicio de partida
  */
 function abrirModalReinicio() {
+  // Elementos del modal de reinicio
   const modal = document.getElementById("modal-restart-confirm");
   const viewPrompt = document.getElementById("restart-state-prompt");
   const viewWaiting = document.getElementById("restart-state-waiting");
@@ -1600,9 +1683,11 @@ function abrirModalReinicio() {
 
   if (!modal) return;
 
+  // Limpia solicitudes previas
   state.solicitudReinicioEnviada = false;
   state.solicitudReinicioRecibida = false;
 
+  // Muestra solo la pantalla de pregunta
   if (viewPrompt) viewPrompt.classList.remove("hidden");
   if (viewWaiting) viewWaiting.classList.add("hidden");
   if (viewReceived) viewReceived.classList.add("hidden");
@@ -1633,6 +1718,7 @@ function cerrarModalReinicio() {
 function solicitarReinicioPartida() {
   const estaConectado = typeof redP2P !== "undefined" && redP2P.conectado;
 
+  // Con P2P pide el reinicio al rival
   if (estaConectado) {
     if (state.solicitudReinicioRecibida) {
       aceptarReinicioPartida();
@@ -1671,6 +1757,7 @@ function solicitarReinicioPartida() {
 function mostrarModalSolicitudReinicioRecibida() {
   state.solicitudReinicioRecibida = true;
 
+  // Oculta el resultado y muestra la solicitud
   const modalResult = document.getElementById("modal-game-result");
   if (modalResult) modalResult.classList.add("hidden");
 
@@ -1685,6 +1772,7 @@ function mostrarModalSolicitudReinicioRecibida() {
 
   if (!modal) return;
 
+  // Muestra solo la vista de solicitud recibida
   if (viewPrompt) viewPrompt.classList.add("hidden");
   if (viewWaiting) viewWaiting.classList.add("hidden");
   if (viewReceived) viewReceived.classList.remove("hidden");
@@ -1696,6 +1784,7 @@ function mostrarModalSolicitudReinicioRecibida() {
 
   modal.classList.remove("hidden");
 
+  // Sonido y avisos al rival
   if (typeof sounds !== "undefined" && sounds.playTurnStart) {
     sounds.playTurnStart();
   }

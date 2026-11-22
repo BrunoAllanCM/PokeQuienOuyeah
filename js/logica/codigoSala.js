@@ -28,12 +28,14 @@ function generateRandomSeed(length = 6) {
  * @returns {string}
  */
 function buildRoomCode(seed, gensSet, showTypes = true, showGens = true, grayscale = false, proMode = false, gameMode = "standard") {
+  // Modo Pro oculta tipos y generación y quita escala de grises
   if (proMode) {
     showTypes = false;
     showGens = false;
     grayscale = false;
   }
 
+  // Une semilla, generaciones y banderas opcionales
   const gensSortedStr = Array.from(gensSet).sort((a, b) => a - b).join("");
   let code = `${seed.toUpperCase()}-${gensSortedStr}`;
   if (!showTypes) code += "-NT";
@@ -56,6 +58,7 @@ function parseRoomCode(rawCode) {
   }
 
   const clean = rawCode.trim().toUpperCase();
+  // Formato: 6 caracteres, generaciones 1-9 y banderas opcionales
   const regex = /^([A-Z2-9]{6})-([1-9]{1,9})((?:-[A-Z0-9]+)*)$/;
   const match = clean.match(regex);
 
@@ -71,6 +74,7 @@ function parseRoomCode(rawCode) {
   const flagsStr = match[3] || "";
   const flags = flagsStr.split("-").filter(Boolean);
 
+  // Rechaza banderas desconocidas
   const validFlags = new Set(["NT", "NG", "GS", "NN", "SN", "PRO", "INI", "LEG"]);
   for (const f of flags) {
     if (!validFlags.has(f)) {
@@ -78,6 +82,7 @@ function parseRoomCode(rawCode) {
     }
   }
 
+  // Interpreta cada bandera del código
   const noTypes = flags.includes("NT");
   const noGens = flags.includes("NG");
   const grayscale = flags.includes("GS") || flags.includes("NN");
@@ -87,6 +92,7 @@ function parseRoomCode(rawCode) {
   if (flags.includes("INI")) gameMode = "starters";
   if (flags.includes("LEG")) gameMode = "legendaries";
 
+  // Extrae las generaciones sin repetir
   const gens = [];
   const seenGens = new Set();
   for (const char of gensStr) {

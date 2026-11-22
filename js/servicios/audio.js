@@ -2,12 +2,14 @@
  * Controlador de Efectos de Sonido Sintéticos (Web Audio API)
  */
 
+// Reproduce sonidos sintéticos y gritos de Pokémon
 class SoundController {
   constructor() {
     this.ctx = null;
     this.cryVolume = 0.20;
   }
 
+  // Crea el contexto de audio si no existe
   init() {
     if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -15,6 +17,7 @@ class SoundController {
     }
   }
 
+  // Sonido al voltear una carta
   playFlip() {
     if (!state.soundEnabled) return;
     try {
@@ -47,6 +50,7 @@ class SoundController {
     } catch (e) {}
   }
 
+  // Sonido al elegir el Pokémon secreto
   playSelectSecret() {
     if (!state.soundEnabled) return;
     try {
@@ -82,6 +86,7 @@ class SoundController {
     } catch (e) {}
   }
 
+  // Sonido al cambiar de tema
   playThemeSwitch() {
     if (!state.soundEnabled) return;
     try {
@@ -107,6 +112,7 @@ class SoundController {
     } catch (e) {}
   }
 
+  // Sonido al comenzar tu turno
   playTurnStart() {
     if (!state.soundEnabled) return;
     try {
@@ -139,6 +145,7 @@ class SoundController {
     } catch (e) {}
   }
 
+  // Sonido al pasar el turno
   playTurnPass() {
     if (!state.soundEnabled) return;
     try {
@@ -163,6 +170,7 @@ class SoundController {
     } catch (e) {}
   }
 
+  // Sonido de error o adivinanza fallida
   playFail() {
     if (!state.soundEnabled) return;
     try {
@@ -188,6 +196,7 @@ class SoundController {
     } catch (e) {}
   }
 
+  // Reproduce el grito del Pokémon; si falla el legacy usa el actual
   playPokemonCry(id, cryUrl) {
     if (!state.soundEnabled || !id) return;
     try {
@@ -212,4 +221,5 @@ class SoundController {
   }
 }
 
+// Instancia global de sonidos
 const sounds = new SoundController();

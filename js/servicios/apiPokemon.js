@@ -11,6 +11,7 @@ function formatPokemonName(rawName) {
   if (!rawName) return "";
   const name = rawName.toLowerCase();
 
+  // Nombres que no se arreglan solo con mayúsculas
   const specialNames = {
     "mr-mime": "Mr. Mime",
     "mime-jr": "Mime Jr.",
@@ -49,6 +50,7 @@ function formatPokemonName(rawName) {
  * @returns {Promise<{ id: number, name: string, rawName: string, image: string, types: string[] }>}
  */
 async function fetchPokemonData(id) {
+  // Primero intenta leer del caché local
   const cacheKey = `poke_pixel_v3_${id}`;
 
   try {
@@ -78,6 +80,7 @@ async function fetchPokemonData(id) {
     console.warn("No se pudo leer localStorage:", err);
   }
 
+  // Pide a PokéAPI con límite de 12 segundos
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 12000);
 
@@ -93,6 +96,7 @@ async function fetchPokemonData(id) {
 
     const data = await response.json();
 
+    // Elige imagen estática, con respaldos
     const pixelSprite = data.sprites?.front_default;
     const artwork = data.sprites?.other?.["official-artwork"]?.front_default;
     const image =
@@ -109,6 +113,7 @@ async function fetchPokemonData(id) {
         ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`
         : (showdown || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${id}.gif`));
 
+    // Tipos, gritos y registro final del Pokémon
     const types = data.types.map(t => t.type.name);
 
     const cry = data.cries?.latest || `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;

@@ -65,12 +65,14 @@ function configurarEventosP2P() {
 
   // Cuando el rival realiza una acción en su tablero (descarte, reinicio, adivinanza, anti-trampas)
   redP2P.eventos.alRecibirAccion = async (tipoAccion, datos) => {
+    // Rival descartó cartas: actualiza su contador
     if (tipoAccion === "DESCARTE" && typeof vistaChat !== "undefined") {
       vistaChat.actualizarRivalRestantes(datos.restantes);
       vistaChat.agregarBurbuja({
         texto: `El rival tiene ${datos.restantes} Pokémon restantes en su tablero.`,
         tipo: "system"
       });
+    // Rival reinició sus descartes
     } else if (tipoAccion === "REINICIO" && typeof vistaChat !== "undefined") {
       const totalCards = datos.restantes || state.boardPokemonData.length || (state.roomGameMode === "starters" ? 27 : 30);
       vistaChat.actualizarRivalRestantes(totalCards);
@@ -101,6 +103,7 @@ function configurarEventosP2P() {
       if (typeof actualizarUITurno === "function") {
         actualizarUITurno();
       }
+    // Rival confirmó su Pokémon secreto (y su hash)
     } else if ((tipoAccion === "LISTO" || tipoAccion === "COMPROMISO_HASH") && typeof vistaChat !== "undefined") {
       state.isRivalReady = true;
       if (datos.hash) {
@@ -241,6 +244,7 @@ function configurarEventosP2P() {
           showToast(`Tu rival intentó adivinar (${guessedName}) y falló. ¡Es tu turno!`, "info", 4500);
         }
       }
+    // Rival terminó su turno: ahora juega este jugador
     } else if (tipoAccion === "PASAR_TURNO") {
       state.turnoActual = datos.nuevoTurno;
       state.numeroTurno = datos.numeroTurno || (state.numeroTurno + 1);
@@ -385,6 +389,7 @@ function configurarEventosP2P() {
           }
         }
       }
+    // Fin de partida: se revelan los Pokémon y se verifica el hash
     } else if (tipoAccion === "REVELAR_FINAL") {
       state.isGameOver = true;
       if (datos.pokemon) {
@@ -498,6 +503,7 @@ function iniciarPartidaP2P(codigo, esAnfitrion) {
   }
 }
 
+// Arranca la app: vista inicial, eventos, tema, sonido, pantalla completa y ruta por URL
 function initApp() {
   // 1. Inicializar Pantalla 1 (Setup) y Panel de Chat
   initSetupView();
@@ -561,6 +567,7 @@ function initApp() {
     const iconExpand = btnFs.querySelector(".fs-expand");
     const iconCompress = btnFs.querySelector(".fs-compress");
 
+    // Indica si el navegador está en pantalla completa
     function isFullscreenActive() {
       return Boolean(
         document.fullscreenElement ||
@@ -570,6 +577,7 @@ function initApp() {
       );
     }
 
+    // Ajusta iconos y título del botón según la pantalla completa
     function syncFullscreenUI() {
       const active = isFullscreenActive();
       if (iconExpand && iconCompress) {

@@ -103,6 +103,7 @@
   background: var(--poke-red);
 }
 
+/* Animación de espera del indicador de estado */
 @keyframes pulseWait {
   0%, 100% { opacity: 0.4; transform: scale(0.9); }
   50% { opacity: 1; transform: scale(1.15); }
@@ -131,6 +132,7 @@
   scroll-behavior: smooth;
 }
 
+/* Barra de desplazamiento del chat */
 .chat-messages::-webkit-scrollbar {
   width: 5px;
 }
@@ -199,6 +201,7 @@
   border-radius: var(--radius-full);
 }
 
+/* Animación de entrada de burbujas */
 @keyframes bubbleIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }

@@ -2,6 +2,7 @@
  * Constantes y Datos Estáticos de Pokémon
  */
 
+// Lista de generaciones con su rango de IDs
 const GENERATIONS = [
   { id: 1, name: "Kanto", start: 1, end: 151, count: 151, roman: "GEN I" },
   { id: 2, name: "Johto", start: 152, end: 251, count: 100, roman: "GEN II" },
@@ -82,8 +83,10 @@ var LEGENDARY_POKEMON_IDS = [
   1001, 1002, 1003, 1004, 1007, 1008, 1014, 1015, 1016, 1017, 1024, 1025
 ];
 
+// Caracteres permitidos en semillas (sin ambiguos como 0, O, 1, I)
 const SEED_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
+// Traducción de tipos de inglés a español
 const TYPE_TRANSLATIONS = {
   normal: "Normal",
   fire: "Fuego",

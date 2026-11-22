@@ -2,7 +2,9 @@
  * Controlador de la Interfaz del Chat en Tiempo Real
  */
 
+// Objeto que maneja el chat y el estado de conexión del rival
 const vistaChat = {
+  // Referencias a elementos del DOM (se llenan en init)
   elementos: {
     contenedor: null,
     mensajes: null,
@@ -85,6 +87,7 @@ const vistaChat = {
 
     const div = document.createElement("div");
 
+    // Mensajes del sistema: burbuja simple; los demás con autor y hora
     if (tipo === "system") {
       div.className = "chat-bubble chat-bubble-system";
       div.innerHTML = `<span>${texto}</span>`;
@@ -100,6 +103,7 @@ const vistaChat = {
     }
 
     this.elementos.mensajes.appendChild(div);
+    // Baja el scroll al último mensaje
     this.elementos.mensajes.scrollTop = this.elementos.mensajes.scrollHeight;
   },
 
