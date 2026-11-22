@@ -30,6 +30,7 @@
       <span id="turn-sub"></span>
     </div>
     <span id="counter-remaining">30</span>
+    <span id="counter-total">/ 30</span>
     <button id="btn-finish-turn"></button>
     <button id="btn-guess-rival"></button>
     <button id="btn-change-secret"></button>
@@ -248,6 +249,40 @@
       assert(bodyModal.includes("Charizard"), "El modal del perdedor muestra el nombre del Pokémon que eligió el rival ganador (Charizard)");
       assert(bodyModal.includes("Pokémon que eligió tu rival:"), "El modal muestra la etiqueta 'Pokémon que eligió tu rival:'");
       assert(!bodyModal.includes("<h4>#025 Pikachu</h4>"), "El modal NO muestra el Pokémon del propio perdedor en la vitrina destacada");
+
+      // Test 18: Modo de Juego "Solo Iniciales" (27 Pokémon base)
+      assert(typeof STARTER_POKEMON_IDS !== "undefined" && STARTER_POKEMON_IDS.length === 27, "STARTER_POKEMON_IDS contiene exactamente 27 iniciales (Gen 1-9 en 1ª fase)");
+      const codeIni = buildRoomCode("INICIA", new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]), true, true, false, false, "starters");
+      assert(codeIni.includes("-INI"), "buildRoomCode con modo starters genera código con flag '-INI'");
+      const parsedIni = parseRoomCode(codeIni);
+      assert(parsedIni.valid && parsedIni.gameMode === "starters", "parseRoomCode detecta correctamente gameMode 'starters'");
+      const boardIni1 = computeBoardIds("SEMINI", [1, 2, 3, 4, 5, 6, 7, 8, 9], "starters");
+      const boardIni2 = computeBoardIds("SEMINI", [1, 2, 3, 4, 5, 6, 7, 8, 9], "starters");
+      assert(boardIni1.length === 27, "computeBoardIds en modo iniciales genera un tablero de exactamente 27 cartas");
+      assert(JSON.stringify(boardIni1) === JSON.stringify(boardIni2), "computeBoardIds en modo iniciales es 100% determinista");
+      assert(boardIni1.every(id => STARTER_POKEMON_IDS.includes(id)), "Todas las cartas generadas en modo iniciales son exclusivamente iniciales");
+
+      // Test 19: Modo de Juego "Solo Legendarios" (30 Pokémon legendarios)
+      assert(typeof LEGENDARY_POKEMON_IDS !== "undefined" && LEGENDARY_POKEMON_IDS.length >= 30, "LEGENDARY_POKEMON_IDS contiene el pool oficial de Pokémon legendarios");
+      const codeLeg = buildRoomCode("LEGEND", new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]), true, true, false, false, "legendaries");
+      assert(codeLeg.includes("-LEG"), "buildRoomCode con modo legendaries genera código con flag '-LEG'");
+      const parsedLeg = parseRoomCode(codeLeg);
+      assert(parsedLeg.valid && parsedLeg.gameMode === "legendaries", "parseRoomCode detecta correctamente gameMode 'legendaries'");
+      const boardLeg1 = computeBoardIds("SEMLEG", [1, 2, 3, 4, 5, 6, 7, 8, 9], "legendaries");
+      const boardLeg2 = computeBoardIds("SEMLEG", [1, 2, 3, 4, 5, 6, 7, 8, 9], "legendaries");
+      assert(boardLeg1.length === 30, "computeBoardIds en modo legendarios genera exactamente 30 cartas");
+      assert(JSON.stringify(boardLeg1) === JSON.stringify(boardLeg2), "computeBoardIds en modo legendarios es 100% determinista");
+      assert(boardLeg1.every(id => LEGENDARY_POKEMON_IDS.includes(id)), "Todas las cartas generadas en modo legendarios son exclusivamente legendarios");
+      const paradoxIds = [1009, 1010, 1020, 1021, 1022, 1023];
+      assert(paradoxIds.every(id => !LEGENDARY_POKEMON_IDS.includes(id)), "Versiones paradoja de legendarios (Walking Wake, Gouging Fire, Raging Bolt, Iron Leaves, Iron Boulder, Iron Crown) están 100% excluidas");
+
+      // Test 20: Adaptabilidad dinámica del contador de cartas (/ 27 vs / 30)
+      state.roomGameMode = "starters";
+      state.boardPokemonData = Array.from({ length: 27 }, (_, i) => ({ id: i + 1, name: `Starter_${i+1}` }));
+      state.discardedIds.clear();
+      updateCounterAndProgress();
+      const counterTotalEl = document.getElementById("counter-total");
+      assert(counterTotalEl && counterTotalEl.textContent === "/ 27", "El contador total se adapta dinámicamente a '/ 27' en modo Solo Iniciales");
 
       // Resumen final
       const allPassed = results.every(r => r.pass);

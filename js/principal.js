@@ -18,7 +18,8 @@ function configurarEventosP2P() {
         tipo: "system"
       });
       // Sincronizar conteo inicial de cartas
-      const restantes = 30 - state.discardedIds.size;
+      const totalCards = state.boardPokemonData.length || (state.roomGameMode === "starters" ? 27 : 30);
+      const restantes = totalCards - state.discardedIds.size;
       redP2P.enviarAccionJuego("DESCARTE", { restantes });
 
       // Configurar turno inicial: Por defecto el anfitrión empieza, salvo que ya haya cedido el turno
@@ -71,9 +72,10 @@ function configurarEventosP2P() {
         tipo: "system"
       });
     } else if (tipoAccion === "REINICIO" && typeof vistaChat !== "undefined") {
-      vistaChat.actualizarRivalRestantes(30);
+      const totalCards = datos.restantes || state.boardPokemonData.length || (state.roomGameMode === "starters" ? 27 : 30);
+      vistaChat.actualizarRivalRestantes(totalCards);
       vistaChat.agregarBurbuja({
-        texto: "El rival ha reiniciado todos sus descartes (30 restantes).",
+        texto: `El rival ha reiniciado todos sus descartes (${totalCards} restantes).`,
         tipo: "system"
       });
     } else if (tipoAccion === "CEDER_PRIMER_TURNO") {

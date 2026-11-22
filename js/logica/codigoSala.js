@@ -17,16 +17,17 @@ function generateRandomSeed(length = 6) {
 }
 
 /**
- * Construye el código de sala según la especificación: [SEMILLA]-[GENERACIONES][-NT][-NG][-GS][-SN]
+ * Construye el código de sala según la especificación: [SEMILLA]-[GENERACIONES][-NT][-NG][-GS][-SN][-INI][-LEG]
  * @param {string} seed
  * @param {Set<number>|number[]} gensSet
  * @param {boolean} showTypes
  * @param {boolean} [showGens=true]
  * @param {boolean} [grayscale=false]
  * @param {boolean} [proMode=false]
+ * @param {string} [gameMode="standard"]
  * @returns {string}
  */
-function buildRoomCode(seed, gensSet, showTypes = true, showGens = true, grayscale = false, proMode = false) {
+function buildRoomCode(seed, gensSet, showTypes = true, showGens = true, grayscale = false, proMode = false, gameMode = "standard") {
   if (proMode) {
     showTypes = false;
     showGens = false;
@@ -39,6 +40,8 @@ function buildRoomCode(seed, gensSet, showTypes = true, showGens = true, graysca
   if (!showGens) code += "-NG";
   if (grayscale) code += "-GS";
   if (proMode) code += "-SN";
+  if (gameMode === "starters" || gameMode === "iniciales") code += "-INI";
+  if (gameMode === "legendaries" || gameMode === "legendarios") code += "-LEG";
   return code;
 }
 
@@ -68,7 +71,7 @@ function parseRoomCode(rawCode) {
   const flagsStr = match[3] || "";
   const flags = flagsStr.split("-").filter(Boolean);
 
-  const validFlags = new Set(["NT", "NG", "GS", "NN", "SN", "PRO"]);
+  const validFlags = new Set(["NT", "NG", "GS", "NN", "SN", "PRO", "INI", "LEG"]);
   for (const f of flags) {
     if (!validFlags.has(f)) {
       return { valid: false, error: "Modificador de sala desconocido en el código." };
@@ -79,6 +82,10 @@ function parseRoomCode(rawCode) {
   const noGens = flags.includes("NG");
   const grayscale = flags.includes("GS") || flags.includes("NN");
   const proMode = flags.includes("SN") || flags.includes("PRO");
+
+  let gameMode = "standard";
+  if (flags.includes("INI")) gameMode = "starters";
+  if (flags.includes("LEG")) gameMode = "legendaries";
 
   const gens = [];
   const seenGens = new Set();
@@ -102,6 +109,7 @@ function parseRoomCode(rawCode) {
     showTypes: !noTypes,
     showGens: !noGens,
     grayscale: grayscale,
-    proMode: proMode
+    proMode: proMode,
+    gameMode: gameMode
   };
 }

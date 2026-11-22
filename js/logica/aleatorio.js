@@ -49,15 +49,55 @@ function seededShuffle(array, randomFn) {
 }
 
 /**
- * Calcula los 30 IDs deterministas para una semilla y conjunto de generaciones dados
+ * Calcula los IDs deterministas para una semilla, conjunto de generaciones y modo de juego dados
  * @param {string} seed
  * @param {number[]|Set<number>} gensArray
- * @returns {number[]} Array con exactamente 30 IDs de Pokémon
+ * @param {string} [gameMode="standard"] "standard", "starters" o "legendaries"
+ * @returns {number[]} Array con los IDs de Pokémon para el tablero
  */
-function computeBoardIds(seed, gensArray) {
-  const pool = [];
+function computeBoardIds(seed, gensArray, gameMode = "standard") {
+  let pool = [];
   const sortedGens = [...gensArray].sort((a, b) => a - b);
 
+  if (gameMode === "starters" || gameMode === "iniciales") {
+    // Modo Solo Iniciales: Las 27 formas base de los iniciales (Gen 1-9)
+    if (typeof STARTER_POKEMON_IDS !== "undefined") {
+      pool = STARTER_POKEMON_IDS.filter(id => {
+        if (sortedGens.length === 0 || sortedGens.length === 9) return true;
+        const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
+        return sortedGens.includes(genNum);
+      });
+      if (pool.length < 9) {
+        pool = [...STARTER_POKEMON_IDS];
+      }
+    } else {
+      pool = [1, 4, 7, 152, 155, 158, 252, 255, 258, 387, 390, 393, 495, 498, 501, 650, 653, 656, 722, 725, 728, 810, 813, 816, 906, 909, 912];
+    }
+    const seedHash = fnv1a(seed);
+    const prng = mulberry32(seedHash);
+    const shuffled = seededShuffle(pool, prng);
+    return shuffled;
+  }
+
+  if (gameMode === "legendaries" || gameMode === "legendarios") {
+    // Modo Solo Legendarios: Pool de Pokémon Legendarios y Singulares
+    if (typeof LEGENDARY_POKEMON_IDS !== "undefined") {
+      pool = LEGENDARY_POKEMON_IDS.filter(id => {
+        if (sortedGens.length === 0 || sortedGens.length === 9) return true;
+        const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
+        return sortedGens.includes(genNum);
+      });
+      if (pool.length < 30) {
+        pool = [...LEGENDARY_POKEMON_IDS];
+      }
+    }
+    const seedHash = fnv1a(seed);
+    const prng = mulberry32(seedHash);
+    const shuffled = seededShuffle(pool, prng);
+    return shuffled.slice(0, 30);
+  }
+
+  // Modo Estándar
   for (const genId of sortedGens) {
     const genDef = GENERATIONS.find(g => g.id === genId);
     if (genDef) {

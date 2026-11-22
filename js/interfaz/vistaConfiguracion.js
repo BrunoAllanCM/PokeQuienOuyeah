@@ -65,6 +65,41 @@ function toggleGen(genId) {
 function updatePoolSummary() {
   const gensCountEl = document.getElementById("summary-gens-count");
   const poolCountEl = document.getElementById("summary-pool-count");
+  const boardCountEl = document.querySelector(".pool-summary-banner .highlight-blue");
+
+  const mode = state.gameModeConfig || "standard";
+
+  if (mode === "starters") {
+    let startersCount = 27;
+    if (typeof STARTER_POKEMON_IDS !== "undefined") {
+      const filtered = STARTER_POKEMON_IDS.filter(id => {
+        if (state.selectedGens.size === 0 || state.selectedGens.size === 9) return true;
+        const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
+        return state.selectedGens.has(genNum);
+      });
+      startersCount = filtered.length >= 9 ? filtered.length : 27;
+    }
+    if (gensCountEl) gensCountEl.textContent = state.selectedGens.size === 9 ? "Todas (9)" : state.selectedGens.size;
+    if (poolCountEl) poolCountEl.textContent = `${startersCount} iniciales`;
+    if (boardCountEl) boardCountEl.textContent = startersCount;
+    return;
+  }
+
+  if (mode === "legendaries") {
+    let legCount = typeof LEGENDARY_POKEMON_IDS !== "undefined" ? LEGENDARY_POKEMON_IDS.length : 79;
+    if (typeof LEGENDARY_POKEMON_IDS !== "undefined") {
+      const filtered = LEGENDARY_POKEMON_IDS.filter(id => {
+        if (state.selectedGens.size === 0 || state.selectedGens.size === 9) return true;
+        const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
+        return state.selectedGens.has(genNum);
+      });
+      legCount = filtered.length >= 30 ? filtered.length : LEGENDARY_POKEMON_IDS.length;
+    }
+    if (gensCountEl) gensCountEl.textContent = state.selectedGens.size === 9 ? "Todas (9)" : state.selectedGens.size;
+    if (poolCountEl) poolCountEl.textContent = `${legCount} legendarios`;
+    if (boardCountEl) boardCountEl.textContent = "30";
+    return;
+  }
 
   let totalPokemon = 0;
   state.selectedGens.forEach(genId => {
@@ -74,6 +109,7 @@ function updatePoolSummary() {
 
   if (gensCountEl) gensCountEl.textContent = state.selectedGens.size;
   if (poolCountEl) poolCountEl.textContent = totalPokemon.toLocaleString("es-ES");
+  if (boardCountEl) boardCountEl.textContent = "30";
 }
 
 /**
@@ -165,6 +201,57 @@ function bindSetupEvents(onLoadRoom) {
       showToast("Seleccionadas generaciones clásicas (Gen 1-3).", "info");
     });
   }
+
+  // Función para seleccionar el modo de juego de forma limpia sin duplicados
+  function selectGameMode(chosenMode, userInitiated = true) {
+    const currentActiveCard = document.querySelector(`.game-mode-card[data-mode="${chosenMode}"]`);
+    if (state.gameModeConfig === chosenMode && currentActiveCard && currentActiveCard.classList.contains("active")) {
+      return; // Ya está activo ese modo, no repetir acción ni toast
+    }
+
+    state.gameModeConfig = chosenMode;
+    const modeCards = document.querySelectorAll(".game-mode-card");
+    modeCards.forEach(c => c.classList.toggle("active", c.dataset.mode === chosenMode));
+
+    const radio = document.querySelector(`input[name="game-mode-choice"][value="${chosenMode}"]`);
+    if (radio) radio.checked = true;
+
+    if (userInitiated) {
+      if (chosenMode === "starters") {
+        showToast("🌱 Modo Solo Iniciales: 27 Pokémon iniciales (1ª fase de Gen 1 a 9).", "info", 3500);
+      } else if (chosenMode === "legendaries") {
+        showToast("👑 Modo Solo Legendarios: Exclusivo de Pokémon Legendarios y Singulares.", "info", 3500);
+      } else {
+        showToast("🌟 Modo Estándar: Todos los Pokémon del rango seleccionado.", "info", 2500);
+      }
+
+      if (typeof sounds !== "undefined" && sounds.playFlip) {
+        sounds.playFlip();
+      }
+    }
+
+    updatePoolSummary();
+  }
+
+  // Selector de Modo de Juego (Estándar, Solo Iniciales, Solo Legendarios)
+  const modeCards = document.querySelectorAll(".game-mode-card");
+  modeCards.forEach(card => {
+    card.addEventListener("click", (e) => {
+      // Ignorar el evento si el target es directamente el input para evitar doble disparo en <label>
+      if (e.target && e.target.tagName === "INPUT") return;
+      const chosenMode = card.dataset.mode || "standard";
+      selectGameMode(chosenMode, true);
+    });
+  });
+
+  const modeRadios = document.querySelectorAll("input[name='game-mode-choice']");
+  modeRadios.forEach(radio => {
+    radio.addEventListener("change", () => {
+      if (radio.checked) {
+        selectGameMode(radio.value || "standard", true);
+      }
+    });
+  });
 
   const chkShowTypes = document.getElementById("chk-show-types");
   const chkShowGens = document.getElementById("chk-show-gens");
@@ -262,7 +349,8 @@ function bindSetupEvents(onLoadRoom) {
         showTypes,
         showGens,
         grayscale,
-        proMode
+        proMode,
+        state.gameModeConfig || "standard"
       );
       onLoadRoom(code, true);
     });

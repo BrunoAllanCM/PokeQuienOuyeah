@@ -36,6 +36,11 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .game-mode-options {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
   .pool-summary-banner {
     flex-wrap: wrap;
     gap: 0.75rem;

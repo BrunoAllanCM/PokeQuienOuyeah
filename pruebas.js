@@ -302,6 +302,33 @@ testState.isGameStarted = verificarPuedeComenzar(testState, mockRedP2P);
 assert(testState.isGameStarted === true, "Partida arranca al estar ambos conectados y listos");
 assert(testState.primerTurnoPara === 2 && testState.esMiTurno === false, "La partida arranca con el turno 1 asignado al rival");
 
+// 9. Tests de Modos Especiales: Solo Iniciales y Solo Legendarios
+console.log("\n📦 9. Módulo Modos Especiales: Solo Iniciales y Solo Legendarios:");
+const { STARTER_POKEMON_IDS, LEGENDARY_POKEMON_IDS } = context;
+assert(STARTER_POKEMON_IDS && STARTER_POKEMON_IDS.length === 27, "Pool de iniciales cuenta con exactamente 27 Pokémon (1ª fase)");
+assert(LEGENDARY_POKEMON_IDS && LEGENDARY_POKEMON_IDS.length >= 30, "Pool de legendarios cuenta con al menos 30 Pokémon legendarios oficiales");
+
+const codeIni = buildRoomCode("INICIA", new Set([1,2,3,4,5,6,7,8,9]), true, true, false, false, "starters");
+assert(codeIni.includes("-INI"), "buildRoomCode añade '-INI' en modo Solo Iniciales");
+const parsedIni = parseRoomCode(codeIni);
+assert(parsedIni.valid && parsedIni.gameMode === "starters", "parseRoomCode reconoce 'starters' con flag '-INI'");
+
+const codeLeg = buildRoomCode("LEGEND", new Set([1,2,3,4,5,6,7,8,9]), true, true, false, false, "legendaries");
+assert(codeLeg.includes("-LEG"), "buildRoomCode añade '-LEG' en modo Solo Legendarios");
+const parsedLeg = parseRoomCode(codeLeg);
+assert(parsedLeg.valid && parsedLeg.gameMode === "legendaries", "parseRoomCode reconoce 'legendaries' con flag '-LEG'");
+
+const boardIni = computeBoardIds("SEED12", [1,2,3,4,5,6,7,8,9], "starters");
+assert(boardIni.length === 27, "computeBoardIds en modo iniciales genera exactamente 27 cartas");
+assert(boardIni.every(id => STARTER_POKEMON_IDS.includes(id)), "Todas las cartas generadas en modo iniciales son de STARTER_POKEMON_IDS");
+
+const boardLeg = computeBoardIds("SEED12", [1,2,3,4,5,6,7,8,9], "legendaries");
+assert(boardLeg.length === 30, "computeBoardIds en modo legendarios genera exactamente 30 cartas");
+assert(boardLeg.every(id => LEGENDARY_POKEMON_IDS.includes(id)), "Todas las cartas generadas en modo legendarios son de LEGENDARY_POKEMON_IDS");
+
+const paradoxIds = [1009, 1010, 1020, 1021, 1022, 1023];
+assert(paradoxIds.every(id => !LEGENDARY_POKEMON_IDS.includes(id)), "Versiones paradoja de legendarios (Walking Wake, Gouging Fire, etc.) están excluidas del pool");
+
 // Resumen final
 const passedCount = results.filter(r => r.pass).length;
 console.log("\n==============================================");

@@ -36,13 +36,14 @@ async function loadRoom(code) {
   state.roomShowGens = parsed.showGens;
   state.roomGrayscale = parsed.grayscale || false;
   state.roomProMode = Boolean(parsed.proMode);
+  state.roomGameMode = parsed.gameMode || "standard";
 
   const newUrl = `${window.location.pathname}?sala=${encodeURIComponent(state.roomCode)}`;
   window.history.replaceState({ sala: state.roomCode }, "", newUrl);
 
   showView("view-board");
   renderBoardHeader();
-  state.boardPokemonIds = computeBoardIds(state.roomSeed, state.roomGens);
+  state.boardPokemonIds = computeBoardIds(state.roomSeed, state.roomGens, state.roomGameMode);
   loadDiscardsFromSession();
   loadReadyFromSession();
   loadCryptoCommitmentFromSession();
@@ -108,17 +109,31 @@ function renderBoardHeader() {
       grayscaleBadge.textContent = state.roomGrayscale ? "Sprites: Blanco y Negro" : "Sprites: Color Normal";
     }
   }
+
+  const modeBadge = document.getElementById("board-badge-mode");
+  if (modeBadge) {
+    if (state.roomGameMode === "starters") {
+      modeBadge.textContent = "🌱🔥💧 Solo Iniciales (27)";
+      modeBadge.classList.remove("hidden");
+    } else if (state.roomGameMode === "legendaries") {
+      modeBadge.textContent = "👑 Solo Legendarios (30)";
+      modeBadge.classList.remove("hidden");
+    } else {
+      modeBadge.classList.add("hidden");
+    }
+  }
 }
 
 /**
- * Renderiza 30 skeletons shimmer mientras carga PokéAPI
+ * Renderiza skeletons shimmer mientras carga PokéAPI (27 o 30 según el modo)
  */
 function renderSkeletonGrid() {
   const grid = document.getElementById("board-cards-grid");
   if (!grid) return;
   grid.innerHTML = "";
 
-  for (let i = 0; i < 30; i++) {
+  const count = state.boardPokemonIds?.length || (state.roomGameMode === "starters" ? 27 : 30);
+  for (let i = 0; i < count; i++) {
     const skel = document.createElement("div");
     skel.className = "skeleton-card";
     skel.innerHTML = `
@@ -299,25 +314,31 @@ function handleCardClick(pokemon) {
 
   // Sincronizar acción de descarte con el rival en tiempo real
   if (typeof redP2P !== "undefined" && redP2P.conectado) {
-    const restantes = 30 - state.discardedIds.size;
+    const total = state.boardPokemonData?.length || (state.roomGameMode === "starters" ? 27 : 30);
+    const restantes = total - state.discardedIds.size;
     redP2P.enviarAccionJuego("DESCARTE", { restantes });
   }
 }
 
 /**
- * Actualiza el contador dinámico Restantes: X / 30 y la barra de progreso
+ * Actualiza el contador dinámico Restantes: X / Total y la barra de progreso
  */
 function updateCounterAndProgress() {
-  const remainingCount = 30 - state.discardedIds.size;
+  const total = state.boardPokemonData?.length || (state.roomGameMode === "starters" ? 27 : 30);
+  const remainingCount = total - state.discardedIds.size;
   const counterEl = document.getElementById("counter-remaining");
+  const counterTotalEl = document.getElementById("counter-total");
   const progressFill = document.getElementById("mini-progress-fill");
 
   if (counterEl) {
     counterEl.textContent = remainingCount;
   }
+  if (counterTotalEl) {
+    counterTotalEl.textContent = `/ ${total}`;
+  }
 
   if (progressFill) {
-    const percent = Math.max(0, Math.min(100, (remainingCount / 30) * 100));
+    const percent = Math.max(0, Math.min(100, (remainingCount / total) * 100));
     progressFill.style.width = `${percent}%`;
     if (percent <= 20) {
       progressFill.style.backgroundColor = "var(--poke-red)";
@@ -345,7 +366,8 @@ function resetDiscards() {
   showToast("Se han desmarcado todas las cartas.", "info");
 
   if (typeof redP2P !== "undefined" && redP2P.conectado) {
-    redP2P.enviarAccionJuego("REINICIO", { restantes: 30 });
+    const total = state.boardPokemonData?.length || (state.roomGameMode === "starters" ? 27 : 30);
+    redP2P.enviarAccionJuego("REINICIO", { restantes: total });
   }
 }
 
@@ -1703,10 +1725,11 @@ function reiniciarPartidaMismosPokemon() {
   if (typeof sounds !== "undefined" && sounds.playTurnStart) {
     sounds.playTurnStart();
   }
-  showToast("🔄 ¡Partida reiniciada! Mismos 30 Pokémon listos para jugar.", "success", 4500);
+  const totalCards = state.boardPokemonData.length || (state.roomGameMode === "starters" ? 27 : 30);
+  showToast(`🔄 ¡Partida reiniciada! Mismos ${totalCards} Pokémon listos para jugar.`, "success", 4500);
 
   if (typeof vistaChat !== "undefined") {
-    vistaChat.actualizarRivalRestantes(30);
+    vistaChat.actualizarRivalRestantes(totalCards);
     vistaChat.agregarBurbuja({
       texto: "🔄 ¡Partida reiniciada con las mismas configuraciones y los mismos Pokémon! Elige tu Pokémon secreto y pulsa ¡Listo!.",
       tipo: "system"

@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adivina Quién – Pokémon (2 Jugadores)</title>
-  <meta name="description" content="Juego de Adivina Quién con Pokémon para 2 jugadores mediante código de sala sin servidor.">
+  <meta name="description"
+    content="Juego de Adivina Quién con Pokémon para 2 jugadores mediante código de sala sin servidor.">
   <!-- Fuentes Arcade / Pixel Retro de Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+    rel="stylesheet">
 
   <!-- Hojas de estilos modulares directas desde la carpeta /estilos -->
   <link rel="stylesheet" href="estilos/base.css">
@@ -17,8 +21,10 @@
   <link rel="stylesheet" href="estilos/chat.css">
   <link rel="stylesheet" href="estilos/retro.css">
   <link rel="stylesheet" href="estilos/responsivo.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' fill='%23ef4444'/><path d='M1 12h22' stroke='%23111' stroke-width='2'/><circle cx='12' cy='12' r='4' fill='%23fff' stroke='%23111' stroke-width='2'/><circle cx='12' cy='12' r='2' fill='%23ef4444'/></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='11' fill='%23ef4444'/><path d='M1 12h22' stroke='%23111' stroke-width='2'/><circle cx='12' cy='12' r='4' fill='%23fff' stroke='%23111' stroke-width='2'/><circle cx='12' cy='12' r='2' fill='%23ef4444'/></svg>">
 </head>
+
 <body class="theme-retro">
   <!-- HUD Top Header -->
   <header class="pokedex-header">
@@ -39,28 +45,38 @@
       <div class="header-actions">
         <!-- Selector de Color de Carcasa Pokédex -->
         <div class="casing-picker-wrap">
-          <button id="btn-casing-picker" class="btn-casing-picker" title="Cambiar color de la carcasa Pokédex" aria-label="Color de carcasa Pokédex">
+          <button id="btn-casing-picker" class="btn-casing-picker" title="Cambiar color de la carcasa Pokédex"
+            aria-label="Color de carcasa Pokédex">
             <span id="casing-active-swatch" class="casing-swatch-dot"></span>
             <span class="casing-label">Carcasa</span>
             <svg class="casing-caret" viewBox="0 0 20 20" width="12" height="12" fill="currentColor">
-              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+              <path
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
             </svg>
           </button>
           <div id="casing-color-menu" class="casing-color-menu hidden">
             <div class="casing-menu-header">Color de Carcasa:</div>
             <div class="casing-colors-row">
-              <button type="button" class="casing-swatch active" data-color="rojo" title="Rojo Fuego" style="background-color: #dc2626;"></button>
-              <button type="button" class="casing-swatch" data-color="verde" title="Verde Planta" style="background-color: #22c55e;"></button>
-              <button type="button" class="casing-swatch" data-color="celeste" title="Azul Agua" style="background-color: #0ea5e9;"></button>
-              <button type="button" class="casing-swatch" data-color="rosa" title="Rosa Hada" style="background-color: #ec4899;"></button>
-              <button type="button" class="casing-swatch" data-color="gris" title="Gris Acero" style="background-color: #64748b;"></button>
-              <button type="button" class="casing-swatch" data-color="negro" title="Negro Siniestro" style="background-color: #1e293b;"></button>
+              <button type="button" class="casing-swatch active" data-color="rojo" title="Rojo Fuego"
+                style="background-color: #dc2626;"></button>
+              <button type="button" class="casing-swatch" data-color="verde" title="Verde Planta"
+                style="background-color: #22c55e;"></button>
+              <button type="button" class="casing-swatch" data-color="celeste" title="Azul Agua"
+                style="background-color: #0ea5e9;"></button>
+              <button type="button" class="casing-swatch" data-color="rosa" title="Rosa Hada"
+                style="background-color: #ec4899;"></button>
+              <button type="button" class="casing-swatch" data-color="gris" title="Gris Acero"
+                style="background-color: #64748b;"></button>
+              <button type="button" class="casing-swatch" data-color="negro" title="Negro Siniestro"
+                style="background-color: #1e293b;"></button>
             </div>
           </div>
         </div>
 
         <!-- Selector de Estilo / Tema Pokédex (Oculto) -->
-        <button id="btn-toggle-theme" class="btn-theme-switch hidden" title="Cambiar entre diseño Clásico (Retro) y Moderno (Cyber)" aria-label="Cambiar estilo de Pokédex" style="display: none;">
+        <button id="btn-toggle-theme" class="btn-theme-switch hidden"
+          title="Cambiar entre diseño Clásico (Retro) y Moderno (Cyber)" aria-label="Cambiar estilo de Pokédex"
+          style="display: none;">
           <span id="theme-switch-icon" class="theme-icon">📟</span>
           <span id="theme-switch-text" class="theme-text">Pokédex Clásica</span>
         </button>
@@ -68,19 +84,23 @@
         <!-- Botón de Pantalla Completa (Fullscreen) -->
         <button id="btn-toggle-fullscreen" class="btn-icon" title="Pantalla completa" aria-label="Pantalla completa">
           <svg class="icon fs-expand" viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+            <path fill="currentColor"
+              d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
           </svg>
           <svg class="icon fs-compress hidden" viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-14v3h3v2h-5V5h2z"/>
+            <path fill="currentColor"
+              d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-14v3h3v2h-5V5h2z" />
           </svg>
         </button>
 
         <button id="btn-toggle-sound" class="btn-icon" title="Activar/Silenciar sonido" aria-label="Sonido">
           <svg class="icon sound-on" viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            <path fill="currentColor"
+              d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
           </svg>
           <svg class="icon sound-off hidden" viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.01 4.01H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+            <path fill="currentColor"
+              d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.01 4.01H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
           </svg>
         </button>
         <span class="badge-version">v2.0</span>
@@ -111,7 +131,8 @@
             <div class="card-header">
               <div class="header-icon">
                 <svg viewBox="0 0 24 24" width="22" height="22">
-                  <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  <path fill="currentColor"
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
                 </svg>
               </div>
               <div class="header-text">
@@ -155,7 +176,8 @@
               </div>
 
               <div class="range-quick-actions">
-                <button type="button" id="btn-quick-all" class="btn-secondary btn-sm" title="Marcar todas las generaciones">
+                <button type="button" id="btn-quick-all" class="btn-secondary btn-sm"
+                  title="Marcar todas las generaciones">
                   ★ Todas (Gen 1-9)
                 </button>
                 <button type="button" id="btn-quick-classic" class="btn-secondary btn-sm" title="Marcar Gen 1 a 3">
@@ -196,7 +218,8 @@
               <div class="card-header">
                 <div class="header-icon icon-yellow">
                   <svg viewBox="0 0 24 24" width="22" height="22">
-                    <path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    <path fill="currentColor"
+                      d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
                   </svg>
                 </div>
                 <div class="header-text">
@@ -206,11 +229,39 @@
               </div>
 
               <div class="options-body">
+                <!-- Selector de Modo de Juego -->
+                <div class="game-mode-section">
+                  <div class="mode-section-title">Modo de Tablero:</div>
+                  <div class="game-mode-options" id="game-mode-options-container">
+                    <label class="game-mode-card active" data-mode="standard">
+                      <input type="radio" name="game-mode-choice" value="standard" checked class="sr-only">
+                      <div class="mode-card-icon">🌟</div>
+                      <div class="mode-card-name">Estándar</div>
+                      <div class="mode-card-sub">Todos los Pokémon (30)</div>
+                    </label>
+
+                    <label class="game-mode-card" data-mode="starters">
+                      <input type="radio" name="game-mode-choice" value="starters" class="sr-only">
+                      <div class="mode-card-icon">🌱🔥💧</div>
+                      <div class="mode-card-name">Solo Iniciales</div>
+                      <div class="mode-card-sub">Primera forma</div>
+                    </label>
+
+                    <label class="game-mode-card" data-mode="legendaries">
+                      <input type="radio" name="game-mode-choice" value="legendaries" class="sr-only">
+                      <div class="mode-card-icon">👑</div>
+                      <div class="mode-card-name">Solo Legendarios</div>
+                      <div class="mode-card-sub">(Legendarios, singulares, ultraentes)</div>
+                    </label>
+                  </div>
+                </div>
+
                 <!-- Opción 1: Etiquetas de tipo -->
                 <label class="toggle-option-item" for="chk-show-types">
                   <div class="toggle-info">
                     <span class="toggle-title">Mostrar tipo</span>
-                    <span class="toggle-desc">Muestra u oculta los tipos elementales (Fuego, Agua, etc.) en cada carta.</span>
+                    <span class="toggle-desc">Muestra u oculta los tipos elementales (Fuego, Agua, etc.) en cada
+                      carta.</span>
                   </div>
                   <div class="checkbox-box-wrap">
                     <input type="checkbox" id="chk-show-types" class="custom-chk-input" checked>
@@ -225,7 +276,8 @@
                 <label class="toggle-option-item" for="chk-show-gens">
                   <div class="toggle-info">
                     <span class="toggle-title">Mostrar generación</span>
-                    <span class="toggle-desc">Indica de qué generación es cada uno, desde Kanto hasta Paldea (Gen I a IX).</span>
+                    <span class="toggle-desc">Indica de qué generación es cada uno, desde Kanto hasta Paldea (Gen I a
+                      IX).</span>
                   </div>
                   <div class="checkbox-box-wrap">
                     <input type="checkbox" id="chk-show-gens" class="custom-chk-input" checked>
@@ -240,7 +292,8 @@
                 <label class="toggle-option-item" for="chk-grayscale">
                   <div class="toggle-info">
                     <span class="toggle-title">Activar escala de grises</span>
-                    <span class="toggle-desc">¿Quieres el verdadero reto? Sprites en blanco y negro sin pistas de color.</span>
+                    <span class="toggle-desc">¿Quieres el verdadero reto? Sprites en blanco y negro sin pistas de
+                      color.</span>
                   </div>
                   <div class="checkbox-box-wrap">
                     <input type="checkbox" id="chk-grayscale" class="custom-chk-input">
@@ -254,7 +307,8 @@
                 <!-- Opción 4: Modo Pro Misterioso (Elemento sorpresa: solo letras chiquitas) -->
                 <label class="toggle-option-item option-pro-mode" for="chk-pro-mode">
                   <div class="toggle-info">
-                    <span class="toggle-desc pro-warning-desc">Activa esta casilla bajo tu propio riesgo (solo para verdaderos pros de la pokedex)</span>
+                    <span class="toggle-desc pro-warning-desc">Activa esta casilla bajo tu propio riesgo (solo para
+                      verdaderos pros de la pokedex)</span>
                   </div>
                   <div class="checkbox-box-wrap">
                     <input type="checkbox" id="chk-pro-mode" class="custom-chk-input">
@@ -278,7 +332,8 @@
               <div class="card-header">
                 <div class="header-icon icon-blue">
                   <svg viewBox="0 0 24 24" width="22" height="22">
-                    <path fill="currentColor" d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                    <path fill="currentColor"
+                      d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                   </svg>
                 </div>
                 <div class="header-text">
@@ -289,13 +344,7 @@
 
               <form id="form-join-room" class="join-form" onsubmit="return false;">
                 <div class="join-input-group">
-                  <input
-                    type="text"
-                    id="input-room-code"
-                    class="custom-input"
-                    autocomplete="off"
-                    spellcheck="false"
-                  >
+                  <input type="text" id="input-room-code" class="custom-input" autocomplete="off" spellcheck="false">
                   <button type="submit" id="btn-join-room" class="btn-secondary btn-join">
                     Unirse
                   </button>
@@ -320,7 +369,7 @@
             <div class="topbar-left">
               <button id="btn-new-config" class="btn-secondary btn-sm" title="Volver al menú de configuración">
                 <svg viewBox="0 0 24 24" width="16" height="16">
-                  <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                  <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
                 </svg>
                 Nueva configuración
               </button>
@@ -328,22 +377,28 @@
               <div class="room-info-pill">
                 <span class="room-pill-label">SALA:</span>
                 <span id="board-room-code" class="room-pill-code" data-code="">------</span>
-                <button id="btn-toggle-code-hide" class="btn-icon-subtle" title="Ocultar código de sala" aria-label="Ocultar código de sala">
+                <button id="btn-toggle-code-hide" class="btn-icon-subtle" title="Ocultar código de sala"
+                  aria-label="Ocultar código de sala">
                   <svg id="icon-code-eye-open" viewBox="0 0 24 24" width="15" height="15">
-                    <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    <path fill="currentColor"
+                      d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
                   </svg>
                   <svg id="icon-code-eye-closed" class="hidden" viewBox="0 0 24 24" width="15" height="15">
-                    <path fill="currentColor" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                    <path fill="currentColor"
+                      d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
                   </svg>
                 </button>
-                <button id="btn-copy-code" class="btn-icon-subtle" title="Copiar código de sala" aria-label="Copiar código">
+                <button id="btn-copy-code" class="btn-icon-subtle" title="Copiar código de sala"
+                  aria-label="Copiar código">
                   <svg viewBox="0 0 24 24" width="15" height="15">
-                    <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    <path fill="currentColor"
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
                   </svg>
                 </button>
               </div>
 
               <div class="board-badges">
+                <span id="board-badge-mode" class="badge-hud badge-mode hidden"></span>
                 <span id="board-badge-gens" class="badge-hud">Gen 1-9</span>
                 <span id="board-badge-types" class="badge-hud">Tipos: Visibles</span>
                 <span id="board-badge-grayscale" class="badge-hud">Color: Normal</span>
@@ -360,12 +415,15 @@
                       <span class="secret-title">TU POKÉMON SECRETO</span>
                     </div>
                     <div class="secret-actions">
-                      <button type="button" id="btn-toggle-secret-hide" class="btn-secret-action btn-icon-only" title="Ocultar Pokémon secreto" aria-label="Ocultar Pokémon secreto">
+                      <button type="button" id="btn-toggle-secret-hide" class="btn-secret-action btn-icon-only"
+                        title="Ocultar Pokémon secreto" aria-label="Ocultar Pokémon secreto">
                         <svg id="secret-eye-open" viewBox="0 0 24 24" width="16" height="16">
-                          <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                          <path fill="currentColor"
+                            d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
                         </svg>
                         <svg id="secret-eye-closed" class="hidden" viewBox="0 0 24 24" width="16" height="16">
-                          <path fill="currentColor" d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                          <path fill="currentColor"
+                            d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
                         </svg>
                       </button>
                     </div>
@@ -373,7 +431,8 @@
 
                   <div class="secret-body" id="secret-body">
                     <div class="secret-avatar-wrap">
-                      <img id="secret-img" src="" alt="Pokémon Secreto" class="secret-img" onerror="if (this.dataset.static && this.src !== this.dataset.static) { this.src = this.dataset.static; }">
+                      <img id="secret-img" src="" alt="Pokémon Secreto" class="secret-img"
+                        onerror="if (this.dataset.static && this.src !== this.dataset.static) { this.src = this.dataset.static; }">
                       <div id="secret-mask-cover" class="secret-mask-cover hidden">
                         <span class="mask-icon">❓</span>
                         <span class="mask-text">OCULTO</span>
@@ -401,31 +460,37 @@
                 <!-- Botones al lado de la caja de Tu Pokémon Secreto -->
                 <div class="secret-side-controls" id="secret-side-controls">
                   <!-- Botón Cambiar (un poco más grande, al lado de la caja) -->
-                  <button type="button" id="btn-change-secret" class="btn-side-action btn-change" title="Elegir otro Pokémon del tablero">
+                  <button type="button" id="btn-change-secret" class="btn-side-action btn-change"
+                    title="Elegir otro Pokémon del tablero">
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
-                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                      <path
+                        d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                     </svg>
                     <span>Cambiar</span>
                   </button>
 
                   <!-- Botón Listo para fijar Pokémon e iniciar partida -->
-                  <button type="button" id="btn-ready-game" class="btn-side-action btn-ready" title="Fijar tu Pokémon secreto y comenzar la partida">
+                  <button type="button" id="btn-ready-game" class="btn-side-action btn-ready"
+                    title="Fijar tu Pokémon secreto y comenzar la partida">
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
                     <span id="btn-ready-text">¡Listo!</span>
                   </button>
 
                   <!-- Nota debajo del botón de listo cuando el rival está listo -->
-                  <div id="rival-ready-note" class="rival-ready-note hidden" title="Tu rival ya confirmó su Pokémon secreto">
+                  <div id="rival-ready-note" class="rival-ready-note hidden"
+                    title="Tu rival ya confirmó su Pokémon secreto">
                     <span class="rival-note-dot"></span>
                     <span class="rival-note-text">Tu rival está listo</span>
                   </div>
 
                   <!-- Indicador cuando ya está en juego y no se puede cambiar -->
-                  <div id="badge-game-locked" class="badge-game-locked hidden" title="Partida en curso: Pokémon secreto fijado">
+                  <div id="badge-game-locked" class="badge-game-locked hidden"
+                    title="Partida en curso: Pokémon secreto fijado">
                     <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                      <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                      <path
+                        d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                     </svg>
                     <span>Fijado</span>
                   </div>
@@ -434,21 +499,26 @@
             </div>
 
             <div class="topbar-right">
-              <button type="button" id="btn-guess-rival" class="btn-guess-action btn-sm hidden" title="Adivinar el Pokémon secreto de tu rival">
+              <button type="button" id="btn-guess-rival" class="btn-guess-action btn-sm hidden"
+                title="Adivinar el Pokémon secreto de tu rival">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
                 </svg>
                 <span>🎯 Adivinar Rival</span>
               </button>
-              <button type="button" id="btn-restart-match" class="btn-secondary btn-sm hidden" title="Reiniciar partida con los mismos Pokémon (requiere confirmación de ambos)">
+              <button type="button" id="btn-restart-match" class="btn-secondary btn-sm hidden"
+                title="Reiniciar partida con los mismos Pokémon (requiere confirmación de ambos)">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                  <path
+                    d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
                 </svg>
                 <span>🔄 Reiniciar Partida</span>
               </button>
               <button id="btn-copy-link" class="btn-primary btn-sm">
                 <svg viewBox="0 0 24 24" width="16" height="16">
-                  <path fill="currentColor" d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                  <path fill="currentColor"
+                    d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
                 </svg>
                 Copiar enlace de sala
               </button>
@@ -464,13 +534,15 @@
                   <span class="turn-title" id="turn-title">¡ES TU TURNO!</span>
                   <span class="turn-round-chip" id="turn-round-chip">Turno #1</span>
                 </div>
-                <span class="turn-sub" id="turn-sub">Descarta cartas en tu tablero, haz tu pregunta o intenta adivinar.</span>
+                <span class="turn-sub" id="turn-sub">Descarta cartas en tu tablero, haz tu pregunta o intenta
+                  adivinar.</span>
               </div>
             </div>
             <div class="turn-actions">
-              <button type="button" id="btn-finish-turn" class="btn-finish-turn" title="Terminar mi turno y pasárselo al otro jugador">
+              <button type="button" id="btn-finish-turn" class="btn-finish-turn"
+                title="Terminar mi turno y pasárselo al otro jugador">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6zM16 6h2v12h-2z"/>
+                  <path d="M5.59 7.41L10.18 12l-4.59 4.59L7 18l6-6-6-6zM16 6h2v12h-2z" />
                 </svg>
                 <span>Terminar Turno</span>
               </button>
@@ -483,6 +555,7 @@
               <span class="counter-label">Restantes:</span>
               <span id="counter-remaining" class="counter-val">30</span>
               <span class="counter-total">/ 30</span>
+              <span id="counter-total" class="counter-total">/ 30</span>
               <div class="mini-progress-track">
                 <div id="mini-progress-fill" class="mini-progress-fill" style="width: 100%;"></div>
               </div>
@@ -490,22 +563,21 @@
 
             <div id="board-instruction-banner" class="instruction-banner hidden">
               <span class="banner-pulse"></span>
-              <span id="instruction-banner-text">Haz clic en cualquier carta del tablero para fijarla como tu nuevo Pokémon secreto.</span>
+              <span id="instruction-banner-text">Haz clic en cualquier carta del tablero para fijarla como tu nuevo
+                Pokémon secreto.</span>
               <button id="btn-cancel-secret-select" class="btn-secondary btn-xs">Cancelar</button>
             </div>
 
             <div class="status-controls">
               <div class="search-wrap">
-                <input
-                  type="text"
-                  id="input-board-filter"
-                  class="custom-input input-xs"
-                  placeholder="🔍 Filtrar por nombre o tipo..."
-                >
+                <input type="text" id="input-board-filter" class="custom-input input-xs"
+                  placeholder="🔍 Filtrar por nombre o tipo...">
               </div>
-              <button id="btn-reset-discards" class="btn-secondary btn-sm" title="Quitar el descarte de todas las cartas">
+              <button id="btn-reset-discards" class="btn-secondary btn-sm"
+                title="Quitar el descarte de todas las cartas">
                 <svg viewBox="0 0 24 24" width="15" height="15">
-                  <path fill="currentColor" d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+                  <path fill="currentColor"
+                    d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
                 </svg>
                 Reiniciar descartes
               </button>
@@ -522,7 +594,8 @@
             <div id="board-error-panel" class="board-error-panel hidden">
               <div class="error-icon">⚠️</div>
               <h3>Error al conectar con la PokéAPI</h3>
-              <p id="board-error-desc">No se pudieron cargar todos los Pokémon debido a un problema de conexión temporal.</p>
+              <p id="board-error-desc">No se pudieron cargar todos los Pokémon debido a un problema de conexión
+                temporal.</p>
               <button id="btn-retry-fetch" class="btn-primary">
                 Reintentar carga
               </button>
@@ -558,17 +631,11 @@
 
           <!-- Formulario de Entrada de Texto -->
           <form id="chat-form" class="chat-form" onsubmit="return false;">
-            <input
-              type="text"
-              id="chat-input"
-              class="chat-input"
-              placeholder="Escribe una pregunta o mensaje..."
-              maxlength="150"
-              autocomplete="off"
-            >
+            <input type="text" id="chat-input" class="chat-input" placeholder="Escribe una pregunta o mensaje..."
+              maxlength="150" autocomplete="off">
             <button type="submit" id="chat-send-btn" class="chat-send-btn" title="Enviar mensaje">
               <svg viewBox="0 0 24 24" width="18" height="18">
-                <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
               </svg>
             </button>
           </form>
@@ -578,23 +645,27 @@
   </main>
 
   <!-- Modal: Adivinar Pokémon del Rival -->
-  <div id="modal-guess-pokemon" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="guess-modal-title">
+  <div id="modal-guess-pokemon" class="modal-overlay hidden" role="dialog" aria-modal="true"
+    aria-labelledby="guess-modal-title">
     <div class="modal-card">
       <div class="modal-header">
         <h3 id="guess-modal-title">🎯 Adivinar Pokémon del Rival</h3>
-        <button type="button" id="btn-close-guess-modal" class="btn-modal-close" aria-label="Cerrar modal">&times;</button>
+        <button type="button" id="btn-close-guess-modal" class="btn-modal-close"
+          aria-label="Cerrar modal">&times;</button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">Elige el Pokémon que crees que tiene tu rival. ¡Si aciertas ganarás la partida!</p>
         <div class="modal-filter-wrap">
-          <input type="text" id="input-guess-filter" class="modal-filter-input" placeholder="Buscar por nombre o tipo..." autocomplete="off">
+          <input type="text" id="input-guess-filter" class="modal-filter-input"
+            placeholder="Buscar por nombre o tipo..." autocomplete="off">
         </div>
         <div id="guess-pokemon-grid" class="guess-grid">
           <!-- Tarjetas compactas generadas por JS -->
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="btn-reveal-all" class="btn-secondary btn-sm" title="Revelar ambos Pokémon al finalizar la partida">
+        <button type="button" id="btn-reveal-all" class="btn-secondary btn-sm"
+          title="Revelar ambos Pokémon al finalizar la partida">
           Revelar ambos Pokémon
         </button>
       </div>
@@ -606,7 +677,8 @@
     <div class="modal-card modal-result-card">
       <div class="modal-header">
         <h3 id="result-modal-title">Resultado de la Partida</h3>
-        <button type="button" id="btn-close-result-modal" class="btn-modal-close" aria-label="Cerrar modal">&times;</button>
+        <button type="button" id="btn-close-result-modal" class="btn-modal-close"
+          aria-label="Cerrar modal">&times;</button>
       </div>
       <div class="modal-body" id="result-modal-body">
         <!-- Contenido dinámico generado según acierto o detección de trampa -->
@@ -619,11 +691,13 @@
   </div>
 
   <!-- Modal: Confirmación Mutua de Reinicio de Partida -->
-  <div id="modal-restart-confirm" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="restart-modal-title">
+  <div id="modal-restart-confirm" class="modal-overlay hidden" role="dialog" aria-modal="true"
+    aria-labelledby="restart-modal-title">
     <div class="modal-card modal-restart-card">
       <div class="modal-header">
         <h3 id="restart-modal-title">🔄 Reiniciar Partida</h3>
-        <button type="button" id="btn-close-restart-modal" class="btn-modal-close" aria-label="Cerrar modal">&times;</button>
+        <button type="button" id="btn-close-restart-modal" class="btn-modal-close"
+          aria-label="Cerrar modal">&times;</button>
       </div>
       <div class="modal-body" id="restart-modal-body">
         <div id="restart-state-prompt" class="restart-dialog-view">
@@ -631,7 +705,8 @@
             ¿Deseas reiniciar la partida con las <strong>mismas configuraciones y los mismos 30 Pokémon</strong>?
           </p>
           <p class="restart-hint">
-            💡 Ambos jugadores deben confirmar para comenzar. Las cartas descartadas se limpiarán y se sortearán nuevos Pokémon secretos.
+            💡 Ambos jugadores deben confirmar para comenzar. Las cartas descartadas se limpiarán y se sortearán nuevos
+            Pokémon secretos.
           </p>
         </div>
         <div id="restart-state-waiting" class="restart-dialog-view hidden">
@@ -661,7 +736,8 @@
   <footer class="app-footer">
     <div class="footer-content">
       <span>PokéQuién • Adivina Quién con Pokémon • 2 Jugadores en Tiempo Real</span>
-      <span class="footer-credits">Datos provistos por <a href="https://pokeapi.co/" target="_blank" rel="noopener noreferrer">PokéAPI</a>. Pokémon es marca registrada de Nintendo, Creatures y Game Freak.</span>
+      <span class="footer-credits">Datos provistos por <a href="https://pokeapi.co/" target="_blank"
+          rel="noopener noreferrer">PokéAPI</a>. Pokémon es marca registrada de Nintendo, Creatures y Game Freak.</span>
     </div>
   </footer>
 
@@ -684,5 +760,5 @@
   <script src="js/interfaz/vistaChat.js"></script>
   <script src="js/principal.js"></script>
 </body>
-</html>
 
+</html>

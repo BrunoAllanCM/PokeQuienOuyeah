@@ -9,6 +9,7 @@ const state = {
   showTypesConfig: true,
   showGensConfig: true,
   grayscaleConfig: false,
+  gameModeConfig: "standard", // "standard", "starters" o "legendaries"
 
   // Sala Activa en Pantalla 2 (Tablero)
   roomCode: null,
@@ -18,6 +19,7 @@ const state = {
   roomShowGens: true,
   roomGrayscale: false,
   roomProMode: false,
+  roomGameMode: "standard", // "standard", "starters" o "legendaries"
   boardPokemonIds: [],
   boardPokemonData: [],
 

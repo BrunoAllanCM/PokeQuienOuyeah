@@ -283,6 +283,85 @@
   gap: 1.5rem;
 }
 
+/* Selector de Modos de Juego Especiales */
+.game-mode-section {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mode-section-title {
+  font-family: var(--font-pixel);
+  font-size: var(--tamano-titulitos-opcion, 0.92rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.65rem;
+}
+
+.game-mode-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.game-mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.75rem 0.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.game-mode-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.game-mode-card.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+}
+
+.game-mode-card[data-mode="starters"].active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.game-mode-card[data-mode="legendaries"].active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+.mode-card-icon {
+  font-size: 1.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.mode-card-name {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.mode-card-sub {
+  font-family: var(--font-desc, monospace);
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  line-height: 1.25;
+}
+
 /* Switch toggle */
 .toggle-option-item {
   display: flex;
