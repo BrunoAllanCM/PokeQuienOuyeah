@@ -50,11 +50,27 @@ async function loadRoom(code) {
   showView("view-board");
   renderBoardHeader();
   state.boardPokemonIds = computeBoardIds(state.roomSeed, state.roomGens, state.roomGameMode);
-  // Recupera datos guardados de la sesión
+
+  // Limpia modales previos al cargar sala
+  detenerConfettiResultado();
+  const modalResult = document.getElementById("modal-game-result");
+  if (modalResult) modalResult.classList.add("hidden");
+
+  // Recupera datos guardados de la sesión (descartes, estado de partida, turno y resultado final)
   loadDiscardsFromSession();
   loadReadyFromSession();
   loadCryptoCommitmentFromSession();
   loadTurnFromSession();
+  if (typeof loadGameResultFromSession === "function") {
+    loadGameResultFromSession();
+  }
+
+  // Muestra u oculta el botón de reiniciar según si la partida ya había terminado
+  const btnRestartMatch = document.getElementById("btn-restart-match");
+  if (btnRestartMatch) {
+    btnRestartMatch.classList.toggle("hidden", !state.isGameOver);
+  }
+
   // Protege el estado contra trampas
   if (typeof seguridadAntiTrampas !== "undefined") {
     seguridadAntiTrampas.blindarEstadoJuego(state);
@@ -62,6 +78,16 @@ async function loadRoom(code) {
   syncReadyUI();
   actualizarUITurno();
   await renderAndFetchBoardPokemon();
+
+  // Si la partida ya había terminado (victoria/derrota), restaurar el modal de resultado y opción de revancha
+  if (state.isGameOver && state.savedGameResult) {
+    syncReadyUI();
+    actualizarUITurno();
+    showGameResultModal({
+      ...state.savedGameResult,
+      esRestauracion: true
+    });
+  }
 }
 
 let isRoomCodeHidden = false;
@@ -463,6 +489,44 @@ function actualizarUITurno() {
   const esAnfitrion = typeof redP2P !== "undefined" ? redP2P.esAnfitrion : true;
   const juegoIniciado = Boolean(state.isGameStarted);
 
+  // ========================================================
+  // PARTIDA FINALIZADA (VICTORIA / DERROTA / TRAMPA)
+  // ========================================================
+  if (state.isGameOver) {
+    turnBar.classList.remove("is-pregame", "is-my-turn", "is-rival-turn");
+    const tipoRes = state.savedGameResult?.tipoResultado;
+    if (tipoRes === "victory") turnBar.classList.add("is-my-turn");
+    else turnBar.classList.add("is-rival-turn");
+
+    if (turnRoundChip) {
+      turnRoundChip.textContent = "Finalizada";
+    }
+    if (turnTitle) {
+      if (tipoRes === "victory") turnTitle.textContent = "🏆 ¡PARTIDA GANADA!";
+      else if (tipoRes === "defeat") turnTitle.textContent = "💀 PARTIDA TERMINADA";
+      else turnTitle.textContent = "🏁 PARTIDA FINALIZADA";
+    }
+    if (turnSub) {
+      turnSub.textContent = "La partida ya terminó. Pulsa '🔄 Reiniciar / Revancha' para volver a jugar con los mismos Pokémon.";
+    }
+    if (btnFinishTurn) {
+      btnFinishTurn.classList.add("hidden");
+      btnFinishTurn.disabled = true;
+    }
+    if (btnGuessRival) {
+      btnGuessRival.classList.add("hidden");
+      btnGuessRival.disabled = true;
+    }
+    if (cardsGrid) {
+      cardsGrid.classList.add("tablero-bloqueado-turno");
+    }
+    const btnRestartMatch = document.getElementById("btn-restart-match");
+    if (btnRestartMatch) {
+      btnRestartMatch.classList.remove("hidden");
+    }
+    return;
+  }
+
   if (!juegoIniciado) {
     // ========================================================
     // FASE PREVIA A INICIAR LA PARTIDA (PRE-PARTIDA)
@@ -766,9 +830,11 @@ function initSecretPokemon() {
   if (poke) {
     setSecretPokemon(poke, false);
   } else {
-    // No hay selección previa: no autoseleccionar nada, el usuario debe elegirlo
+    // No hay selección previa: no autoseleccionar nada, el usuario debe elegirlo (salvo si ya terminó)
     clearSecretPokemon();
-    enterSelectingSecretMode();
+    if (!state.isGameOver) {
+      enterSelectingSecretMode();
+    }
   }
 }
 
@@ -933,9 +999,9 @@ function syncReadyUI() {
   // Regla estricta: La partida SOLO puede arrancar y bloquearse si AMBOS están conectados Y AMBOS están listos
   const ambosListosYConectados = Boolean(estanConectados && state.isPlayerReady && state.isRivalReady);
 
-  // Partida iniciada: bloquea los controles
-  if (ambosListosYConectados || state.isGameStarted) {
-    if (ambosListosYConectados) {
+  // Partida iniciada o finalizada: bloquea los controles de preparación
+  if (ambosListosYConectados || state.isGameStarted || state.isGameOver) {
+    if (ambosListosYConectados && !state.isGameOver) {
       state.isGameStarted = true;
     }
     if (btnChange) btnChange.classList.add("hidden");
@@ -1087,6 +1153,7 @@ function cederPrimerTurnoAlRival() {
   state.primerTurnoPara = 2; // El jugador 2 (rival) empezará la partida
   state.esMiTurno = false;
   state.turnoActual = 2;
+  if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
 
   if (typeof redP2P !== "undefined" && redP2P.conectado) {
     redP2P.enviarAccionJuego("CEDER_PRIMER_TURNO", {
@@ -1477,7 +1544,7 @@ function lanzarConfettiResultado(tipo = "victory") {
 /**
  * Muestra el modal con el resultado y la comprobación criptográfica
  */
-function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etiquetaPokemon, tipoResultado }) {
+function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etiquetaPokemon, tipoResultado, esRestauracion = false }) {
   const modal = document.getElementById("modal-game-result");
   const cardEl = modal ? modal.querySelector(".modal-result-card") : null;
   const titleEl = document.getElementById("result-modal-title");
@@ -1495,6 +1562,21 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
     else if (tituloUpper.includes("VICTORIA")) tipo = "victory";
     else if (tituloUpper.includes("DERROTA")) tipo = "defeat";
     else tipo = "neutral";
+  }
+
+  // Persiste el resultado y estado de partida finalizada en sessionStorage para sobrevivir recargas
+  if (typeof saveGameResultToSession === "function") {
+    saveGameResultToSession({
+      titulo,
+      subtitulo,
+      esTrampa: Boolean(esTrampa),
+      pokemonRival: pokemonRival || null,
+      etiquetaPokemon: etiquetaPokemon || null,
+      tipoResultado: tipo
+    });
+  }
+  if (typeof saveMatchStateToSession === "function") {
+    saveMatchStateToSession();
   }
 
   // Aplica la clase visual del resultado al modal (victoria dorada o derrota apagada)
@@ -1562,15 +1644,17 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
 
   modal.classList.remove("hidden");
 
-  // Efectos de sonido y confetti según victoria o derrota
-  if (tipo === "victory") {
-    if (typeof sounds !== "undefined" && sounds.playVictory) sounds.playVictory();
-    lanzarConfettiResultado("victory");
-  } else if (tipo === "defeat") {
-    if (typeof sounds !== "undefined" && sounds.playDefeat) sounds.playDefeat();
-    lanzarConfettiResultado("defeat");
-  } else if (tipo === "cheat") {
-    if (typeof sounds !== "undefined" && sounds.playFail) sounds.playFail();
+  // Efectos de sonido y confetti solo cuando acaba de terminar (evita repetir ruido al recargar F5)
+  if (!esRestauracion) {
+    if (tipo === "victory") {
+      if (typeof sounds !== "undefined" && sounds.playVictory) sounds.playVictory();
+      lanzarConfettiResultado("victory");
+    } else if (tipo === "defeat") {
+      if (typeof sounds !== "undefined" && sounds.playDefeat) sounds.playDefeat();
+      lanzarConfettiResultado("defeat");
+    } else if (tipo === "cheat") {
+      if (typeof sounds !== "undefined" && sounds.playFail) sounds.playFail();
+    }
   }
 }
 
@@ -1578,10 +1662,15 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
  * Entra al modo de selección de Pokémon secreto desde el tablero
  */
 function enterSelectingSecretMode() {
-  // No permite cambiar si ya empezó
-  const partidaBloqueada = state.isGameStarted || (state.isPlayerReady && state.isRivalReady);
+  // No permite cambiar si ya empezó o terminó
+  const partidaBloqueada = state.isGameOver || state.isGameStarted || (state.isPlayerReady && state.isRivalReady);
   if (partidaBloqueada) {
-    showToast("La partida ya comenzó. No puedes cambiar tu Pokémon secreto.", "warning");
+    showToast(
+      state.isGameOver
+        ? "La partida ya terminó. Pulsa Revancha para jugar de nuevo."
+        : "La partida ya comenzó. No puedes cambiar tu Pokémon secreto.",
+      "warning"
+    );
     return;
   }
   state.isSelectingSecretMode = true;
@@ -2101,15 +2190,22 @@ function reiniciarPartidaMismosPokemon() {
   state.secretSalt = null;
   state.secretHash = null;
   state.rivalSecretHash = null;
+  state.secretPokemonRival = null;
 
-  try {
-    sessionStorage.removeItem(`poke_ready_${state.roomCode}`);
-    sessionStorage.removeItem(`poke_salt_${state.roomCode}`);
-    sessionStorage.removeItem(`poke_hash_${state.roomCode}`);
-    sessionStorage.removeItem(`poke_secret_${state.roomCode}`);
-  } catch (e) {}
+  if (typeof clearRoomSessionState === "function") {
+    clearRoomSessionState(state.roomCode);
+  } else {
+    try {
+      sessionStorage.removeItem(`poke_ready_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_salt_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_hash_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_secret_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_game_result_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_match_state_${state.roomCode}`);
+    } catch (e) {}
+  }
 
-  // Asignar un nuevo Pokémon secreto aleatorio dentro de los mismos 30
+  // Dejar selección limpia para que cada jugador elija nuevo Pokémon secreto
   initSecretPokemon();
 
   // Resetear sistema de turnos

@@ -6,6 +6,15 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 
+// Mock sencillo de sessionStorage para probar persistencia al recargar
+const _mockSessionStore = new Map();
+const mockSessionStorage = {
+  getItem: k => (_mockSessionStore.has(k) ? _mockSessionStore.get(k) : null),
+  setItem: (k, v) => _mockSessionStore.set(k, String(v)),
+  removeItem: k => _mockSessionStore.delete(k),
+  clear: () => _mockSessionStore.clear()
+};
+
 // Contexto aislado con lo mínimo que necesitan los módulos
 const context = {
   console,
@@ -17,6 +26,9 @@ const context = {
   Array,
   parseInt,
   Boolean,
+  Number,
+  String,
+  sessionStorage: mockSessionStorage,
   crypto: globalThis.crypto,
   TextEncoder: globalThis.TextEncoder,
   Uint8Array: globalThis.Uint8Array
@@ -30,7 +42,8 @@ const filesToLoad = [
   './js/logica/aleatorio.js',
   './js/logica/codigoSala.js',
   './js/logica/seguridadAntiTrampas.js',
-  './js/servicios/apiPokemon.js'
+  './js/servicios/apiPokemon.js',
+  './js/estado/estadoJuego.js'
 ];
 
 for (const file of filesToLoad) {
@@ -38,7 +51,7 @@ for (const file of filesToLoad) {
   vm.runInContext(code, context);
 }
 
-const { computeBoardIds, buildRoomCode, parseRoomCode, formatPokemonName, getGenForPokemonId, seguridadAntiTrampas, normalizeSearchText, getCombinedTypeSearchString, isPokemonShiny, getBoardShinyPokemonId, PROBABILIDAD_SHINY } = context;
+const { computeBoardIds, buildRoomCode, parseRoomCode, formatPokemonName, getGenForPokemonId, seguridadAntiTrampas, normalizeSearchText, getCombinedTypeSearchString, isPokemonShiny, getBoardShinyPokemonId, PROBABILIDAD_SHINY, saveMatchStateToSession, loadMatchStateFromSession, saveGameResultToSession, loadGameResultFromSession, clearRoomSessionState, saveTurnToSession, loadTurnFromSession } = context;
 
 // Guarda el resultado de cada prueba
 const results = [];
@@ -363,6 +376,68 @@ assert(noShinyId === null, "getBoardShinyPokemonId con probabilidad 0 no genera 
 const detShiny1 = getBoardShinyPokemonId("ROOM_BETA", testIds, 1);
 const detShiny2 = getBoardShinyPokemonId("ROOM_BETA", testIds, 1);
 assert(detShiny1 === detShiny2, "getBoardShinyPokemonId es 100% determinista (misma sala = mismo shiny exacto)");
+
+// 11. Módulo Persistencia al Recargar (En Curso y Partida Finalizada)
+console.log("\n📦 11. Módulo Persistencia al Recargar Página:");
+vm.runInContext(`
+  state.roomCode = "REC123-123";
+  state.isPlayerReady = true;
+  state.isRivalReady = true;
+  state.isGameStarted = true;
+  state.isGameOver = false;
+  state.turnoActual = 2;
+  state.numeroTurno = 6;
+  state.esMiTurno = false;
+  state.fallosAdivinanza = 1;
+  state.rivalSecretHash = "abc123hash";
+`, context);
+saveMatchStateToSession();
+saveTurnToSession();
+
+// Simular recarga limpiando memoria y restaurando desde sessionStorage
+vm.runInContext(`
+  state.isPlayerReady = false;
+  state.isRivalReady = false;
+  state.isGameStarted = false;
+  state.turnoActual = 1;
+  state.numeroTurno = 1;
+  state.esMiTurno = true;
+  state.fallosAdivinanza = 0;
+  state.rivalSecretHash = null;
+`, context);
+loadMatchStateFromSession();
+loadTurnFromSession();
+assert(
+  vm.runInContext(`state.isGameStarted === true && state.isRivalReady === true && state.numeroTurno === 6 && state.turnoActual === 2 && state.esMiTurno === false && state.fallosAdivinanza === 1 && state.rivalSecretHash === "abc123hash"`, context),
+  "Al recargar en medio de la partida se restauran turnos, estado listo, fallos y hash del rival"
+);
+
+// Simular partida ganada y recarga
+saveGameResultToSession({
+  titulo: "🏆 ¡VICTORIA! ¡ADIVINASTE!",
+  subtitulo: "El Pokémon era Pikachu.",
+  esTrampa: false,
+  pokemonRival: { id: 25, name: "Pikachu" },
+  tipoResultado: "victory"
+});
+vm.runInContext(`state.isGameOver = true;`, context);
+saveMatchStateToSession();
+
+vm.runInContext(`state.isGameOver = false; state.savedGameResult = null;`, context);
+loadMatchStateFromSession();
+const restoredResult = loadGameResultFromSession();
+assert(
+  vm.runInContext(`state.isGameOver === true`, context) &&
+    restoredResult &&
+    restoredResult.tipoResultado === "victory" &&
+    restoredResult.pokemonRival.id === 25,
+  "Al recargar tras ganar se mantiene isGameOver=true y el resultado de victoria para ofrecer revancha"
+);
+
+// Simular revancha: limpia todo el estado guardado
+clearRoomSessionState("REC123-123");
+const afterClearResult = loadGameResultFromSession();
+assert(afterClearResult === null, "clearRoomSessionState elimina el resultado previo al iniciar revancha");
 
 // Resumen final
 const passedCount = results.filter(r => r.pass).length;

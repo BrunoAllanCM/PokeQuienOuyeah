@@ -22,14 +22,16 @@ function configurarEventosP2P() {
       const restantes = totalCards - state.discardedIds.size;
       redP2P.enviarAccionJuego("DESCARTE", { restantes });
 
-      // Configurar turno inicial: Por defecto el anfitrión empieza, salvo que ya haya cedido el turno
-      state.turnoActual = state.primerTurnoCedido ? 2 : 1;
-      state.numeroTurno = 1;
-      state.esMiTurno = redP2P.esAnfitrion ? !state.primerTurnoCedido : Boolean(state.primerTurnoCedido);
-      if (typeof saveTurnToSession === "function") saveTurnToSession();
+      // Configurar turno inicial SOLO si es partida nueva (sin turno previo guardado ni en curso/terminada)
+      if (!state.isGameStarted && !state.isGameOver && !state._tieneTurnoGuardado) {
+        state.turnoActual = state.primerTurnoCedido ? 2 : 1;
+        state.numeroTurno = 1;
+        state.esMiTurno = redP2P.esAnfitrion ? !state.primerTurnoCedido : Boolean(state.primerTurnoCedido);
+        if (typeof saveTurnToSession === "function") saveTurnToSession();
+      }
 
-      // Si el anfitrión ya había cedido el turno al rival antes de la conexión, notificárselo
-      if (redP2P.esAnfitrion && state.primerTurnoCedido) {
+      // Si el anfitrión ya había cedido el turno al rival antes de la conexión (y aún no inicia), notificárselo
+      if (redP2P.esAnfitrion && state.primerTurnoCedido && !state.isGameStarted && !state.isGameOver) {
         redP2P.enviarAccionJuego("CEDER_PRIMER_TURNO", { primerTurnoPara: 2 });
       }
 
@@ -86,6 +88,7 @@ function configurarEventosP2P() {
       state.turnoActual = 2;
       state.esMiTurno = true; // El rival comenzará jugando cuando ambos den Listo
       if (typeof saveTurnToSession === "function") saveTurnToSession();
+      if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
 
       if (typeof sounds !== "undefined" && sounds.playTurnStart) {
         sounds.playTurnStart();
@@ -105,6 +108,9 @@ function configurarEventosP2P() {
       }
     // Rival confirmó su Pokémon secreto (y su hash)
     } else if ((tipoAccion === "LISTO" || tipoAccion === "COMPROMISO_HASH") && typeof vistaChat !== "undefined") {
+      const yaEstabaIniciadaOTerminada = Boolean(state.isGameStarted || state.isGameOver);
+      const rivalYaEstabaListo = Boolean(state.isRivalReady);
+
       state.isRivalReady = true;
       if (datos.hash) {
         state.rivalSecretHash = datos.hash;
@@ -112,16 +118,21 @@ function configurarEventosP2P() {
 
       // Regla: La partida solo arranca si AMBOS están conectados y listos
       const estanConectados = typeof redP2P !== "undefined" && redP2P.conectado;
-      if (estanConectados && state.isPlayerReady) {
+      if (estanConectados && state.isPlayerReady && !state.isGameOver) {
         state.isGameStarted = true;
-        if (typeof saveReadyToSession === "function") saveReadyToSession();
       }
+      if (typeof saveReadyToSession === "function") saveReadyToSession();
 
       if (typeof syncReadyUI === "function") {
         syncReadyUI();
       }
       if (typeof actualizarUITurno === "function") {
         actualizarUITurno();
+      }
+
+      // Si fue solo una re-sincronización tras recargar página, no repetir anuncios de inicio
+      if (yaEstabaIniciadaOTerminada || rivalYaEstabaListo) {
+        return;
       }
 
       const hashCorto = datos.hash ? ` (Hash SHA-256: ${datos.hash.substring(0, 8)}...)` : "";
@@ -190,6 +201,7 @@ function configurarEventosP2P() {
         const guessedName = guessedPoke ? guessedPoke.name : "un Pokémon";
 
         state.fallosAdivinanzaRival = (state.fallosAdivinanzaRival || 0) + 1;
+        if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
         const esSegundoFallo = state.fallosAdivinanzaRival >= 2;
 
         redP2P.enviarAccionJuego("RESPUESTA_ADIVINAR", {
@@ -335,6 +347,7 @@ function configurarEventosP2P() {
         }
       } else {
         state.fallosAdivinanza = (state.fallosAdivinanza || 0) + 1;
+        if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
         const esSegundoFallo = Boolean(datos.esSegundoFallo || state.fallosAdivinanza >= 2);
 
         if (esSegundoFallo) {

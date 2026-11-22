@@ -55,6 +55,10 @@ const state = {
   solicitudReinicioEnviada: false,
   solicitudReinicioRecibida: false,
 
+  // Resultado final guardado para persistir al recargar (victoria/derrota/trampa)
+  savedGameResult: null,
+  _tieneTurnoGuardado: false,
+
   // Preferencias de Usuario
   soundEnabled: true,
   theme: "retro"
@@ -91,6 +95,149 @@ function loadCryptoCommitmentFromSession() {
 }
 
 /**
+ * Guarda el estado completo de la partida en curso en sessionStorage
+ */
+function saveMatchStateToSession() {
+  if (!state.roomCode) return;
+  try {
+    const snapshot = {
+      isPlayerReady: Boolean(state.isPlayerReady),
+      isRivalReady: Boolean(state.isRivalReady),
+      isGameStarted: Boolean(state.isGameStarted),
+      isGameOver: Boolean(state.isGameOver),
+      rivalSecretHash: state.rivalSecretHash || null,
+      fallosAdivinanza: state.fallosAdivinanza || 0,
+      fallosAdivinanzaRival: state.fallosAdivinanzaRival || 0,
+      fallosAdivinanzaJ1: state.fallosAdivinanzaJ1 || 0,
+      fallosAdivinanzaJ2: state.fallosAdivinanzaJ2 || 0,
+      primerTurnoCedido: Boolean(state.primerTurnoCedido),
+      primerTurnoPara: state.primerTurnoPara || 1,
+      secretPokemonRival: state.secretPokemonRival || null
+    };
+    sessionStorage.setItem(`poke_match_state_${state.roomCode}`, JSON.stringify(snapshot));
+  } catch (e) {
+    console.warn("No se pudo guardar estado de partida en sesión:", e);
+  }
+}
+
+/**
+ * Carga el estado completo de la partida en curso desde sessionStorage
+ */
+function loadMatchStateFromSession() {
+  state.isPlayerReady = false;
+  state.isRivalReady = false;
+  state.isGameStarted = false;
+  state.isGameOver = false;
+  state.rivalSecretHash = null;
+  state.fallosAdivinanza = 0;
+  state.fallosAdivinanzaRival = 0;
+  state.fallosAdivinanzaJ1 = 0;
+  state.fallosAdivinanzaJ2 = 0;
+  state.primerTurnoCedido = false;
+  state.primerTurnoPara = 1;
+  state.secretPokemonRival = null;
+
+  if (!state.roomCode) return false;
+  try {
+    const raw = sessionStorage.getItem(`poke_match_state_${state.roomCode}`);
+    if (raw) {
+      const snap = JSON.parse(raw);
+      if (snap && typeof snap === "object") {
+        state.isPlayerReady = Boolean(snap.isPlayerReady);
+        state.isRivalReady = Boolean(snap.isRivalReady);
+        state.isGameStarted = Boolean(snap.isGameStarted);
+        state.isGameOver = Boolean(snap.isGameOver);
+        state.rivalSecretHash = snap.rivalSecretHash || null;
+        state.fallosAdivinanza = Number(snap.fallosAdivinanza) || 0;
+        state.fallosAdivinanzaRival = Number(snap.fallosAdivinanzaRival) || 0;
+        state.fallosAdivinanzaJ1 = Number(snap.fallosAdivinanzaJ1) || 0;
+        state.fallosAdivinanzaJ2 = Number(snap.fallosAdivinanzaJ2) || 0;
+        state.primerTurnoCedido = Boolean(snap.primerTurnoCedido);
+        state.primerTurnoPara = Number(snap.primerTurnoPara) || 1;
+        state.secretPokemonRival = snap.secretPokemonRival || null;
+        return true;
+      }
+    }
+  } catch (e) {
+    console.warn("No se pudo cargar estado de partida desde sesión:", e);
+  }
+  return false;
+}
+
+/**
+ * Guarda el resultado final de la partida (victoria/derrota/trampa) para restaurarlo al recargar
+ * @param {object} resultado
+ */
+function saveGameResultToSession(resultado) {
+  if (!state.roomCode || !resultado) return;
+  state.savedGameResult = resultado;
+  try {
+    sessionStorage.setItem(`poke_game_result_${state.roomCode}`, JSON.stringify(resultado));
+  } catch (e) {
+    console.warn("No se pudo guardar resultado final en sesión:", e);
+  }
+}
+
+/**
+ * Carga el resultado final guardado si la partida ya terminó
+ * @returns {object|null}
+ */
+function loadGameResultFromSession() {
+  state.savedGameResult = null;
+  if (!state.roomCode) return null;
+  try {
+    const raw = sessionStorage.getItem(`poke_game_result_${state.roomCode}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        state.savedGameResult = parsed;
+        state.isGameOver = true;
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn("No se pudo cargar resultado final desde sesión:", e);
+  }
+  return null;
+}
+
+/**
+ * Limpia el resultado final guardado de sessionStorage
+ */
+function clearGameResultFromSession() {
+  state.savedGameResult = null;
+  if (!state.roomCode) return;
+  try {
+    sessionStorage.removeItem(`poke_game_result_${state.roomCode}`);
+  } catch (e) {}
+}
+
+/**
+ * Limpia todo el estado guardado en sesión de una sala al iniciar una revancha
+ * @param {string} [roomCode]
+ */
+function clearRoomSessionState(roomCode = state.roomCode) {
+  state.savedGameResult = null;
+  state._tieneTurnoGuardado = false;
+  if (!roomCode) return;
+  try {
+    [
+      `poke_ready_${roomCode}`,
+      `poke_match_state_${roomCode}`,
+      `poke_game_result_${roomCode}`,
+      `poke_salt_${roomCode}`,
+      `poke_hash_${roomCode}`,
+      `poke_secret_${roomCode}`,
+      `poke_discards_${roomCode}`,
+      `poke_turno_actual_${roomCode}`,
+      `poke_num_turno_${roomCode}`,
+      `poke_es_mi_turno_${roomCode}`,
+      `poke_chat_${roomCode}`
+    ].forEach(k => sessionStorage.removeItem(k));
+  } catch (e) {}
+}
+
+/**
  * Guarda el estado de jugador listo en sessionStorage
  */
 function saveReadyToSession() {
@@ -100,12 +247,16 @@ function saveReadyToSession() {
   } catch (e) {
     console.warn("No se pudo guardar estado listo en sesión:", e);
   }
+  saveMatchStateToSession();
 }
 
 /**
  * Carga el estado de jugador listo desde sessionStorage
  */
 function loadReadyFromSession() {
+  if (loadMatchStateFromSession()) {
+    return state.isPlayerReady;
+  }
   state.isPlayerReady = false;
   state.isGameStarted = false;
   if (!state.roomCode) return false;
@@ -113,7 +264,6 @@ function loadReadyFromSession() {
     const raw = sessionStorage.getItem(`poke_ready_${state.roomCode}`);
     if (raw === "true") {
       state.isPlayerReady = true;
-      state.isGameStarted = true;
       return true;
     }
   } catch (e) {
@@ -159,6 +309,7 @@ function loadDiscardsFromSession() {
  */
 function saveTurnToSession() {
   if (!state.roomCode) return;
+  state._tieneTurnoGuardado = true;
   try {
     sessionStorage.setItem(`poke_turno_actual_${state.roomCode}`, String(state.turnoActual));
     sessionStorage.setItem(`poke_num_turno_${state.roomCode}`, String(state.numeroTurno));
@@ -172,12 +323,19 @@ function saveTurnToSession() {
  * Carga el estado del sistema de turnos desde sessionStorage
  */
 function loadTurnFromSession() {
+  state._tieneTurnoGuardado = false;
+  state.turnoActual = 1;
+  state.numeroTurno = 1;
+  state.esMiTurno = true;
   if (!state.roomCode) return;
   try {
     const tActual = sessionStorage.getItem(`poke_turno_actual_${state.roomCode}`);
     const numT = sessionStorage.getItem(`poke_num_turno_${state.roomCode}`);
     const esMiT = sessionStorage.getItem(`poke_es_mi_turno_${state.roomCode}`);
 
+    if (tActual !== null || numT !== null || esMiT !== null) {
+      state._tieneTurnoGuardado = true;
+    }
     if (tActual !== null) state.turnoActual = parseInt(tActual, 10);
     if (numT !== null) state.numeroTurno = parseInt(numT, 10);
     if (esMiT !== null) state.esMiTurno = (esMiT === "true");

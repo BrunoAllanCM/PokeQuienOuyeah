@@ -79,10 +79,10 @@ const vistaChat = {
   },
 
   /**
-   * Agrega una nueva burbuja de mensaje en la ventana de chat
-   * @param {{ remitente: string, texto: string, hora?: string, tipo?: 'user'|'rival'|'system' }} datos
+   * Agrega una nueva burbuja de mensaje en la ventana de chat y la persiste en sesión
+   * @param {{ remitente?: string, texto: string, hora?: string, tipo?: 'user'|'rival'|'system', _omitirGuardado?: boolean }} datos
    */
-  agregarBurbuja({ remitente, texto, hora, tipo = "rival" }) {
+  agregarBurbuja({ remitente, texto, hora, tipo = "rival", _omitirGuardado = false }) {
     if (!this.elementos.mensajes) return;
 
     const div = document.createElement("div");
@@ -105,6 +105,19 @@ const vistaChat = {
     this.elementos.mensajes.appendChild(div);
     // Baja el scroll al último mensaje
     this.elementos.mensajes.scrollTop = this.elementos.mensajes.scrollHeight;
+
+    // Guarda el historial de chat de la sala en sessionStorage para sobrevivir recargas
+    if (!_omitirGuardado && typeof state !== "undefined" && state.roomCode) {
+      try {
+        const key = `poke_chat_${state.roomCode}`;
+        const prev = JSON.parse(sessionStorage.getItem(key) || "[]");
+        if (Array.isArray(prev)) {
+          prev.push({ remitente: remitente || "", texto, hora: hora || "", tipo });
+          if (prev.length > 80) prev.splice(0, prev.length - 80);
+          sessionStorage.setItem(key, JSON.stringify(prev));
+        }
+      } catch (e) {}
+    }
   },
 
   /**
@@ -135,15 +148,43 @@ const vistaChat = {
   },
 
   /**
-   * Limpia mensajes previos al entrar a una nueva sala
+   * Limpia mensajes previos al entrar a una nueva sala o restaura el historial guardado al recargar
+   * @param {string} codigoSala
+   * @param {boolean} [forzarLimpio=false]
    */
-  reiniciarChat(codigoSala) {
+  reiniciarChat(codigoSala, forzarLimpio = false) {
     if (!this.elementos.mensajes) return;
+
+    let historialGuardado = [];
+    if (!forzarLimpio && codigoSala) {
+      try {
+        const raw = sessionStorage.getItem(`poke_chat_${codigoSala}`);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            historialGuardado = parsed;
+          }
+        }
+      } catch (e) {}
+    } else if (forzarLimpio && codigoSala) {
+      try {
+        sessionStorage.removeItem(`poke_chat_${codigoSala}`);
+      } catch (e) {}
+    }
+
     this.elementos.mensajes.innerHTML = `
       <div class="chat-bubble chat-bubble-system">
         <span>Sala <strong>${codigoSala}</strong> iniciada. Comparte el código con tu rival para conectar.</span>
       </div>
     `;
+
+    // Si había mensajes previos de esta misma sala (recarga F5), restaurarlos
+    if (historialGuardado.length > 0) {
+      historialGuardado.forEach(msg => {
+        this.agregarBurbuja({ ...msg, _omitirGuardado: true });
+      });
+    }
+
     this.actualizarEstado("esperando", "Esperando rival...");
     if (this.elementos.barraRival) {
       this.elementos.barraRival.classList.add("hidden");
