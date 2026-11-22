@@ -69,7 +69,8 @@
 }
 
 .badge-hud {
-  font-size: 0.72rem;
+  font-family: var(--font-desc, 'EAS VHS', monospace);
+  font-size: 0.85rem;
   font-weight: 600;
   background: var(--bg-surface-elevated);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1249,8 +1250,10 @@
 }
 
 .turn-sub {
-  font-size: 0.82rem;
+  font-family: var(--font-desc, 'EAS VHS', monospace);
+  font-size: 0.95rem;
   color: var(--text-secondary);
+  line-height: 1.35;
 }
 
 .turn-actions {

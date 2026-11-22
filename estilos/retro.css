@@ -541,6 +541,12 @@ body.theme-retro .btn-icon-subtle:hover {
   background: #f1f5f9 !important;
 }
 
+body.theme-retro .badge-hud {
+  font-family: var(--font-desc, 'EAS VHS', monospace);
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
 /* Pantalla LCD Verde/Cyan Game Boy para Pokémon Secreto (Color Plano) */
 body.theme-retro .secret-pokemon-card {
   background: #d1fae5;
@@ -968,6 +974,8 @@ body.theme-retro .chat-bubble-user {
   background: #2563eb;
   color: #ffffff;
   border-radius: 14px 14px 2px 14px;
+  font-family: var(--font-desc, 'EAS VHS', monospace);
+  font-size: 0.92rem;
 }
 
 body.theme-retro .chat-bubble-rival {
@@ -976,12 +984,17 @@ body.theme-retro .chat-bubble-rival {
   border: 1.5px solid #e2e8f0;
   border-radius: 14px 14px 14px 2px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  font-family: var(--font-desc, 'EAS VHS', monospace);
+  font-size: 0.92rem;
 }
 
 body.theme-retro .chat-bubble-system {
   background: #fef9c3;
   border: 1.5px dashed #facc15;
   color: #713f12;
+  font-family: var(--font-desc, 'EAS VHS', monospace);
+  font-size: 0.88rem;
+  line-height: 1.35;
 }
 
 body.theme-retro .chat-form {
@@ -1079,8 +1092,9 @@ body.theme-retro .turn-round-chip {
 
 body.theme-retro .turn-sub {
   color: #475569;
-  font-family: var(--font-pixel, monospace);
-  font-size: 0.85rem;
+  font-family: var(--font-desc, 'EAS VHS', monospace);
+  font-size: 0.95rem;
+  line-height: 1.35;
 }
 
 body.theme-retro .btn-finish-turn {

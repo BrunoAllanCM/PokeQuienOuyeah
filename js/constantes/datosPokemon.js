@@ -37,7 +37,7 @@ function getGenNumberForId(id) {
 /**
  * Los 27 Pokémon Iniciales (Forma base / primera fase) de Gen 1 a Gen 9
  */
-const STARTER_POKEMON_IDS = [
+var STARTER_POKEMON_IDS = [
   // Gen 1: Kanto
   1, 4, 7,
   // Gen 2: Johto
@@ -61,7 +61,7 @@ const STARTER_POKEMON_IDS = [
 /**
  * Pool de Pokémon Legendarios y Singulares de Gen 1 a Gen 9
  */
-const LEGENDARY_POKEMON_IDS = [
+var LEGENDARY_POKEMON_IDS = [
   // Gen 1 (Kanto)
   144, 145, 146, 150, 151,
   // Gen 2 (Johto)
