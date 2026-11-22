@@ -440,7 +440,7 @@ assert(
 
 // Simular partida ganada y recarga
 saveGameResultToSession({
-  titulo: "🏆 ¡VICTORIA! ¡ADIVINASTE!",
+  titulo: "¡VICTORIA! ¡ADIVINASTE!",
   subtitulo: "El Pokémon era Pikachu.",
   esTrampa: false,
   pokemonRival: { id: 25, name: "Pikachu" },

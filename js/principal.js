@@ -135,9 +135,8 @@ function configurarEventosP2P() {
         return;
       }
 
-      const hashCorto = datos.hash ? ` (Hash SHA-256: ${datos.hash.substring(0, 8)}...)` : "";
       vistaChat.agregarBurbuja({
-        texto: `🛡️ Tu rival ha confirmado su Pokémon secreto y está ¡Listo!${hashCorto}`,
+        texto: "🛡️ Tu rival ha confirmado su Pokémon secreto y está ¡Listo!",
         tipo: "system"
       });
 
@@ -205,10 +204,10 @@ function configurarEventosP2P() {
         if (typeof showGameResultModal === "function") {
           showGameResultModal({
             titulo: "💀 ¡DERROTA! TU RIVAL HA ADIVINADO",
-            subtitulo: `Tu rival adivinó correctamente que tu Pokémon era ${state.secretPokemon.name}. ¡Ha ganado la partida!`,
+            subtitulo: `Tu rival adivinó correctamente que tu Pokémon era ${state.secretPokemon.name}. ¡Has perdido la partida!`,
             esTrampa: false,
             pokemonRival: pokemonElegidoPorRival,
-            etiquetaPokemon: "Pokémon que eligió tu rival:"
+            tipoResultado: "defeat"
           });
         }
       } else {
@@ -239,11 +238,10 @@ function configurarEventosP2P() {
           const pokemonElegidoPorRival = datos.guesserPokemon || state.secretPokemonRival;
           if (typeof showGameResultModal === "function") {
             showGameResultModal({
-              titulo: "🏆 ¡VICTORIA! EL RIVAL AGOTÓ SUS INTENTOS",
+              titulo: "¡VICTORIA! EL RIVAL AGOTÓ SUS INTENTOS",
               subtitulo: `Tu rival intentó adivinar "${guessedName}" y falló por segunda vez. ¡Has ganado la partida automáticamente!`,
               esTrampa: false,
               pokemonRival: pokemonElegidoPorRival,
-              etiquetaPokemon: "Pokémon que eligió tu rival:",
               tipoResultado: "victory"
             });
           }
@@ -329,17 +327,16 @@ function configurarEventosP2P() {
         if (esLimpio) {
           if (typeof showGameResultModal === "function") {
             showGameResultModal({
-              titulo: "🏆 ¡VICTORIA! ¡ADIVINASTE!",
+              titulo: "¡VICTORIA! ¡ADIVINASTE!",
               subtitulo: `¡Adivinaste correctamente! El Pokémon secreto de tu rival era ${datos.pokemon.name}.`,
               esTrampa: false,
               pokemonRival: datos.pokemon,
-              etiquetaPokemon: "Pokémon que eligió tu rival:",
               tipoResultado: "victory"
             });
           }
           if (typeof vistaChat !== "undefined") {
             vistaChat.agregarBurbuja({
-              texto: `🏆 ¡VICTORIA! Adivinaste el Pokémon del rival (${datos.pokemon.name}). 🛡️ Firma SHA-256 verificada: 100% LIMPIA.`,
+              texto: `🏆 ¡VICTORIA! Adivinaste el Pokémon del rival (${datos.pokemon.name}). ¡Partida limpia y verificada!`,
               tipo: "system"
             });
           }
@@ -347,15 +344,14 @@ function configurarEventosP2P() {
           if (typeof showGameResultModal === "function") {
             showGameResultModal({
               titulo: "🚨 ¡TRAMPA DETECTADA!",
-              subtitulo: `El rival alteró su Pokémon secreto durante la partida. La firma SHA-256 no coincide con el sello inicial.`,
+              subtitulo: `El rival alteró su Pokémon secreto durante la partida. La comprobación de seguridad no coincide.`,
               esTrampa: true,
-              pokemonRival: datos.pokemon,
-              etiquetaPokemon: "Pokémon que eligió tu rival:"
+              pokemonRival: datos.pokemon
             });
           }
           if (typeof vistaChat !== "undefined") {
             vistaChat.agregarBurbuja({
-              texto: `🚨 ¡ALERTA DE TRAMPA! El rival modificó su Pokémon secreto. La firma SHA-256 fue rechazada.`,
+              texto: `🚨 ¡ALERTA DE TRAMPA! El rival modificó su Pokémon secreto. La comprobación de seguridad fue rechazada.`,
               tipo: "system"
             });
           }
@@ -389,9 +385,10 @@ function configurarEventosP2P() {
           if (typeof showGameResultModal === "function") {
             showGameResultModal({
               titulo: "💀 ¡DERROTA! AGOTASTE TUS INTENTOS",
-              subtitulo: `Has fallado tu segundo intento de adivinanza. Tu rival ha ganado la partida automáticamente. Su Pokémon secreto era ${rivalName}.`,
+              subtitulo: `Has fallado tu segundo intento de adivinanza y has quedado eliminado. Tu rival ha ganado la partida. Su Pokémon secreto era ${rivalName}.`,
               esTrampa: false,
-              pokemonRival: rivalPoke
+              pokemonRival: rivalPoke,
+              tipoResultado: "defeat"
             });
           }
 
@@ -448,17 +445,46 @@ function configurarEventosP2P() {
         );
       }
 
+      // Determina si este jugador perdió la partida
+      const esDerrota = Boolean(
+        state.savedGameResult?.tipoResultado === "defeat" ||
+        state.savedGameResult?.titulo?.includes("DERROTA") ||
+        (datos.esRespuesta && state.isGameOver)
+      );
+
+      const esVictoria = Boolean(
+        state.savedGameResult?.tipoResultado === "victory" ||
+        state.savedGameResult?.titulo?.includes("VICTORIA")
+      );
+
+      let modalTitulo = "Partida Finalizada";
+      let modalSubtitulo = `El Pokémon secreto del rival era ${datos.pokemon.name}.`;
+      let tipoResModal = null;
+
+      if (!esLimpio) {
+        modalTitulo = "🚨 ¡TRAMPA DETECTADA!";
+        modalSubtitulo = "El rival intentó alterar su Pokémon secreto. La comprobación de seguridad no coincide.";
+        tipoResModal = "cheat";
+      } else if (esDerrota) {
+        modalTitulo = "💀 ¡DERROTA! HAS PERDIDO";
+        modalSubtitulo = `Tu rival adivinó tu Pokémon secreto. El Pokémon que eligió tu rival era ${datos.pokemon.name}.`;
+        tipoResModal = "defeat";
+      } else if (esVictoria) {
+        modalTitulo = "¡VICTORIA! ¡ADIVINASTE!";
+        modalSubtitulo = `¡Adivinaste correctamente! El Pokémon secreto de tu rival era ${datos.pokemon.name}.`;
+        tipoResModal = "victory";
+      } else {
+        modalTitulo = "Partida Finalizada";
+        modalSubtitulo = `El Pokémon que eligió tu rival era ${datos.pokemon.name}. Partida 100% limpia y verificada.`;
+      }
+
       if (typeof showGameResultModal === "function") {
         showGameResultModal({
-          titulo: esLimpio ? "Partida Finalizada" : "🚨 ¡TRAMPA DETECTADA!",
-          subtitulo: esLimpio
-            ? (state.secretPokemon
-                ? `El Pokémon que eligió tu rival era ${datos.pokemon.name}. Partida 100% limpia y verificada.`
-                : `El Pokémon secreto del rival era ${datos.pokemon.name}.`)
-            : `El rival intentó alterar su Pokémon secreto. El hash SHA-256 no coincide.`,
+          titulo: modalTitulo,
+          subtitulo: modalSubtitulo,
           esTrampa: !esLimpio,
           pokemonRival: datos.pokemon,
-          etiquetaPokemon: "Pokémon que eligió tu rival:"
+          tipoResultado: tipoResModal
         });
       }
     } else if (tipoAccion === "SOLICITAR_REINICIO") {

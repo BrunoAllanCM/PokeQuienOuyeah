@@ -493,12 +493,18 @@ function actualizarUITurno() {
       turnRoundChip.textContent = "Finalizada";
     }
     if (turnTitle) {
-      if (tipoRes === "victory") turnTitle.textContent = "🏆 ¡PARTIDA GANADA!";
-      else if (tipoRes === "defeat") turnTitle.textContent = "💀 PARTIDA TERMINADA";
+      if (tipoRes === "victory") turnTitle.textContent = "¡PARTIDA GANADA!";
+      else if (tipoRes === "defeat") turnTitle.textContent = "💀 ¡DERROTA! PARTIDA PERDIDA";
       else turnTitle.textContent = "🏁 PARTIDA FINALIZADA";
     }
     if (turnSub) {
-      turnSub.textContent = "La partida ya terminó. Pulsa '🔄 Reiniciar / Revancha' para volver a jugar con los mismos Pokémon.";
+      if (tipoRes === "victory") {
+        turnSub.textContent = "¡Has ganado la partida! Pulsa '🔄 Reiniciar / Revancha' para jugar de nuevo con los mismos Pokémon.";
+      } else if (tipoRes === "defeat") {
+        turnSub.textContent = "Has perdido esta partida. Pulsa '🔄 Reiniciar / Revancha' para jugar la revancha con los mismos Pokémon.";
+      } else {
+        turnSub.textContent = "La partida ya terminó. Pulsa '🔄 Reiniciar / Revancha' para volver a jugar con los mismos Pokémon.";
+      }
     }
     if (btnFinishTurn) {
       btnFinishTurn.classList.add("hidden");
@@ -1312,7 +1318,7 @@ function sendGuessAttempt(pokemon) {
     if (acierto) {
       if (typeof showGameResultModal === "function") {
         showGameResultModal({
-          titulo: "🏆 ¡VICTORIA! ¡ADIVINASTE!",
+          titulo: "¡VICTORIA! ¡ADIVINASTE!",
           subtitulo: `¡Adivinaste correctamente! El Pokémon secreto era ${pokemon.name}.`,
           esTrampa: false,
           pokemonRival: pokemon,
@@ -1336,7 +1342,7 @@ function sendGuessAttempt(pokemon) {
 
         if (typeof showGameResultModal === "function") {
           showGameResultModal({
-            titulo: `🏆 ¡VICTORIA DEL JUGADOR ${jugadorGanador}!`,
+            titulo: `¡VICTORIA DEL JUGADOR ${jugadorGanador}!`,
             subtitulo: `El Jugador ${jugadorActual} falló sus 2 intentos de adivinanza. ¡El Jugador ${jugadorGanador} gana la partida automáticamente!`,
             esTrampa: false,
             pokemonRival: rivalSecret,
@@ -1587,9 +1593,9 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
     actualizarUITurno();
   }
 
-  // Separa el emoji inicial del texto para que el degradado dorado no tiña el trofeo
+  // Separa el emoji inicial del texto para que el degradado dorado no lo tiña (trofeo 🏆 queda excluido)
   if (titleEl) {
-    const rawTitle = String(titulo || "");
+    const rawTitle = String(titulo || "").replace(/🏆\s*/gu, "").trim();
     const emojiMatch = rawTitle.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
     if (emojiMatch) {
       titleEl.innerHTML = `<span class="result-title-icon">${emojiMatch[1]}</span><span class="result-title-text">${emojiMatch[2]}</span>`;
@@ -1615,10 +1621,12 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
   // Muestra el Pokémon del rival
   let pokeHtml = "";
   if (pokemonRival) {
-    const labelTexto = etiquetaPokemon || "Pokémon que eligió tu rival:";
+    const labelHtml = etiquetaPokemon
+      ? `<span class="result-showcase-label" style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.2rem;">${etiquetaPokemon}</span>`
+      : "";
     pokeHtml = `
       <div class="result-pokemon-showcase">
-        <span class="result-showcase-label" style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.2rem;">${labelTexto}</span>
+        ${labelHtml}
         <img src="${pokemonRival.animatedImage || pokemonRival.image}" alt="${pokemonRival.name}" class="result-poke-img">
         <h4>#${String(pokemonRival.id).padStart(3, "0")} ${pokemonRival.name}</h4>
       </div>
