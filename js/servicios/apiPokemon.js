@@ -54,7 +54,11 @@ async function fetchPokemonData(id) {
   try {
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-      return JSON.parse(cached);
+      const parsed = JSON.parse(cached);
+      if (!parsed.cry) {
+        parsed.cry = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
+      }
+      return parsed;
     }
     // Si existe v1 o v2 en caché, actualizar con la URL animada Pixel Art adecuada
     const cachedPrev = localStorage.getItem(`poke_pixel_v2_${id}`) || localStorage.getItem(`poke_pixel_v1_${id}`);
@@ -64,6 +68,7 @@ async function fetchPokemonData(id) {
         id <= 649
           ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`
           : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${id}.gif`;
+      parsed.cry = parsed.cry || `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
       try {
         localStorage.setItem(cacheKey, JSON.stringify(parsed));
       } catch (e) {}
@@ -106,13 +111,18 @@ async function fetchPokemonData(id) {
 
     const types = data.types.map(t => t.type.name);
 
+    const cry = data.cries?.latest || `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
+    const legacyCry = data.cries?.legacy || (id <= 649 ? `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/${id}.ogg` : null);
+
     const pokemonRecord = {
       id: data.id,
       name: formatPokemonName(data.name),
       rawName: data.name,
       image,
       animatedImage: animatedSprite,
-      types
+      types,
+      cry,
+      legacyCry
     };
 
     try {

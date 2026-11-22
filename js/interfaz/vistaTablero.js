@@ -265,7 +265,7 @@ function renderBoardCards() {
  */
 function handleCardClick(pokemon) {
   if (state.isSelectingSecretMode) {
-    setSecretPokemon(pokemon);
+    setSecretPokemon(pokemon, true);
     exitSelectingSecretMode();
     sounds.playSelectSecret();
     showToast(`Tu nuevo Pokémon secreto es ${pokemon.name}.`, "success");
@@ -623,7 +623,51 @@ function terminarTurno({ porFallo = false } = {}) {
 }
 
 /**
- * Inicializa el Pokémon secreto usando sessionStorage o Math.random() independiente
+ * Limpia la selección del Pokémon secreto, dejando la casilla lista para que el usuario elija
+ */
+function clearSecretPokemon() {
+  state.secretPokemon = null;
+  try {
+    sessionStorage.removeItem(`poke_secret_${state.roomCode}`);
+  } catch (e) {}
+
+  const imgEl = document.getElementById("secret-img");
+  const numEl = document.getElementById("secret-num");
+  const nameEl = document.getElementById("secret-name");
+  const typesEl = document.getElementById("secret-types");
+
+  if (imgEl) {
+    imgEl.style.display = "none";
+    let placeholder = document.getElementById("secret-placeholder-icon");
+    if (!placeholder) {
+      placeholder = document.createElement("div");
+      placeholder.id = "secret-placeholder-icon";
+      placeholder.className = "pro-mystery-icon";
+      placeholder.textContent = "?";
+      imgEl.parentNode.appendChild(placeholder);
+    }
+    placeholder.style.display = "flex";
+  }
+
+  if (numEl) {
+    numEl.textContent = "---";
+  }
+  if (nameEl) {
+    nameEl.textContent = "Elige tu Pokémon";
+  }
+  if (typesEl) {
+    typesEl.innerHTML = `<span class="type-badge-pending">Elige del tablero</span>`;
+  }
+
+  document.querySelectorAll(".poke-card").forEach(card => {
+    card.classList.remove("is-secret-pokemon");
+    const existingBadge = card.querySelector(".secret-owner-badge");
+    if (existingBadge) existingBadge.remove();
+  });
+}
+
+/**
+ * Inicializa el Pokémon secreto usando sessionStorage o esperando selección manual del usuario
  */
 function initSecretPokemon() {
   const sessionKey = `poke_secret_${state.roomCode}`;
@@ -638,28 +682,36 @@ function initSecretPokemon() {
 
   let poke = state.boardPokemonData.find(p => p.id === secretId);
 
-  if (!poke && state.boardPokemonData.length > 0) {
-    const randomIndex = Math.floor(Math.random() * state.boardPokemonData.length);
-    poke = state.boardPokemonData[randomIndex];
-    try {
-      sessionStorage.setItem(sessionKey, String(poke.id));
-    } catch (e) {}
+  if (poke) {
+    setSecretPokemon(poke, false);
+  } else {
+    // No hay selección previa: no autoseleccionar nada, el usuario debe elegirlo
+    clearSecretPokemon();
+    enterSelectingSecretMode();
   }
-
-  setSecretPokemon(poke);
 }
 
 /**
  * Asigna un Pokémon como secreto y actualiza el widget en la barra superior
- * @param {{ id: number, name: string, image: string, types: string[] }} pokemon
+ * @param {{ id: number, name: string, image: string, types: string[], cry?: string }} pokemon
+ * @param {boolean} [playCry=false] Si es true, reproduce el grito/sonido del Pokémon
  */
-function setSecretPokemon(pokemon) {
+function setSecretPokemon(pokemon, playCry = false) {
   if (!pokemon) return;
   state.secretPokemon = pokemon;
 
   try {
     sessionStorage.setItem(`poke_secret_${state.roomCode}`, String(pokemon.id));
   } catch (e) {}
+
+  if (playCry && typeof sounds !== "undefined" && sounds.playPokemonCry) {
+    sounds.playPokemonCry(pokemon.id, pokemon.cry);
+  }
+
+  const placeholder = document.getElementById("secret-placeholder-icon");
+  if (placeholder) {
+    placeholder.style.display = "none";
+  }
 
   const imgEl = document.getElementById("secret-img");
   const numEl = document.getElementById("secret-num");
@@ -839,7 +891,11 @@ async function handleReadyClick() {
 
   // Si la partida ya empezó oficialmente (ambos listos y conectados), no hacer nada
   if (state.isGameStarted || (estanConectados && state.isPlayerReady && state.isRivalReady)) return;
-  if (!state.secretPokemon) return;
+  if (!state.secretPokemon) {
+    showToast("⚠️ Primero debes elegir tu Pokémon secreto en el tablero.", "warning");
+    enterSelectingSecretMode();
+    return;
+  }
 
   if (state.isSelectingSecretMode) {
     exitSelectingSecretMode();
@@ -1360,6 +1416,30 @@ function bindBoardEvents() {
   const btnToggleSecretHide = document.getElementById("btn-toggle-secret-hide");
   if (btnToggleSecretHide) {
     btnToggleSecretHide.addEventListener("click", toggleSecretHide);
+  }
+
+  const btnPlaySecretCry = document.getElementById("btn-play-secret-cry");
+  if (btnPlaySecretCry) {
+    btnPlaySecretCry.addEventListener("click", () => {
+      if (state.secretPokemon) {
+        if (typeof sounds !== "undefined" && sounds.playPokemonCry) {
+          sounds.playPokemonCry(state.secretPokemon.id, state.secretPokemon.cry);
+        }
+      } else {
+        showToast("⚠️ Aún no has seleccionado tu Pokémon secreto.", "info");
+      }
+    });
+  }
+
+  const secretBody = document.getElementById("secret-body");
+  if (secretBody) {
+    secretBody.addEventListener("click", () => {
+      if (state.secretPokemon && !state.isSecretHidden) {
+        if (typeof sounds !== "undefined" && sounds.playPokemonCry) {
+          sounds.playPokemonCry(state.secretPokemon.id, state.secretPokemon.cry);
+        }
+      }
+    });
   }
 
   const btnChangeSecret = document.getElementById("btn-change-secret");

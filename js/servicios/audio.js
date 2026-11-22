@@ -5,6 +5,7 @@
 class SoundController {
   constructor() {
     this.ctx = null;
+    this.cryVolume = 0.25;
   }
 
   init() {
@@ -184,6 +185,29 @@ class SoundController {
       gain.connect(this.ctx.destination);
       osc.start();
       osc.stop(now + 0.35);
+    } catch (e) {}
+  }
+
+  playPokemonCry(id, cryUrl) {
+    if (!state.soundEnabled || !id) return;
+    try {
+      let url = cryUrl;
+      if (!url) {
+        if (state.theme === "retro" && id <= 649) {
+          url = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/legacy/${id}.ogg`;
+        } else {
+          url = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
+        }
+      }
+      const audio = new Audio(url);
+      audio.volume = this.cryVolume;
+      audio.play().catch(() => {
+        if (url && url.includes("/legacy/")) {
+          const fallback = new Audio(`https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`);
+          fallback.volume = this.cryVolume;
+          fallback.play().catch(() => {});
+        }
+      });
     } catch (e) {}
   }
 }

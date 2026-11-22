@@ -739,6 +739,14 @@ body.theme-retro .type-badge-masked {
   font-size: 0.58rem;
 }
 
+body.theme-retro .type-badge-pending {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1.5px dashed #dc2626;
+  font-family: "EAS VHS", monospace;
+  font-size: 0.58rem;
+}
+
 body.theme-retro .secret-mask-cover {
   background: #d1fae5;
   color: #065f46;

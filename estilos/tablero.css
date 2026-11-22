@@ -338,6 +338,25 @@
   letter-spacing: 0.05em;
 }
 
+.type-badge-pending {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px dashed rgba(239, 68, 68, 0.5);
+  font-family: var(--font-pixel, monospace);
+  letter-spacing: 0.04em;
+  animation: pulse-pending 2s infinite ease-in-out;
+}
+
+@keyframes pulse-pending {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
 #board-cards-grid.hide-secret-badges .secret-owner-badge {
   display: none !important;
 }
