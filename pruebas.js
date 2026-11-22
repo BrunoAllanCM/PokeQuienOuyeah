@@ -329,6 +329,14 @@ assert(boardLeg.every(id => LEGENDARY_POKEMON_IDS.includes(id)), "Todas las cart
 const paradoxIds = [1009, 1010, 1020, 1021, 1022, 1023];
 assert(paradoxIds.every(id => !LEGENDARY_POKEMON_IDS.includes(id)), "Versiones paradoja de legendarios (Walking Wake, Gouging Fire, etc.) están excluidas del pool");
 
+const boardLegGen1 = computeBoardIds("SEED12", [1], "legendaries");
+assert(boardLegGen1.length === 5, "computeBoardIds con solo Gen 1 en modo legendarios genera exactamente 5 Pokémon");
+assert(boardLegGen1.every(id => getGenForPokemonId(id) === "GEN I"), "Todos los legendarios generados con solo Gen 1 pertenecen a la GEN I");
+
+const boardIniGen1 = computeBoardIds("SEED12", [1], "starters");
+assert(boardIniGen1.length === 3, "computeBoardIds con solo Gen 1 en modo iniciales genera exactamente 3 Pokémon");
+assert(boardIniGen1.every(id => getGenForPokemonId(id) === "GEN I"), "Todos los iniciales generados con solo Gen 1 pertenecen a la GEN I");
+
 // Resumen final
 const passedCount = results.filter(r => r.pass).length;
 console.log("\n==============================================");

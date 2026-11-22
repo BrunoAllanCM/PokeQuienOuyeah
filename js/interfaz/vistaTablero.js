@@ -112,11 +112,12 @@ function renderBoardHeader() {
 
   const modeBadge = document.getElementById("board-badge-mode");
   if (modeBadge) {
+    const boardCount = state.boardPokemonIds?.length || (state.roomGameMode === "starters" ? 27 : 30);
     if (state.roomGameMode === "starters") {
-      modeBadge.textContent = "🌱🔥💧 Solo Iniciales (27)";
+      modeBadge.textContent = `🌱🔥💧 Solo Iniciales (${boardCount})`;
       modeBadge.classList.remove("hidden");
     } else if (state.roomGameMode === "legendaries") {
-      modeBadge.textContent = "👑 Solo Legendarios (30)";
+      modeBadge.textContent = `👑 Solo Legendarios (${boardCount})`;
       modeBadge.classList.remove("hidden");
     } else {
       modeBadge.classList.add("hidden");

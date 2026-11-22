@@ -60,19 +60,17 @@ function computeBoardIds(seed, gensArray, gameMode = "standard") {
   const sortedGens = [...gensArray].sort((a, b) => a - b);
 
   if (gameMode === "starters" || gameMode === "iniciales") {
-    // Modo Solo Iniciales: Las 27 formas base de los iniciales (Gen 1-9)
-    if (typeof STARTER_POKEMON_IDS !== "undefined") {
-      pool = STARTER_POKEMON_IDS.filter(id => {
-        if (sortedGens.length === 0 || sortedGens.length === 9) return true;
-        const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
-        return sortedGens.includes(genNum);
-      });
-      if (pool.length < 9) {
-        pool = [...STARTER_POKEMON_IDS];
-      }
-    } else {
-      pool = [1, 4, 7, 152, 155, 158, 252, 255, 258, 387, 390, 393, 495, 498, 501, 650, 653, 656, 722, 725, 728, 810, 813, 816, 906, 909, 912];
-    }
+    // Modo Solo Iniciales: Las formas base de los iniciales según las generaciones seleccionadas
+    const baseStarters = typeof STARTER_POKEMON_IDS !== "undefined"
+      ? STARTER_POKEMON_IDS
+      : [1, 4, 7, 152, 155, 158, 252, 255, 258, 387, 390, 393, 495, 498, 501, 650, 653, 656, 722, 725, 728, 810, 813, 816, 906, 909, 912];
+
+    pool = baseStarters.filter(id => {
+      if (sortedGens.length === 0 || sortedGens.length === 9) return true;
+      const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
+      return sortedGens.includes(genNum);
+    });
+
     const seedHash = fnv1a(seed);
     const prng = mulberry32(seedHash);
     const shuffled = seededShuffle(pool, prng);
@@ -80,16 +78,13 @@ function computeBoardIds(seed, gensArray, gameMode = "standard") {
   }
 
   if (gameMode === "legendaries" || gameMode === "legendarios") {
-    // Modo Solo Legendarios: Pool de Pokémon Legendarios y Singulares
+    // Modo Solo Legendarios: Pool filtrado estrictamente por las generaciones seleccionadas
     if (typeof LEGENDARY_POKEMON_IDS !== "undefined") {
       pool = LEGENDARY_POKEMON_IDS.filter(id => {
         if (sortedGens.length === 0 || sortedGens.length === 9) return true;
         const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
         return sortedGens.includes(genNum);
       });
-      if (pool.length < 30) {
-        pool = [...LEGENDARY_POKEMON_IDS];
-      }
     }
     const seedHash = fnv1a(seed);
     const prng = mulberry32(seedHash);

@@ -77,7 +77,7 @@ function updatePoolSummary() {
         const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
         return state.selectedGens.has(genNum);
       });
-      startersCount = filtered.length >= 9 ? filtered.length : 27;
+      startersCount = filtered.length;
     }
     if (gensCountEl) gensCountEl.textContent = state.selectedGens.size === 9 ? "Todas (9)" : state.selectedGens.size;
     if (poolCountEl) poolCountEl.textContent = `${startersCount} iniciales`;
@@ -93,11 +93,12 @@ function updatePoolSummary() {
         const genNum = typeof getGenNumberForId === "function" ? getGenNumberForId(id) : 1;
         return state.selectedGens.has(genNum);
       });
-      legCount = filtered.length >= 30 ? filtered.length : LEGENDARY_POKEMON_IDS.length;
+      legCount = filtered.length;
     }
+    const boardCardsCount = Math.min(30, legCount);
     if (gensCountEl) gensCountEl.textContent = state.selectedGens.size === 9 ? "Todas (9)" : state.selectedGens.size;
     if (poolCountEl) poolCountEl.textContent = `${legCount} legendarios`;
-    if (boardCountEl) boardCountEl.textContent = "30";
+    if (boardCountEl) boardCountEl.textContent = boardCardsCount;
     return;
   }
 
