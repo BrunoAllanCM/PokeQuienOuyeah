@@ -209,7 +209,6 @@ function configurarEventosP2P() {
         if (esSegundoFallo) {
           state.isGameOver = true;
           // ¡Segundo fallo del rival! Este jugador gana automáticamente y se muestran los Pokémon elegidos
-          if (state.soundEnabled && sounds.playSelectSecret) sounds.playSelectSecret();
           const pokemonElegidoPorRival = datos.guesserPokemon || state.secretPokemonRival;
           if (typeof showGameResultModal === "function") {
             showGameResultModal({
@@ -217,7 +216,8 @@ function configurarEventosP2P() {
               subtitulo: `Tu rival intentó adivinar "${guessedName}" y falló por segunda vez. ¡Has ganado la partida automáticamente!`,
               esTrampa: false,
               pokemonRival: pokemonElegidoPorRival,
-              etiquetaPokemon: "Pokémon que eligió tu rival:"
+              etiquetaPokemon: "Pokémon que eligió tu rival:",
+              tipoResultado: "victory"
             });
           }
           if (typeof vistaChat !== "undefined") {
@@ -300,14 +300,14 @@ function configurarEventosP2P() {
         }
 
         if (esLimpio) {
-          if (state.soundEnabled && sounds.playSelectSecret) sounds.playSelectSecret();
           if (typeof showGameResultModal === "function") {
             showGameResultModal({
               titulo: "🏆 ¡VICTORIA! ¡ADIVINASTE!",
               subtitulo: `¡Adivinaste correctamente! El Pokémon secreto de tu rival era ${datos.pokemon.name}.`,
               esTrampa: false,
               pokemonRival: datos.pokemon,
-              etiquetaPokemon: "Pokémon que eligió tu rival:"
+              etiquetaPokemon: "Pokémon que eligió tu rival:",
+              tipoResultado: "victory"
             });
           }
           if (typeof vistaChat !== "undefined") {
@@ -339,7 +339,6 @@ function configurarEventosP2P() {
 
         if (esSegundoFallo) {
           // ¡Segundo fallo! El jugador pierde y el rival gana automáticamente. Se muestra el Pokémon del rival.
-          if (typeof sounds !== "undefined" && sounds.playFail) sounds.playFail();
 
           // Enviar también nuestro Pokémon para que el rival pueda ver el nuestro
           if (state.secretPokemon) {

@@ -196,6 +196,100 @@ class SoundController {
     } catch (e) {}
   }
 
+  // Fanfarria triunfal de victoria estilo Pokémon / arcade
+  playVictory() {
+    if (!state.soundEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === "suspended") this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+      const isRetro = state.theme === "retro";
+      const wave = isRetro ? "square" : "triangle";
+      const baseVol = isRetro ? 0.1 : 0.14;
+
+      // Melodía triunfal: C5 -> E5 -> G5 -> C6 -> G5 -> C6 (sostenido)
+      const melody = [
+        { freq: 523.25, start: 0.0, dur: 0.11 },
+        { freq: 659.25, start: 0.11, dur: 0.11 },
+        { freq: 783.99, start: 0.22, dur: 0.11 },
+        { freq: 1046.5, start: 0.34, dur: 0.22 },
+        { freq: 783.99, start: 0.58, dur: 0.11 },
+        { freq: 1046.5, start: 0.71, dur: 0.55 }
+      ];
+
+      melody.forEach(n => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t0 = now + n.start;
+        osc.type = wave;
+        osc.frequency.setValueAtTime(n.freq, t0);
+        gain.gain.setValueAtTime(baseVol, t0);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + n.dur);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + n.dur);
+      });
+
+      // Acorde armónico final (E5 + G5) acompañando la nota alta C6
+      [659.25, 783.99].forEach(freq => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t0 = now + 0.71;
+        osc.type = isRetro ? "triangle" : "sine";
+        osc.frequency.setValueAtTime(freq, t0);
+        gain.gain.setValueAtTime(baseVol * 0.65, t0);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.55);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.55);
+      });
+    } catch (e) {}
+  }
+
+  // Melodía descendente y apagada de derrota
+  playDefeat() {
+    if (!state.soundEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === "suspended") this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+      const isRetro = state.theme === "retro";
+      const wave = isRetro ? "triangle" : "sine";
+      const baseVol = isRetro ? 0.095 : 0.11;
+
+      // Cadencia melancólica descendente: E4 -> Eb4 -> D4 -> C4 (con caída suave)
+      const notes = [
+        { freq: 329.63, start: 0.0, dur: 0.22 },
+        { freq: 311.13, start: 0.23, dur: 0.22 },
+        { freq: 293.66, start: 0.46, dur: 0.24 },
+        { freq: 261.63, start: 0.72, dur: 0.6, slideTo: 246.94 }
+      ];
+
+      notes.forEach(n => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const t0 = now + n.start;
+        osc.type = wave;
+        osc.frequency.setValueAtTime(n.freq, t0);
+        if (n.slideTo) {
+          osc.frequency.exponentialRampToValueAtTime(n.slideTo, t0 + n.dur);
+        }
+        gain.gain.setValueAtTime(baseVol, t0);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + n.dur);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + n.dur);
+      });
+    } catch (e) {}
+  }
+
   // Efecto de sonido brillante y mágico para Pokémon Shiny
   playShinySparkle() {
     if (!state.soundEnabled) return;

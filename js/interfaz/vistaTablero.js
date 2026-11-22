@@ -1253,13 +1253,13 @@ function sendGuessAttempt(pokemon) {
 
     // Acierto en modo local: muestra victoria
     if (acierto) {
-      if (state.soundEnabled && sounds.playSelectSecret) sounds.playSelectSecret();
       if (typeof showGameResultModal === "function") {
         showGameResultModal({
           titulo: "🏆 ¡VICTORIA! ¡ADIVINASTE!",
           subtitulo: `¡Adivinaste correctamente! El Pokémon secreto era ${pokemon.name}.`,
           esTrampa: false,
-          pokemonRival: pokemon
+          pokemonRival: pokemon,
+          tipoResultado: "victory"
         });
       }
       if (typeof vistaChat !== "undefined") {
@@ -1276,14 +1276,14 @@ function sendGuessAttempt(pokemon) {
       if (fallos >= 2) {
         // Segundo fallo: El otro jugador gana automáticamente y se muestra el Pokémon secreto del rival
         const jugadorGanador = jugadorActual === 1 ? 2 : 1;
-        if (typeof sounds !== "undefined" && sounds.playFail) sounds.playFail();
 
         if (typeof showGameResultModal === "function") {
           showGameResultModal({
             titulo: `🏆 ¡VICTORIA DEL JUGADOR ${jugadorGanador}!`,
             subtitulo: `El Jugador ${jugadorActual} falló sus 2 intentos de adivinanza. ¡El Jugador ${jugadorGanador} gana la partida automáticamente!`,
             esTrampa: false,
-            pokemonRival: rivalSecret
+            pokemonRival: rivalSecret,
+            tipoResultado: "victory"
           });
         }
         if (typeof vistaChat !== "undefined") {
@@ -1328,17 +1328,182 @@ function sendRevealAll() {
   showToast("Solicitud de revelación enviada al rival...", "info", 3000);
 }
 
+let _confettiAnimFrame = null;
+
+/**
+ * Detiene y elimina el canvas de confetti si está activo
+ */
+function detenerConfettiResultado() {
+  if (_confettiAnimFrame) {
+    cancelAnimationFrame(_confettiAnimFrame);
+    _confettiAnimFrame = null;
+  }
+  const existing = document.getElementById("result-confetti-canvas");
+  if (existing) existing.remove();
+}
+
+/**
+ * Lanza animación de confetti en pantalla completa:
+ * - "victory": explosión festiva brillante (dorado, rojo, azul, amarillo, verde)
+ * - "defeat": lluvia lenta y apagada en tonos grises/pizarra
+ * @param {"victory"|"defeat"} tipo
+ */
+function lanzarConfettiResultado(tipo = "victory") {
+  detenerConfettiResultado();
+  if (typeof document === "undefined") return;
+
+  const canvas = document.createElement("canvas");
+  canvas.id = "result-confetti-canvas";
+  canvas.style.position = "fixed";
+  canvas.style.inset = "0";
+  canvas.style.width = "100vw";
+  canvas.style.height = "100vh";
+  canvas.style.pointerEvents = "none";
+  canvas.style.zIndex = "10050";
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const resize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
+  resize();
+
+  const esVictoria = tipo === "victory";
+  const colores = esVictoria
+    ? ["#ffd700", "#fbbf24", "#f59e0b", "#ef4444", "#38bdf8", "#34d399", "#f472b6", "#fffbeb"]
+    : ["#64748b", "#94a3b8", "#475569", "#78716c", "#52525b", "#6b7280", "#8b7d8b"];
+
+  const cantidad = esVictoria ? 135 : 52;
+  const particulas = [];
+
+  for (let i = 0; i < cantidad; i++) {
+    if (esVictoria) {
+      // Mezcla cañones laterales y lluvia superior
+      const origen = i % 3;
+      const x = origen === 0 ? 0 : (origen === 1 ? canvas.width : Math.random() * canvas.width);
+      const y = origen === 2 ? -20 - Math.random() * 140 : canvas.height * (0.45 + Math.random() * 0.3);
+      const vx = origen === 0
+        ? 4 + Math.random() * 9
+        : (origen === 1 ? -(4 + Math.random() * 9) : (Math.random() - 0.5) * 4);
+      const vy = origen === 2 ? 2 + Math.random() * 4 : -(8 + Math.random() * 10);
+
+      particulas.push({
+        x, y, vx, vy,
+        w: 6 + Math.random() * 7,
+        h: 4 + Math.random() * 5,
+        color: colores[Math.floor(Math.random() * colores.length)],
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.28,
+        wobble: Math.random() * Math.PI * 2,
+        alpha: 1,
+        forma: Math.random() > 0.25 ? "rect" : "circle"
+      });
+    } else {
+      // Confetti apagado y lento cayendo suavemente desde arriba
+      particulas.push({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * 220,
+        vx: (Math.random() - 0.5) * 1.1,
+        vy: 1.0 + Math.random() * 1.6,
+        w: 5 + Math.random() * 5,
+        h: 3 + Math.random() * 4,
+        color: colores[Math.floor(Math.random() * colores.length)],
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.08,
+        wobble: Math.random() * Math.PI * 2,
+        alpha: 0.52,
+        forma: "rect"
+      });
+    }
+  }
+
+  const inicio = performance.now();
+  const duracionMax = esVictoria ? 4400 : 4200;
+
+  const animar = (ahora) => {
+    const elapsed = ahora - inicio;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let vivas = 0;
+    const fadeFactor = elapsed > duracionMax - 1000
+      ? Math.max(0, (duracionMax - elapsed) / 1000)
+      : 1;
+
+    for (const p of particulas) {
+      if (esVictoria) {
+        p.vy += 0.22; // Gravedad alegre
+        p.vx *= 0.99;
+      } else {
+        p.vy += 0.025; // Caída lenta y apagada
+        p.vy = Math.min(p.vy, 2.6);
+      }
+
+      p.wobble += esVictoria ? 0.09 : 0.04;
+      p.x += p.vx + Math.sin(p.wobble) * (esVictoria ? 0.9 : 0.55);
+      p.y += p.vy;
+      p.rot += p.vRot;
+
+      if (p.y < canvas.height + 40 && fadeFactor > 0.01) {
+        vivas++;
+        ctx.save();
+        ctx.globalAlpha = p.alpha * fadeFactor;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if (p.forma === "circle") {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.w * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        }
+        ctx.restore();
+      }
+    }
+
+    if (vivas > 0 && elapsed < duracionMax) {
+      _confettiAnimFrame = requestAnimationFrame(animar);
+    } else {
+      detenerConfettiResultado();
+    }
+  };
+
+  _confettiAnimFrame = requestAnimationFrame(animar);
+}
+
 /**
  * Muestra el modal con el resultado y la comprobación criptográfica
  */
-function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etiquetaPokemon }) {
+function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etiquetaPokemon, tipoResultado }) {
   const modal = document.getElementById("modal-game-result");
+  const cardEl = modal ? modal.querySelector(".modal-result-card") : null;
   const titleEl = document.getElementById("result-modal-title");
   const bodyEl = document.getElementById("result-modal-body");
   if (!modal || !bodyEl) return;
 
   // Marca el fin de la partida
   state.isGameOver = true;
+
+  // Determina el tipo visual/sonoro del resultado
+  const tituloUpper = String(titulo || "").toUpperCase();
+  let tipo = tipoResultado;
+  if (!tipo) {
+    if (esTrampa) tipo = "cheat";
+    else if (tituloUpper.includes("VICTORIA")) tipo = "victory";
+    else if (tituloUpper.includes("DERROTA")) tipo = "defeat";
+    else tipo = "neutral";
+  }
+
+  // Aplica la clase visual del resultado al modal (victoria dorada o derrota apagada)
+  if (cardEl) {
+    cardEl.classList.remove("result-victory", "result-defeat", "result-cheat");
+    if (tipo === "victory") cardEl.classList.add("result-victory");
+    else if (tipo === "defeat") cardEl.classList.add("result-defeat");
+    else if (tipo === "cheat") cardEl.classList.add("result-cheat");
+  }
 
   // El botón de reiniciar partida solo aparece cuando la partida se haya acabado
   const btnRestartMatch = document.getElementById("btn-restart-match");
@@ -1350,7 +1515,16 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
     actualizarUITurno();
   }
 
-  if (titleEl) titleEl.textContent = titulo;
+  // Separa el emoji inicial del texto para que el degradado dorado no tiña el trofeo
+  if (titleEl) {
+    const rawTitle = String(titulo || "");
+    const emojiMatch = rawTitle.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
+    if (emojiMatch) {
+      titleEl.innerHTML = `<span class="result-title-icon">${emojiMatch[1]}</span><span class="result-title-text">${emojiMatch[2]}</span>`;
+    } else {
+      titleEl.innerHTML = `<span class="result-title-text">${rawTitle}</span>`;
+    }
+  }
 
   // Aviso si hubo trampa
   let badgeHtml = "";
@@ -1387,6 +1561,17 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
   `;
 
   modal.classList.remove("hidden");
+
+  // Efectos de sonido y confetti según victoria o derrota
+  if (tipo === "victory") {
+    if (typeof sounds !== "undefined" && sounds.playVictory) sounds.playVictory();
+    lanzarConfettiResultado("victory");
+  } else if (tipo === "defeat") {
+    if (typeof sounds !== "undefined" && sounds.playDefeat) sounds.playDefeat();
+    lanzarConfettiResultado("defeat");
+  } else if (tipo === "cheat") {
+    if (typeof sounds !== "undefined" && sounds.playFail) sounds.playFail();
+  }
 }
 
 /**
@@ -1644,6 +1829,7 @@ function bindBoardEvents() {
   const btnAckResult = document.getElementById("btn-ack-result");
   const modalResult = document.getElementById("modal-game-result");
   const closeResult = () => {
+    detenerConfettiResultado();
     if (modalResult) modalResult.classList.add("hidden");
   };
   if (btnCloseResult) btnCloseResult.addEventListener("click", closeResult);
@@ -1867,7 +2053,8 @@ function cancelarSolicitudReinicio() {
  * Reinicia la partida conservando las mismas configuraciones y los mismos 30 Pokémon
  */
 function reiniciarPartidaMismosPokemon() {
-  // Limpiar modales abiertos
+  // Limpiar modales abiertos y confetti
+  detenerConfettiResultado();
   cerrarModalReinicio();
   const modalResult = document.getElementById("modal-game-result");
   if (modalResult) modalResult.classList.add("hidden");

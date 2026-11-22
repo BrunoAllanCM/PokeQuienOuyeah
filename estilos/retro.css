@@ -1208,6 +1208,27 @@ body.theme-retro .restart-hint {
   color: #334155;
 }
 
+/* Modo Retro para Resultado de Victoria (dorado) y Derrota (apagado) */
+body.theme-retro .modal-result-card.result-victory {
+  border-color: #d97706 !important;
+  filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.55));
+}
+
+body.theme-retro .modal-result-card.result-victory #result-modal-title {
+  font-family: "EAS VHS", var(--font-arcade, monospace);
+  font-size: 1.35rem;
+}
+
+body.theme-retro .modal-result-card.result-defeat {
+  border-color: #64748b !important;
+  filter: drop-shadow(0 8px 18px rgba(15, 23, 42, 0.35));
+}
+
+body.theme-retro .modal-result-card.result-defeat #result-modal-title {
+  font-family: "EAS VHS", var(--font-arcade, monospace);
+  font-size: 1.25rem;
+}
+
 /* Modo Retro para Pokémon Shiny */
 body.theme-retro .poke-card.is-shiny-card {
   border-color: #d97706 !important;
