@@ -57,13 +57,17 @@ async function fetchPokemonData(id) {
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       const parsed = JSON.parse(cached);
+      if (id === 843 || id === 844) {
+        parsed.animatedImage = null;
+        parsed.animatedShinyImage = null;
+      }
       if (!parsed.cry) {
         parsed.cry = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
       }
       if (!parsed.shinyImage) {
         parsed.shinyImage = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`;
       }
-      if (!parsed.animatedShinyImage) {
+      if (!parsed.animatedShinyImage && id !== 843 && id !== 844) {
         parsed.animatedShinyImage =
           id <= 649
             ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
@@ -75,17 +79,22 @@ async function fetchPokemonData(id) {
     const cachedPrev = localStorage.getItem(`poke_pixel_v2_${id}`) || localStorage.getItem(`poke_pixel_v1_${id}`);
     if (cachedPrev) {
       const parsed = JSON.parse(cachedPrev);
-      parsed.animatedImage =
-        id <= 649
-          ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`
-          : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${id}.gif`;
+      if (id === 843 || id === 844) {
+        parsed.animatedImage = null;
+        parsed.animatedShinyImage = null;
+      } else {
+        parsed.animatedImage =
+          id <= 649
+            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`
+            : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${id}.gif`;
+        parsed.animatedShinyImage =
+          parsed.animatedShinyImage ||
+          (id <= 649
+            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
+            : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/${id}.gif`);
+      }
       parsed.cry = parsed.cry || `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
       parsed.shinyImage = parsed.shinyImage || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`;
-      parsed.animatedShinyImage =
-        parsed.animatedShinyImage ||
-        (id <= 649
-          ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
-          : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/${id}.gif`);
       try {
         localStorage.setItem(cacheKey, JSON.stringify(parsed));
       } catch (e) {}
@@ -129,7 +138,7 @@ async function fetchPokemonData(id) {
     // Priorizar el sprite animado 2D Pixel Art oficial de Blanco y Negro (Gen V)
     const gen5Pixel = data.sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_default;
     const showdown = data.sprites?.other?.showdown?.front_default;
-    const animatedSprite =
+    let animatedSprite =
       gen5Pixel ||
       (id <= 649
         ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`
@@ -137,11 +146,17 @@ async function fetchPokemonData(id) {
 
     const gen5ShinyPixel = data.sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_shiny;
     const showdownShiny = data.sprites?.other?.showdown?.front_shiny;
-    const animatedShinySprite =
+    let animatedShinySprite =
       gen5ShinyPixel ||
       (id <= 649
         ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`
         : (showdownShiny || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/shiny/${id}.gif`));
+
+    // Excepciones: mantener siempre estáticos a Silicobra (#843) y Sandaconda (#844) para evitar confusiones visuales
+    if (id === 843 || id === 844) {
+      animatedSprite = null;
+      animatedShinySprite = null;
+    }
 
     // Tipos, gritos y registro final del Pokémon
     const types = data.types.map(t => t.type.name);
