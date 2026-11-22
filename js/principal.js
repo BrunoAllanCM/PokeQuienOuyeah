@@ -523,6 +523,9 @@ function configurarEventosP2P() {
         cerrarModalReinicio();
       }
       showToast("El rival ha cancelado su solicitud de reinicio.", "info", 3000);
+    } else if (tipoAccion === "RIVAL_FUGA") {
+      // El rival cerró la pestaña o abandonó la partida en curso
+      procesarFugaRival();
     }
   };
 
@@ -535,7 +538,46 @@ function configurarEventosP2P() {
         tipo: "system"
       });
     }
+
+    // Si la partida ya había empezado (turno en curso), se declara fuga del rival
+    if (state.isGameStarted && !state.isGameOver) {
+      procesarFugaRival();
+    }
   };
+}
+
+/**
+ * Procesa la fuga o abandono del rival cuando hay una partida en curso
+ */
+function procesarFugaRival() {
+  if (!state.isGameStarted || state.isGameOver) return;
+  state.isGameOver = true;
+  if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
+  if (typeof actualizarUITurno === "function") actualizarUITurno();
+
+  showToast("Tu rival se fugó", "warning", 5000);
+
+  if (typeof vistaChat !== "undefined") {
+    vistaChat.actualizarEstado("desconectado", "Rival desconectado");
+    vistaChat.agregarBurbuja({
+      texto: "🏃💨 Tu rival se fugó. ¡Has ganado la partida por abandono!",
+      tipo: "system"
+    });
+  }
+
+  if (typeof showGameResultModal === "function") {
+    showGameResultModal({
+      titulo: "Tu rival se fugó",
+      subtitulo: "Tu rival cerró la pestaña de la partida en curso. ¡Has ganado por abandono!",
+      esTrampa: false,
+      pokemonRival: state.secretPokemonRival || null,
+      tipoResultado: "victory"
+    });
+  }
+}
+
+if (typeof globalThis !== "undefined") {
+  globalThis.procesarFugaRival = procesarFugaRival;
 }
 
 /**
@@ -708,4 +750,37 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp);
 } else {
   initApp();
+}
+
+// Advertencia al usuario antes de cerrar pestaña o salir si hay partida en curso
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeunload", (e) => {
+    // Solo advertir si la partida ya había empezado (turno en curso) y no ha finalizado
+    if (state.isGameStarted && !state.isGameOver) {
+      e.preventDefault();
+      e.returnValue = "La partida está en curso. Si cierras la pestaña o sales, se considerará fuga y perderás la partida.";
+      return e.returnValue;
+    }
+  });
+
+  // Manejo de abandono (fuga) al cerrar o salir de la página
+  window.addEventListener("pagehide", () => {
+    if (state.isGameStarted && !state.isGameOver) {
+      state.isGameOver = true;
+      if (typeof redP2P !== "undefined" && redP2P.conectado && redP2P.enviarAccionJuego) {
+        try {
+          redP2P.enviarAccionJuego("RIVAL_FUGA", { fuga: true });
+          redP2P.cerrar();
+        } catch (e) {}
+      }
+      if (typeof saveGameResultToSession === "function") {
+        saveGameResultToSession({
+          titulo: "💀 ¡DERROTA! TE HAS FUGADO",
+          subtitulo: "Abandonaste la partida en curso.",
+          tipoResultado: "defeat",
+          pokemonRival: state.secretPokemonRival || null
+        });
+      }
+    }
+  });
 }

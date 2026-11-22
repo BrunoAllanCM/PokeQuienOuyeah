@@ -493,15 +493,35 @@ function actualizarUITurno() {
       turnRoundChip.textContent = "Finalizada";
     }
     if (turnTitle) {
-      if (tipoRes === "victory") turnTitle.textContent = "¡PARTIDA GANADA!";
-      else if (tipoRes === "defeat") turnTitle.textContent = "💀 ¡DERROTA! PARTIDA PERDIDA";
+      if (tipoRes === "victory") {
+        if (state.savedGameResult?.titulo?.includes("fugó") || state.savedGameResult?.subtitulo?.includes("fugó")) {
+          turnTitle.textContent = "Tu rival se fugó";
+        } else {
+          turnTitle.textContent = "¡PARTIDA GANADA!";
+        }
+      }
+      else if (tipoRes === "defeat") {
+        if (state.savedGameResult?.titulo?.includes("FUGADO") || state.savedGameResult?.subtitulo?.includes("Abandonaste")) {
+          turnTitle.textContent = "💀 ¡DERROTA! TE HAS FUGADO";
+        } else {
+          turnTitle.textContent = "💀 ¡DERROTA! PARTIDA PERDIDA";
+        }
+      }
       else turnTitle.textContent = "🏁 PARTIDA FINALIZADA";
     }
     if (turnSub) {
       if (tipoRes === "victory") {
-        turnSub.textContent = "¡Has ganado la partida! Pulsa '🔄 Reiniciar / Revancha' para jugar de nuevo con los mismos Pokémon.";
+        if (state.savedGameResult?.titulo?.includes("fugó") || state.savedGameResult?.subtitulo?.includes("fugó")) {
+          turnSub.textContent = "Tu rival se fugó de la partida en curso. ¡Has ganado por abandono!";
+        } else {
+          turnSub.textContent = "¡Has ganado la partida! Pulsa '🔄 Reiniciar / Revancha' para jugar de nuevo con los mismos Pokémon.";
+        }
       } else if (tipoRes === "defeat") {
-        turnSub.textContent = "Has perdido esta partida. Pulsa '🔄 Reiniciar / Revancha' para jugar la revancha con los mismos Pokémon.";
+        if (state.savedGameResult?.titulo?.includes("FUGADO") || state.savedGameResult?.subtitulo?.includes("Abandonaste")) {
+          turnSub.textContent = "Abandonaste la partida en curso. Has perdido por fuga.";
+        } else {
+          turnSub.textContent = "Has perdido esta partida. Pulsa '🔄 Reiniciar / Revancha' para jugar la revancha con los mismos Pokémon.";
+        }
       } else {
         turnSub.textContent = "La partida ya terminó. Pulsa '🔄 Reiniciar / Revancha' para volver a jugar con los mismos Pokémon.";
       }
@@ -1743,6 +1763,16 @@ function bindBoardEvents() {
   const btnNewConfig = document.getElementById("btn-new-config");
   if (btnNewConfig) {
     btnNewConfig.addEventListener("click", () => {
+      if (state.isGameStarted && !state.isGameOver) {
+        const conf = confirm("Hay una partida en curso. Si sales a la configuración, se considerará abandono y perderás la partida. ¿Deseas salir?");
+        if (!conf) return;
+        state.isGameOver = true;
+        if (typeof redP2P !== "undefined" && redP2P.conectado && redP2P.enviarAccionJuego) {
+          try {
+            redP2P.enviarAccionJuego("RIVAL_FUGA", { fuga: true });
+          } catch (e) {}
+        }
+      }
       if (typeof redP2P !== "undefined") {
         redP2P.cerrar();
       }

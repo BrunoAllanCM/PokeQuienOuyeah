@@ -124,7 +124,7 @@ function getBoardShinyPokemonId(seed, boardPokemonIds, odds) {
     ? odds
     : (typeof window !== "undefined" && typeof window.PROBABILIDAD_SHINY === "number"
         ? window.PROBABILIDAD_SHINY
-        : (typeof PROBABILIDAD_SHINY === "number" ? PROBABILIDAD_SHINY : 1 / 3000));
+        : (typeof PROBABILIDAD_SHINY === "number" ? PROBABILIDAD_SHINY : 1 / 8));
 
   if (!currentOdds || currentOdds <= 0 || !boardPokemonIds || boardPokemonIds.length === 0) {
     return null;

@@ -14,7 +14,7 @@
  * - 1         -> 100% garantizado: SIEMPRE habrá exactamente 1 Shiny en cada partida
  * - 0         -> Desactivar shinies
  */
-var PROBABILIDAD_SHINY = 1 / 20;
+var PROBABILIDAD_SHINY = 1 / 8;
 if (typeof window !== "undefined") {
   window.PROBABILIDAD_SHINY = PROBABILIDAD_SHINY;
 }

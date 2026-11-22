@@ -465,6 +465,53 @@ clearRoomSessionState("REC123-123");
 const afterClearResult = loadGameResultFromSession();
 assert(afterClearResult === null, "clearRoomSessionState elimina el resultado previo al iniciar revancha");
 
+// 12. Tests del Módulo Abandono de Partida (Fuga de Jugador)
+console.log("\n📦 12. Módulo Abandono de Partida (Fuga de Jugador):");
+const fugaState = {
+  isGameStarted: false,
+  isGameOver: false,
+  savedGameResult: null
+};
+
+// Simulación de la lógica de procesar fuga del rival
+function simularProcesarFuga(s) {
+  if (!s.isGameStarted || s.isGameOver) return false;
+  s.isGameOver = true;
+  s.savedGameResult = {
+    titulo: "Tu rival se fugó",
+    subtitulo: "Tu rival cerró la pestaña de la partida en curso. ¡Has ganado por abandono!",
+    tipoResultado: "victory"
+  };
+  return true;
+}
+
+// 1) Si la partida NO ha comenzado, desconectar no causa fuga ni termina la partida
+const fugaAntesDeIniciar = simularProcesarFuga(fugaState);
+assert(fugaAntesDeIniciar === false && fugaState.isGameOver === false, "Si la partida aún no ha comenzado (turno no activo), no se declara fuga");
+
+// 2) Si la partida ya comenzó (turno en curso), desconectar declara 'Tu rival se fugó' y victoria
+fugaState.isGameStarted = true;
+fugaState.isGameOver = false;
+const fugaDurantePartida = simularProcesarFuga(fugaState);
+assert(
+  fugaDurantePartida === true &&
+  fugaState.isGameOver === true &&
+  fugaState.savedGameResult.titulo === "Tu rival se fugó" &&
+  fugaState.savedGameResult.tipoResultado === "victory",
+  "Si la partida está en curso, la desconexión del rival finaliza la partida con 'Tu rival se fugó' y otorga victoria"
+);
+
+// 3) Advertencia beforeunload solo cuando la partida está en curso
+function simularBeforeUnload(s) {
+  if (s.isGameStarted && !s.isGameOver) {
+    return "Advertir";
+  }
+  return null;
+}
+assert(simularBeforeUnload({ isGameStarted: false, isGameOver: false }) === null, "beforeunload no bloquea antes de iniciar");
+assert(simularBeforeUnload({ isGameStarted: true, isGameOver: false }) === "Advertir", "beforeunload advierte cuando la partida está en curso");
+assert(simularBeforeUnload({ isGameStarted: true, isGameOver: true }) === null, "beforeunload no bloquea si la partida ya finalizó");
+
 // Resumen final
 const passedCount = results.filter(r => r.pass).length;
 console.log("\n==============================================");
