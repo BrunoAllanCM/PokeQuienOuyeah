@@ -18,7 +18,7 @@ function configurarEventosP2P() {
         tipo: "system"
       });
       // Sincronizar conteo inicial de cartas
-      const totalCards = state.boardPokemonData.length || (state.roomGameMode === "starters" ? 27 : 30);
+      const totalCards = state.boardPokemonData.length || state.boardPokemonIds.length || (state.roomGameMode === "starters" ? 27 : 30);
       const restantes = totalCards - state.discardedIds.size;
       redP2P.enviarAccionJuego("DESCARTE", { restantes });
 
@@ -516,6 +516,13 @@ function initApp() {
 
   // 3. Vincular eventos de interfaces
   bindSetupEvents((roomCode, esAnfitrion) => {
+    try {
+      if (esAnfitrion) {
+        sessionStorage.setItem(`poke_host_${roomCode}`, "true");
+      } else {
+        sessionStorage.removeItem(`poke_host_${roomCode}`);
+      }
+    } catch (e) {}
     loadRoom(roomCode);
     iniciarPartidaP2P(roomCode, esAnfitrion);
   });
@@ -627,9 +634,13 @@ function initApp() {
   if (paramSala) {
     const parsed = parseRoomCode(paramSala);
     if (parsed.valid) {
+      let eraAnfitrion = false;
+      try {
+        eraAnfitrion = sessionStorage.getItem(`poke_host_${parsed.code}`) === "true";
+      } catch (e) {}
       loadRoom(parsed.code);
-      // Al entrar por URL compartida se asume que es el invitado uniéndose
-      iniciarPartidaP2P(parsed.code, false);
+      // Conserva rol de anfitrión si recargó la página; si entra por enlace compartido, se une como invitado
+      iniciarPartidaP2P(parsed.code, eraAnfitrion);
     } else {
       showToast("El enlace de sala contiene un código inválido.", "error");
       showView("view-setup");

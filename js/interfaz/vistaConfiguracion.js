@@ -372,7 +372,7 @@ function bindSetupEvents(onLoadRoom) {
   // Valida el código y entra a la sala o muestra el error
   const handleJoinSubmit = () => {
     if (!inputJoin) return;
-    const rawVal = inputJoin.value.trim();
+    let rawVal = inputJoin.value.trim();
     if (!rawVal) {
       if (errorJoin) {
         errorJoin.textContent = "Por favor ingresa un código de sala.";
@@ -380,6 +380,21 @@ function bindSetupEvents(onLoadRoom) {
       }
       return;
     }
+
+    // Si el usuario pegó un enlace completo (?sala=CODIGO), extrae el código automáticamente
+    if (rawVal.includes("sala=")) {
+      try {
+        const urlObj = new URL(rawVal.startsWith("http") ? rawVal : `https://example.com/${rawVal}`);
+        const salaParam = urlObj.searchParams.get("sala");
+        if (salaParam) rawVal = salaParam.trim();
+      } catch (e) {
+        const matchSala = rawVal.match(/sala=([^&\s]+)/i);
+        if (matchSala) rawVal = decodeURIComponent(matchSala[1]).trim();
+      }
+    }
+
+    // Limpia prefijo "SALA:" si lo copió con etiqueta
+    rawVal = rawVal.replace(/^SALA\s*:\s*/i, "").trim();
 
     const parsed = parseRoomCode(rawVal);
     if (!parsed.valid) {
