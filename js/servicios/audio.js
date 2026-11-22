@@ -5,7 +5,7 @@
 class SoundController {
   constructor() {
     this.ctx = null;
-    this.cryVolume = 0.25;
+    this.cryVolume = 0.20;
   }
 
   init() {

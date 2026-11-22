@@ -52,6 +52,20 @@ const redP2P = {
 
       // El rival se conecta
       this.peer.on("connection", (conn) => {
+        if (this.conectado && this.conexion && this.conexion.open) {
+          console.warn("[P2P] Intento de conexión rechazado: la sala ya tiene 2 jugadores.");
+          conn.on("open", () => {
+            try {
+              conn.send({
+                tipo: "ERROR_SALA_LLENA",
+                mensaje: "🚫 La sala ya está llena (máximo 2 jugadores). Crea una nueva sala para jugar."
+              });
+              setTimeout(() => conn.close(), 500);
+            } catch (e) {}
+          });
+          return;
+        }
+
         console.log("[P2P] Rival conectado!");
         this.conexion = conn;
         this.configurarConexion(conn);
@@ -161,6 +175,11 @@ const redP2P = {
     if (!paquete || typeof paquete !== "object") return;
 
     switch (paquete.tipo) {
+      case "ERROR_SALA_LLENA":
+        showToast(paquete.mensaje || "🚫 La sala ya está llena (máximo 2 jugadores).", "error", 6000);
+        this.cerrar();
+        break;
+
       case "CHAT":
         if (this.eventos.alRecibirChat) {
           this.eventos.alRecibirChat(paquete.payload);
