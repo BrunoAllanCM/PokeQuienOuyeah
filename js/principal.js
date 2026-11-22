@@ -153,6 +153,21 @@ function configurarEventosP2P() {
       } else {
         showToast("¡Tu rival ya está listo! Elige tu Pokémon y pulsa ¡Listo!", "info", 4000);
       }
+    } else if (tipoAccion === "CANCELAR_LISTO") {
+      // El rival pulsó "Cambiar" Pokémon y canceló su estado de listo
+      state.isRivalReady = false;
+      state.isGameStarted = false;
+      state.rivalSecretHash = null;
+      if (typeof saveReadyToSession === "function") saveReadyToSession();
+      if (typeof syncReadyUI === "function") syncReadyUI();
+      if (typeof actualizarUITurno === "function") actualizarUITurno();
+      showToast("Tu rival ha decidido cambiar su Pokémon secreto y ya no está listo.", "info", 4000);
+      if (typeof vistaChat !== "undefined") {
+        vistaChat.agregarBurbuja({
+          texto: "⏳ Tu rival ha decidido cambiar su Pokémon secreto y ha cancelado su estado de ¡Listo!.",
+          tipo: "system"
+        });
+      }
     } else if (tipoAccion === "ADIVINAR") {
       // El rival está intentando adivinar nuestro Pokémon secreto
       const guessedId = Number(datos.guessedPokemonId);

@@ -362,18 +362,9 @@ function handleCardClick(pokemon) {
     setSecretPokemon(pokemon, true);
     exitSelectingSecretMode();
     sounds.playSelectSecret();
-    showToast(`Tu nuevo Pokémon secreto es ${pokemon.name}.`, "success");
-
-    // Si ya habíamos marcado Listo antes (pero el rival aún no), actualizamos el compromiso SHA-256
-    if (state.isPlayerReady && typeof seguridadAntiTrampas !== "undefined") {
-      seguridadAntiTrampas.calcularHashPokemon(pokemon.id, state.secretSalt, state.roomCode).then(h => {
-        state.secretHash = h;
-        saveCryptoCommitmentToSession(state.secretSalt, state.secretHash);
-        if (typeof redP2P !== "undefined" && redP2P.conectado) {
-          redP2P.enviarAccionJuego("COMPROMISO_HASH", { hash: h, listo: true });
-        }
-      });
-    }
+    showToast(`Tu nuevo Pokémon secreto es ${pokemon.name}. Pulsa ¡Listo! cuando quieras fijarlo.`, "success");
+    syncReadyUI();
+    actualizarUITurno();
     return;
   }
 
@@ -1023,11 +1014,10 @@ function syncReadyUI() {
 
     // Estado del botón "Listo" de este jugador
     if (btnReadyText && btnReady) {
+      btnReadyText.textContent = "¡Listo!";
       if (state.isPlayerReady) {
-        btnReadyText.textContent = "✓ ¡Listo!";
         btnReady.classList.add("ready-active");
       } else {
-        btnReadyText.textContent = "¡Listo!";
         btnReady.classList.remove("ready-active");
       }
     }
@@ -1673,6 +1663,20 @@ function enterSelectingSecretMode() {
     );
     return;
   }
+
+  // Si ya estaba presionado el botón ¡Listo!, se desmarca automáticamente para volver a elegir
+  if (state.isPlayerReady) {
+    state.isPlayerReady = false;
+    if (typeof saveReadyToSession === "function") {
+      saveReadyToSession();
+    }
+    syncReadyUI();
+    actualizarUITurno();
+    if (typeof redP2P !== "undefined" && redP2P.conectado && redP2P.enviarAccionJuego) {
+      redP2P.enviarAccionJuego("CANCELAR_LISTO", { listo: false });
+    }
+  }
+
   state.isSelectingSecretMode = true;
   const boardSection = document.getElementById("view-board");
   const banner = document.getElementById("board-instruction-banner");

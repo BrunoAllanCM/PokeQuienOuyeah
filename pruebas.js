@@ -194,6 +194,32 @@ mockState.isGameStarted = true;
 mockState.secretPokemon = { id: 150, name: "Mewtwo" }; // Intento de cambio bloqueado
 assert(mockState.secretPokemon.id === 4, "Bloquea cambio de Pokémon una vez que ambos jugadores están listos");
 
+// Al cambiar Pokémon con listo activo, se cancela el estado de listo
+const changeState = {
+  isPlayerReady: true,
+  isRivalReady: false,
+  isGameStarted: false
+};
+function simularPulsarCambiar(s) {
+  if (s.isGameOver || s.isGameStarted || (s.isPlayerReady && s.isRivalReady)) return false;
+  if (s.isPlayerReady) {
+    s.isPlayerReady = false;
+  }
+  return true;
+}
+assert(simularPulsarCambiar(changeState) === true && changeState.isPlayerReady === false, "Al pulsar Cambiar Pokémon teniendo ¡Listo! activo, se desmarca automáticamente el listo");
+
+// Comprobación de que el texto del botón ¡Listo! no duplica la palomita
+const mockBtnText = { textContent: "" };
+const mockBtn = { classList: new Set() };
+function simularSyncReadyUI(isReady) {
+  mockBtnText.textContent = "¡Listo!";
+  if (isReady) mockBtn.classList.add("ready-active");
+  else mockBtn.classList.delete("ready-active");
+}
+simularSyncReadyUI(true);
+assert(mockBtnText.textContent === "¡Listo!" && !mockBtnText.textContent.includes("✓"), "El texto del botón ¡Listo! no duplica la palomita textual '✓'");
+
 // 5. Tests del Sistema de Turnos
 console.log("\n📦 5. Módulo Sistema de Turnos:");
 const turnState = {
