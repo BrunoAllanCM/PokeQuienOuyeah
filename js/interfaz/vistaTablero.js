@@ -2007,6 +2007,13 @@ function bindBoardEvents() {
   const closeResult = () => {
     detenerConfettiResultado();
     if (modalResult) modalResult.classList.add("hidden");
+
+    // Si el usuario se quedó solo en la sala (el rival se desconectó o se fugó),
+    // al cerrar el modal de resultado la partida se reinicia por completo como anfitrión
+    const rivalConectado = typeof redP2P !== "undefined" && redP2P.conectado;
+    if (!rivalConectado && typeof reiniciarSalaPorAbandonoRival === "function") {
+      reiniciarSalaPorAbandonoRival();
+    }
   };
   if (btnCloseResult) btnCloseResult.addEventListener("click", closeResult);
   if (btnAckResult) btnAckResult.addEventListener("click", closeResult);
@@ -2038,7 +2045,12 @@ function bindBoardEvents() {
   const btnRestartFromModal = document.getElementById("btn-restart-from-modal");
   if (btnRestartFromModal) {
     btnRestartFromModal.addEventListener("click", () => {
+      const rivalConectado = typeof redP2P !== "undefined" && redP2P.conectado;
       closeResult();
+      if (!rivalConectado) {
+        showToast("Tu rival ya no está en la sala. La partida se ha reiniciado como anfitrión.", "info", 4500);
+        return;
+      }
       abrirModalReinicio();
     });
   }
@@ -2341,4 +2353,107 @@ function reiniciarPartidaMismosPokemon() {
       tipo: "system"
     });
   }
+}
+
+/**
+ * Reinicia la sala por completo cuando el usuario se queda solo (el rival abandonó o se desconectó).
+ * Promueve automáticamente al usuario restante a Anfitrión de la sala y restablece el tablero para esperar nuevo rival.
+ */
+function reiniciarSalaPorAbandonoRival() {
+  // 1. Promover al usuario a Anfitrión de la sala para que pueda aceptar nuevas conexiones
+  if (typeof redP2P !== "undefined" && redP2P.asumirRolAnfitrion) {
+    redP2P.asumirRolAnfitrion();
+  }
+
+  // 2. Limpiar modales, confetti y solicitudes
+  detenerConfettiResultado();
+  cerrarModalReinicio();
+  const modalResult = document.getElementById("modal-game-result");
+  if (modalResult) modalResult.classList.add("hidden");
+  const modalGuess = document.getElementById("modal-guess-pokemon");
+  if (modalGuess) modalGuess.classList.add("hidden");
+
+  // 3. Resetear banderas de juego, revancha y límites
+  state.isGameOver = false;
+  state.isGameStarted = false;
+  state.isPlayerReady = false;
+  state.isRivalReady = false;
+  state.fallosAdivinanza = 0;
+  state.fallosAdivinanzaRival = 0;
+  state.fallosAdivinanzaJ1 = 0;
+  state.fallosAdivinanzaJ2 = 0;
+  state.primerTurnoCedido = false;
+  state.primerTurnoPara = 1;
+  state.solicitudReinicioEnviada = false;
+  state.solicitudReinicioRecibida = false;
+  state.secretSalt = null;
+  state.secretHash = null;
+  state.rivalSecretHash = null;
+  state.secretPokemonRival = null;
+  state.savedGameResult = null;
+
+  // 4. Ocultar botón de reiniciar partida en la barra superior
+  const btnRestartMatch = document.getElementById("btn-restart-match");
+  if (btnRestartMatch) {
+    btnRestartMatch.classList.add("hidden");
+  }
+
+  // 5. Limpiar cartas descartadas en el tablero (todas vuelven a estar boca arriba)
+  state.discardedIds.clear();
+  saveDiscardsToSession();
+  document.querySelectorAll(".poke-card").forEach(c => c.classList.remove("descartada"));
+
+  // 6. Limpiar filtro de búsqueda
+  const inputFilter = document.getElementById("input-board-filter");
+  if (inputFilter) {
+    inputFilter.value = "";
+    handleBoardFilter("");
+  }
+
+  // 7. Quitar marcas previas de secreto en cartas
+  document.querySelectorAll(".secret-owner-badge").forEach(b => b.remove());
+  document.querySelectorAll(".poke-card").forEach(c => c.classList.remove("is-secret-pokemon"));
+
+  // 8. Limpiar estado persistido de partida en sessionStorage
+  if (typeof clearRoomSessionState === "function") {
+    clearRoomSessionState(state.roomCode);
+  } else {
+    try {
+      sessionStorage.removeItem(`poke_ready_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_salt_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_hash_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_secret_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_game_result_${state.roomCode}`);
+      sessionStorage.removeItem(`poke_match_state_${state.roomCode}`);
+    } catch (e) {}
+  }
+
+  // 9. Reiniciar selección de Pokémon secreto para que pueda elegir de nuevo
+  initSecretPokemon();
+
+  // 10. Resetear turnos (al ser nuevo anfitrión, tiene el turno 1)
+  state.numeroTurno = 1;
+  state.turnoActual = 1;
+  state.esMiTurno = true;
+  saveTurnToSession();
+
+  // 11. Sincronizar UI y contadores
+  updateCounterAndProgress();
+  syncReadyUI();
+  actualizarUITurno();
+
+  // 12. Notificación en chat y toast
+  if (typeof vistaChat !== "undefined") {
+    vistaChat.actualizarEstado("esperando", "Esperando rival...");
+    vistaChat.agregarBurbuja({
+      texto: "👑 Tu rival salió de la sala. Ahora eres el anfitrión y la partida se ha reiniciado por completo. Comparte el código de sala para jugar con un nuevo rival.",
+      tipo: "system"
+    });
+  }
+
+  showToast("👑 Tu rival salió de la sala. Ahora eres el anfitrión. Partida reiniciada.", "info", 5000);
+}
+
+if (typeof globalThis !== "undefined") {
+  globalThis.reiniciarSalaPorAbandonoRival = reiniciarSalaPorAbandonoRival;
 }

@@ -140,6 +140,36 @@ const redP2P = {
     }
   },
 
+  /**
+   * Promueve al jugador actual como Anfitrión de la sala cuando se queda solo.
+   * Esto permite que la sala siga viva y pueda aceptar nuevas conexiones de rivales.
+   */
+  asumirRolAnfitrion() {
+    this.esAnfitrion = true;
+    this.conectado = false;
+    this.rivalId = null;
+    clearInterval(this._intervaloJoin);
+    clearInterval(this._intervaloPing);
+
+    // Guardar en sessionStorage para persistir rol si recarga
+    if (this.codigoSala && typeof sessionStorage !== "undefined") {
+      try {
+        sessionStorage.setItem(`poke_host_${this.codigoSala}`, "true");
+      } catch (e) {}
+    }
+
+    if (this.modoTransporte === "mqtt") {
+      if (this.mqttClient && this.mqttClient.connected && this.topicoSala) {
+        console.log(`[Red] Asumiendo rol de anfitrión en ${this.topicoSala}. Avisando HOST_READY...`);
+        this._publicarMQTT({ tipo: "HOST_READY" }, 1);
+      }
+    } else if (this.modoTransporte === "peerjs") {
+      if (this.codigoSala) {
+        this._crearSalaPeerJS(this.codigoSala);
+      }
+    }
+  },
+
   // =========================================================================
   // TRANSPORTE PRINCIPAL: MQTT OVER SECURE WEBSOCKET (WSS)
   // =========================================================================

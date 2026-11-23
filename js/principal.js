@@ -586,9 +586,19 @@ function configurarEventosP2P() {
       });
     }
 
-    // Si la partida ya había empezado (turno en curso), se declara fuga del rival
+    // Si la partida ya había empezado (turno en curso), se declara fuga del rival y asume rol de anfitrión
     if (state.isGameStarted && !state.isGameOver) {
       procesarFugaRival();
+      if (typeof redP2P !== "undefined" && redP2P.asumirRolAnfitrion) {
+        redP2P.asumirRolAnfitrion();
+      }
+      return;
+    }
+
+    // Si la partida ya había finalizado (victoria/derrota) o aún no había empezado,
+    // el usuario se queda solo: el juego se reinicia por completo y se convierte en anfitrión
+    if (typeof reiniciarSalaPorAbandonoRival === "function") {
+      reiniciarSalaPorAbandonoRival();
     }
   };
 }

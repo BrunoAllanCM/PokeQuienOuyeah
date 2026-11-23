@@ -576,6 +576,124 @@ saveMatchStateToSession();
 const resHome = simularIrAlInicioDesdeModal(fugaState, "REC123-123");
 assert(resHome.view === "view-setup" && resHome.sessionCleared, "Ir al inicio desde el modal de resultado limpia la sesión y conduce a la vista de configuración");
 
+// 5) Reinicio por soledad y conversión automática en anfitrión
+const mockRedP2PSolo = {
+  esAnfitrion: false,
+  conectado: true,
+  rivalId: "rival_123",
+  codigoSala: "SOLO-123",
+  asumirRolAnfitrion() {
+    this.esAnfitrion = true;
+    this.conectado = false;
+    this.rivalId = null;
+    context.sessionStorage.setItem(`poke_host_${this.codigoSala}`, "true");
+  }
+};
+
+function simularDesconexionRival(s, red) {
+  // Caso 1: partida en curso
+  if (s.isGameStarted && !s.isGameOver) {
+    simularProcesarFuga(s);
+    red.asumirRolAnfitrion();
+    return { accion: "fuga", esAnfitrion: red.esAnfitrion };
+  }
+  // Caso 2: partida finalizada o previa a comenzar
+  simularReinicioPorAbandono(s, red);
+  return { accion: "reinicio_completo", esAnfitrion: red.esAnfitrion };
+}
+
+function simularReinicioPorAbandono(s, red) {
+  red.asumirRolAnfitrion();
+  s.isGameOver = false;
+  s.isGameStarted = false;
+  s.isPlayerReady = false;
+  s.isRivalReady = false;
+  s.discardedIds = new Set();
+  s.numeroTurno = 1;
+  s.turnoActual = 1;
+  s.esMiTurno = true;
+  s.secretPokemon = null;
+  s.savedGameResult = null;
+  clearRoomSessionState(s.roomCode);
+}
+
+// Test A: Si el rival abandona cuando la partida ya había finalizado (victoria o derrota previa)
+const estadoFinalizado = {
+  roomCode: "SOLO-123",
+  isGameStarted: true,
+  isGameOver: true,
+  isPlayerReady: true,
+  isRivalReady: true,
+  discardedIds: new Set([1, 2, 3]),
+  numeroTurno: 7,
+  savedGameResult: { tipoResultado: "victory" }
+};
+const resAbandonoFinalizado = simularDesconexionRival(estadoFinalizado, mockRedP2PSolo);
+assert(
+  resAbandonoFinalizado.accion === "reinicio_completo" &&
+  resAbandonoFinalizado.esAnfitrion === true &&
+  estadoFinalizado.isGameOver === false &&
+  estadoFinalizado.isGameStarted === false &&
+  estadoFinalizado.discardedIds.size === 0 &&
+  estadoFinalizado.esMiTurno === true,
+  "Si el rival abandona tras finalizar la partida, la sala se reinicia por completo y el jugador pasa a ser anfitrión"
+);
+
+// Test B: Si el rival abandona antes de comenzar la partida
+const mockRedP2PInvitado = {
+  esAnfitrion: false,
+  conectado: true,
+  rivalId: "rival_456",
+  codigoSala: "SOLO-456",
+  asumirRolAnfitrion() {
+    this.esAnfitrion = true;
+    this.conectado = false;
+    this.rivalId = null;
+  }
+};
+const estadoLobby = {
+  roomCode: "SOLO-456",
+  isGameStarted: false,
+  isGameOver: false,
+  isPlayerReady: true,
+  isRivalReady: true,
+  discardedIds: new Set(),
+  numeroTurno: 1
+};
+const resAbandonoLobby = simularDesconexionRival(estadoLobby, mockRedP2PInvitado);
+assert(
+  resAbandonoLobby.accion === "reinicio_completo" &&
+  resAbandonoLobby.esAnfitrion === true &&
+  estadoLobby.isPlayerReady === false,
+  "Si un jugador abandona la sala antes de empezar la partida, el que queda solo se convierte automáticamente en anfitrión"
+);
+
+// Test C: Al cerrar el modal de resultado tras una fuga del rival, la sala se reinicia por completo como anfitrión
+function simularCerrarModalResultado(s, red) {
+  if (!red.conectado) {
+    simularReinicioPorAbandono(s, red);
+    return true;
+  }
+  return false;
+}
+const estadoFuga = {
+  roomCode: "SOLO-123",
+  isGameStarted: true,
+  isGameOver: true,
+  discardedIds: new Set([5, 10]),
+  savedGameResult: { titulo: "Tu rival se fugó" }
+};
+mockRedP2PSolo.conectado = false;
+const resCierreFuga = simularCerrarModalResultado(estadoFuga, mockRedP2PSolo);
+assert(
+  resCierreFuga === true &&
+  estadoFuga.isGameOver === false &&
+  estadoFuga.isGameStarted === false &&
+  estadoFuga.discardedIds.size === 0 &&
+  mockRedP2PSolo.esAnfitrion === true,
+  "Al cerrar el modal de resultado tras una fuga, la sala se reinicia por completo con el usuario como anfitrión"
+);
+
 // Resumen final
 const passedCount = results.filter(r => r.pass).length;
 console.log("\n==============================================");
