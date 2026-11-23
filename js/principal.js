@@ -214,7 +214,8 @@ function configurarEventosP2P() {
         const guessedPoke = state.boardPokemonData.find(p => p.id === guessedId);
         const guessedName = guessedPoke ? guessedPoke.name : "un Pokémon";
 
-        state.fallosAdivinanzaRival = (state.fallosAdivinanzaRival || 0) + 1;
+        // Registrar fallo del rival (comprobando número de intento)
+        state.fallosAdivinanzaRival = Math.max((state.fallosAdivinanzaRival || 0) + 1, Number(datos.intentoNumero) || 1);
         if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
         const esSegundoFallo = state.fallosAdivinanzaRival >= 2;
 
@@ -234,12 +235,25 @@ function configurarEventosP2P() {
 
         if (esSegundoFallo) {
           state.isGameOver = true;
-          // ¡Segundo fallo del rival! Este jugador gana automáticamente y se muestran los Pokémon elegidos
+          // ¡Segundo fallo del rival! Este jugador gana automáticamente y se le pone la pantalla de victoria
           const pokemonElegidoPorRival = datos.guesserPokemon || state.secretPokemonRival;
+
+          saveGameResultToSession({
+            titulo: "¡VICTORIA! TU RIVAL AGOTÓ SUS INTENTOS",
+            subtitulo: `A tu rival se le agotaron sus dos intentos de adivinar (falló al elegir a "${guessedName}"). ¡Has ganado la partida automáticamente!`,
+            esTrampa: false,
+            pokemonRival: pokemonElegidoPorRival,
+            tipoResultado: "victory",
+            motivoFin: "rival_intentos_agotados"
+          });
+
+          if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
+          if (typeof actualizarUITurno === "function") actualizarUITurno();
+
           if (typeof showGameResultModal === "function") {
             showGameResultModal({
-              titulo: "¡VICTORIA! EL RIVAL AGOTÓ SUS INTENTOS",
-              subtitulo: `Tu rival intentó adivinar "${guessedName}" y falló por segunda vez. ¡Has ganado la partida automáticamente!`,
+              titulo: "¡VICTORIA! TU RIVAL AGOTÓ SUS INTENTOS",
+              subtitulo: `A tu rival se le agotaron sus dos intentos de adivinar (falló al elegir a "${guessedName}"). ¡Has ganado la partida automáticamente!`,
               esTrampa: false,
               pokemonRival: pokemonElegidoPorRival,
               tipoResultado: "victory"
@@ -247,7 +261,7 @@ function configurarEventosP2P() {
           }
           if (typeof vistaChat !== "undefined") {
             vistaChat.agregarBurbuja({
-              texto: `🏆 ¡VICTORIA! Tu rival falló por 2da vez al intentar adivinar y ha quedado eliminado. ¡Has ganado la partida!`,
+              texto: `🏆 ¡VICTORIA! A tu rival se le agotaron sus dos intentos de adivinanza (falló con "${guessedName}"). ¡Has ganado la partida automáticamente!`,
               tipo: "system"
             });
           }
@@ -357,11 +371,12 @@ function configurarEventosP2P() {
           }
         }
       } else {
-        state.fallosAdivinanza = (state.fallosAdivinanza || 0) + 1;
+        state.fallosAdivinanza = Math.max((state.fallosAdivinanza || 0) + 1, datos.esSegundoFallo ? 2 : 1);
         if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
         const esSegundoFallo = Boolean(datos.esSegundoFallo || state.fallosAdivinanza >= 2);
 
         if (esSegundoFallo) {
+          state.isGameOver = true;
           // ¡Segundo fallo! El jugador pierde y el rival gana automáticamente. Se muestra el Pokémon del rival.
 
           // Enviar también nuestro Pokémon para que el rival pueda ver el nuestro
@@ -375,17 +390,30 @@ function configurarEventosP2P() {
                 types: state.secretPokemon.types
               },
               salt: state.secretSalt,
-              esRespuesta: true
+              esRespuesta: true,
+              motivo: "INTENTOS_AGOTADOS"
             });
           }
 
           const rivalPoke = datos.rivalPokemon;
           const rivalName = rivalPoke ? rivalPoke.name : "el del rival";
 
+          saveGameResultToSession({
+            titulo: "💀 ¡DERROTA! AGOTASTE TUS INTENTOS",
+            subtitulo: `Has fallado tu segundo intento de adivinanza y has quedado eliminado. Tu rival ha ganado la partida automáticamente. Su Pokémon secreto era ${rivalName}.`,
+            esTrampa: false,
+            pokemonRival: rivalPoke,
+            tipoResultado: "defeat",
+            motivoFin: "mis_intentos_agotados"
+          });
+
+          if (typeof saveMatchStateToSession === "function") saveMatchStateToSession();
+          if (typeof actualizarUITurno === "function") actualizarUITurno();
+
           if (typeof showGameResultModal === "function") {
             showGameResultModal({
               titulo: "💀 ¡DERROTA! AGOTASTE TUS INTENTOS",
-              subtitulo: `Has fallado tu segundo intento de adivinanza y has quedado eliminado. Tu rival ha ganado la partida. Su Pokémon secreto era ${rivalName}.`,
+              subtitulo: `Has fallado tu segundo intento de adivinanza y has quedado eliminado. Tu rival ha ganado la partida automáticamente. Su Pokémon secreto era ${rivalName}.`,
               esTrampa: false,
               pokemonRival: rivalPoke,
               tipoResultado: "defeat"
@@ -445,16 +473,27 @@ function configurarEventosP2P() {
         );
       }
 
-      // Determina si este jugador perdió la partida
-      const esDerrota = Boolean(
-        state.savedGameResult?.tipoResultado === "defeat" ||
-        state.savedGameResult?.titulo?.includes("DERROTA") ||
-        (datos.esRespuesta && state.isGameOver)
+      // Estado previo guardado
+      const resultadoPrevio = state.savedGameResult;
+      const rivalAgotado = Boolean(
+        resultadoPrevio?.motivoFin === "rival_intentos_agotados" ||
+        resultadoPrevio?.titulo?.includes("AGOTÓ") ||
+        datos.motivo === "INTENTOS_AGOTADOS"
       );
-
+      const misIntentosAgotados = Boolean(
+        resultadoPrevio?.motivoFin === "mis_intentos_agotados" ||
+        resultadoPrevio?.titulo?.includes("AGOTASTE") ||
+        state.fallosAdivinanza >= 2
+      );
       const esVictoria = Boolean(
-        state.savedGameResult?.tipoResultado === "victory" ||
-        state.savedGameResult?.titulo?.includes("VICTORIA")
+        rivalAgotado ||
+        resultadoPrevio?.tipoResultado === "victory" ||
+        resultadoPrevio?.titulo?.includes("VICTORIA")
+      );
+      const esDerrota = Boolean(
+        misIntentosAgotados ||
+        resultadoPrevio?.tipoResultado === "defeat" ||
+        resultadoPrevio?.titulo?.includes("DERROTA")
       );
 
       let modalTitulo = "Partida Finalizada";
@@ -465,14 +504,22 @@ function configurarEventosP2P() {
         modalTitulo = "🚨 ¡TRAMPA DETECTADA!";
         modalSubtitulo = "El rival intentó alterar su Pokémon secreto. La comprobación de seguridad no coincide.";
         tipoResModal = "cheat";
-      } else if (esDerrota) {
-        modalTitulo = "💀 ¡DERROTA! HAS PERDIDO";
-        modalSubtitulo = `Tu rival adivinó tu Pokémon secreto. El Pokémon que eligió tu rival era ${datos.pokemon.name}.`;
+      } else if (rivalAgotado) {
+        modalTitulo = "¡VICTORIA! TU RIVAL AGOTÓ SUS INTENTOS";
+        modalSubtitulo = `A tu rival se le agotaron sus dos intentos de adivinar. El Pokémon que eligió era ${datos.pokemon.name}. ¡Has ganado la partida automáticamente!`;
+        tipoResModal = "victory";
+      } else if (misIntentosAgotados) {
+        modalTitulo = "💀 ¡DERROTA! AGOTASTE TUS INTENTOS";
+        modalSubtitulo = `Has agotado tus dos intentos de adivinanza. El Pokémon secreto de tu rival era ${datos.pokemon.name}. Tu rival ha ganado la partida.`;
         tipoResModal = "defeat";
       } else if (esVictoria) {
         modalTitulo = "¡VICTORIA! ¡ADIVINASTE!";
         modalSubtitulo = `¡Adivinaste correctamente! El Pokémon secreto de tu rival era ${datos.pokemon.name}.`;
         tipoResModal = "victory";
+      } else if (esDerrota) {
+        modalTitulo = "💀 ¡DERROTA! HAS PERDIDO";
+        modalSubtitulo = `Tu rival adivinó tu Pokémon secreto. El Pokémon que eligió tu rival era ${datos.pokemon.name}.`;
+        tipoResModal = "defeat";
       } else {
         modalTitulo = "Partida Finalizada";
         modalSubtitulo = `El Pokémon que eligió tu rival era ${datos.pokemon.name}. Partida 100% limpia y verificada.`;

@@ -496,6 +496,8 @@ function actualizarUITurno() {
       if (tipoRes === "victory") {
         if (state.savedGameResult?.titulo?.includes("fugó") || state.savedGameResult?.subtitulo?.includes("fugó")) {
           turnTitle.textContent = "Tu rival se fugó";
+        } else if (state.savedGameResult?.titulo?.includes("AGOTÓ") || state.savedGameResult?.subtitulo?.includes("agotaron")) {
+          turnTitle.textContent = "¡VICTORIA! EL RIVAL AGOTÓ SUS INTENTOS";
         } else {
           turnTitle.textContent = "¡PARTIDA GANADA!";
         }
@@ -503,6 +505,8 @@ function actualizarUITurno() {
       else if (tipoRes === "defeat") {
         if (state.savedGameResult?.titulo?.includes("FUGADO") || state.savedGameResult?.subtitulo?.includes("Abandonaste")) {
           turnTitle.textContent = "💀 ¡DERROTA! TE HAS FUGADO";
+        } else if (state.savedGameResult?.titulo?.includes("AGOTASTE") || state.savedGameResult?.subtitulo?.includes("agotado")) {
+          turnTitle.textContent = "💀 ¡DERROTA! AGOTASTE TUS INTENTOS";
         } else {
           turnTitle.textContent = "💀 ¡DERROTA! PARTIDA PERDIDA";
         }
@@ -513,12 +517,16 @@ function actualizarUITurno() {
       if (tipoRes === "victory") {
         if (state.savedGameResult?.titulo?.includes("fugó") || state.savedGameResult?.subtitulo?.includes("fugó")) {
           turnSub.textContent = "Tu rival se fugó de la partida en curso. ¡Has ganado por abandono!";
+        } else if (state.savedGameResult?.titulo?.includes("AGOTÓ") || state.savedGameResult?.subtitulo?.includes("agotaron")) {
+          turnSub.textContent = "A tu rival se le agotaron sus dos intentos de adivinar. ¡Has ganado la partida automáticamente!";
         } else {
           turnSub.textContent = "¡Has ganado la partida! Pulsa '🔄 Reiniciar / Revancha' para jugar de nuevo con los mismos Pokémon.";
         }
       } else if (tipoRes === "defeat") {
         if (state.savedGameResult?.titulo?.includes("FUGADO") || state.savedGameResult?.subtitulo?.includes("Abandonaste")) {
           turnSub.textContent = "Abandonaste la partida en curso. Has perdido por fuga.";
+        } else if (state.savedGameResult?.titulo?.includes("AGOTASTE") || state.savedGameResult?.subtitulo?.includes("agotado")) {
+          turnSub.textContent = "Has agotado tus dos oportunidades de adivinanza. Pulsa '🔄 Reiniciar / Revancha' para jugar de nuevo.";
         } else {
           turnSub.textContent = "Has perdido esta partida. Pulsa '🔄 Reiniciar / Revancha' para jugar la revancha con los mismos Pokémon.";
         }
@@ -1357,13 +1365,14 @@ function sendGuessAttempt(pokemon) {
       const fallos = (jugadorActual === 1 ? ++state.fallosAdivinanzaJ1 : ++state.fallosAdivinanzaJ2);
 
       if (fallos >= 2) {
-        // Segundo fallo: El otro jugador gana automáticamente y se muestra el Pokémon secreto del rival
+        // Segundo fallo: El otro jugador gana automáticamente y se muestra la pantalla de victoria
         const jugadorGanador = jugadorActual === 1 ? 2 : 1;
+        state.isGameOver = true;
 
         if (typeof showGameResultModal === "function") {
           showGameResultModal({
-            titulo: `¡VICTORIA DEL JUGADOR ${jugadorGanador}!`,
-            subtitulo: `El Jugador ${jugadorActual} falló sus 2 intentos de adivinanza. ¡El Jugador ${jugadorGanador} gana la partida automáticamente!`,
+            titulo: "¡VICTORIA! EL RIVAL AGOTÓ SUS INTENTOS",
+            subtitulo: `Al Jugador ${jugadorActual} se le agotaron sus dos intentos de adivinar. ¡El Jugador ${jugadorGanador} gana la partida automáticamente!`,
             esTrampa: false,
             pokemonRival: rivalSecret,
             tipoResultado: "victory"
@@ -1371,7 +1380,7 @@ function sendGuessAttempt(pokemon) {
         }
         if (typeof vistaChat !== "undefined") {
           vistaChat.agregarBurbuja({
-            texto: `💀 El Jugador ${jugadorActual} falló su 2do intento de adivinanza y quedó eliminado. 🏆 ¡Gana el Jugador ${jugadorGanador}! El Pokémon secreto del rival era ${rivalSecret.name}.`,
+            texto: `💀 Al Jugador ${jugadorActual} se le agotaron sus 2 intentos de adivinanza y quedó eliminado. 🏆 ¡Gana el Jugador ${jugadorGanador}! El Pokémon secreto del rival era ${rivalSecret.name}.`,
             tipo: "system"
           });
         }

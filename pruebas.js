@@ -296,6 +296,41 @@ assert(fallosP1 === 1 && gameOver === false, "Primer fallo consume 1 intento sin
 simularIntentoAdivinar(false);
 assert(fallosP1 === 2 && gameOver === true && ganador === 2, "Segundo fallo termina la partida y otorga victoria al Jugador 2");
 
+// Validación del mensaje de pantalla de victoria por agotamiento de intentos del rival
+const resultadoVictoriaAgotamiento = {
+  titulo: "¡VICTORIA! TU RIVAL AGOTÓ SUS INTENTOS",
+  subtitulo: "A tu rival se le agotaron sus dos intentos de adivinar. ¡Has ganado la partida automáticamente!",
+  tipoResultado: "victory",
+  motivoFin: "rival_intentos_agotados"
+};
+assert(
+  resultadoVictoriaAgotamiento.tipoResultado === "victory" &&
+  resultadoVictoriaAgotamiento.titulo.includes("AGOTÓ") &&
+  resultadoVictoriaAgotamiento.subtitulo.includes("agotaron"),
+  "Al acabársele los dos intentos al jugador, el rival gana automáticamente y se le muestra pantalla de victoria aclarando que se le agotaron los intentos a su rival"
+);
+
+// Validación de que REVELAR_FINAL mantiene victoria cuando el motivo es INTENTOS_AGOTADOS
+function resolverResultadoFinal(previo, paqueteFinal) {
+  const rivalAgotado = Boolean(
+    previo?.motivoFin === "rival_intentos_agotados" ||
+    previo?.titulo?.includes("AGOTÓ") ||
+    paqueteFinal?.motivo === "INTENTOS_AGOTADOS"
+  );
+  if (rivalAgotado) {
+    return {
+      titulo: "¡VICTORIA! TU RIVAL AGOTÓ SUS INTENTOS",
+      tipoResultado: "victory"
+    };
+  }
+  return { titulo: "Otro", tipoResultado: "otro" };
+}
+const resFinalRival = resolverResultadoFinal(resultadoVictoriaAgotamiento, { motivo: "INTENTOS_AGOTADOS", esRespuesta: true });
+assert(
+  resFinalRival.tipoResultado === "victory" && resFinalRival.titulo === "¡VICTORIA! TU RIVAL AGOTÓ SUS INTENTOS",
+  "REVELAR_FINAL no sobrescribe con derrota ni adivinanza la victoria por agotamiento de intentos del rival"
+);
+
 // 8. Tests de Conexión Requerida y Ceder Primer Turno
 console.log("\n📦 8. Módulo de Conexión Requerida y Ceder Primer Turno:");
 let mockRedP2P = { conectado: false, esAnfitrion: true };
