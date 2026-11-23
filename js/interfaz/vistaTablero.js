@@ -1666,11 +1666,16 @@ function showGameResultModal({ titulo, subtitulo, esTrampa, pokemonRival, etique
     const labelHtml = etiquetaPokemon
       ? `<span class="result-showcase-label" style="font-size:0.85rem; color:var(--text-muted); display:block; margin-bottom:0.2rem;">${etiquetaPokemon}</span>`
       : "";
+    const isRivalShiny = Boolean(pokemonRival.isShiny);
+    const rivalStatic = isRivalShiny ? (pokemonRival.shinyImage || pokemonRival.image) : pokemonRival.image;
+    const rivalAnim = isRivalShiny
+      ? (pokemonRival.animatedShinyImage || pokemonRival.shinyImage || pokemonRival.animatedImage || pokemonRival.image)
+      : (pokemonRival.animatedImage || pokemonRival.image);
     pokeHtml = `
       <div class="result-pokemon-showcase">
         ${labelHtml}
-        <img src="${pokemonRival.animatedImage || pokemonRival.image}" alt="${pokemonRival.name}" class="result-poke-img">
-        <h4>#${String(pokemonRival.id).padStart(3, "0")} ${pokemonRival.name}</h4>
+        <img src="${rivalAnim}" alt="${pokemonRival.name} ${isRivalShiny ? 'shiny' : ''}" class="result-poke-img" onerror="if (this.src !== '${rivalStatic}') { this.src = '${rivalStatic}'; }">
+        <h4>#${String(pokemonRival.id).padStart(3, "0")} ${isRivalShiny ? '✨ ' : ''}${pokemonRival.name}</h4>
       </div>
     `;
   }
