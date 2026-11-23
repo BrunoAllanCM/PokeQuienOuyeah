@@ -514,7 +514,7 @@ function simularProcesarFuga(s) {
   s.isGameOver = true;
   s.savedGameResult = {
     titulo: "Tu rival se fugó",
-    subtitulo: "Tu rival cerró la pestaña de la partida en curso. ¡Has ganado por abandono!",
+    subtitulo: "Tu rival se fue de la sala en plena partida. ¡Has ganado por abandono!",
     tipoResultado: "victory"
   };
   return true;
@@ -546,6 +546,30 @@ function simularBeforeUnload(s) {
 assert(simularBeforeUnload({ isGameStarted: false, isGameOver: false }) === null, "beforeunload no bloquea antes de iniciar");
 assert(simularBeforeUnload({ isGameStarted: true, isGameOver: false }) === "Advertir", "beforeunload advierte cuando la partida está en curso");
 assert(simularBeforeUnload({ isGameStarted: true, isGameOver: true }) === null, "beforeunload no bloquea si la partida ya finalizó");
+
+// 4) Opción de Ir al Inicio desde el modal de resultado
+function simularIrAlInicioDesdeModal(s, roomCode) {
+  clearRoomSessionState(roomCode);
+  return {
+    view: "view-setup",
+    sessionCleared: sessionStorage.getItem(`poke_match_state_${roomCode}`) === null
+  };
+}
+saveMatchStateToSession();
+const resHome = simularIrAlInicioDesdeModal(fugaState, "REC123-123");
+assert(resHome.view === "view-setup" && resHome.sessionCleared, "Ir al inicio desde el modal de resultado limpia la sesión y conduce a la vista de configuración");
+
+// 4) Opción de Ir al Inicio desde el modal de resultado
+function simularIrAlInicioDesdeModal(s, roomCode) {
+  clearRoomSessionState(roomCode);
+  return {
+    view: "view-setup",
+    sessionCleared: context.sessionStorage.getItem(`poke_match_state_${roomCode}`) === null
+  };
+}
+saveMatchStateToSession();
+const resHome = simularIrAlInicioDesdeModal(fugaState, "REC123-123");
+assert(resHome.view === "view-setup" && resHome.sessionCleared, "Ir al inicio desde el modal de resultado limpia la sesión y conduce a la vista de configuración");
 
 // Resumen final
 const passedCount = results.filter(r => r.pass).length;

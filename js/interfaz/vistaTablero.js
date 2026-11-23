@@ -1981,6 +1981,23 @@ function bindBoardEvents() {
     btnRestartMatch.addEventListener("click", abrirModalReinicio);
   }
 
+  // Botón para volver al inicio desde el modal de resultado
+  const btnHomeFromModal = document.getElementById("btn-home-from-modal");
+  if (btnHomeFromModal) {
+    btnHomeFromModal.addEventListener("click", () => {
+      closeResult();
+      if (typeof redP2P !== "undefined") {
+        redP2P.cerrar();
+      }
+      if (typeof clearRoomSessionState === "function") {
+        clearRoomSessionState(state.roomCode);
+      }
+      window.history.replaceState({}, "", window.location.pathname);
+      showView("view-setup");
+      showToast("Configura una nueva partida.", "info");
+    });
+  }
+
   // Botón de revancha desde el resultado
   const btnRestartFromModal = document.getElementById("btn-restart-from-modal");
   if (btnRestartFromModal) {

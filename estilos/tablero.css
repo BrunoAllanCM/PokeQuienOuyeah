@@ -1067,6 +1067,11 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.modal-result-card .modal-footer {
+  justify-content: center;
 }
 
 /* Modal de Resultados y Anti-Trampas */
