@@ -827,12 +827,14 @@ function clearSecretPokemon() {
     typesEl.innerHTML = `<span class="type-badge-pending">Elige del tablero</span>`;
   }
 
-  // Quita la marca de secreto de las cartas
+    // Quita la marca de secreto de las cartas
   document.querySelectorAll(".poke-card").forEach(card => {
     card.classList.remove("is-secret-pokemon");
     const existingBadge = card.querySelector(".secret-owner-badge");
     if (existingBadge) existingBadge.remove();
   });
+
+  syncReadyUI();
 }
 
 /**
@@ -1041,7 +1043,18 @@ function syncReadyUI() {
     // El botón de adivinar NUNCA se muestra antes de iniciar la partida
     state.isGameStarted = false;
     if (btnGuess) btnGuess.classList.add("hidden");
-    if (btnChange) btnChange.classList.remove("hidden");
+
+    // Botón Cambiar: NO debe aparecer si el jugador está eligiendo un Pokémon por primera vez (state.secretPokemon es null)
+    // ni mientras esté activamente en modo de selección (isSelectingSecretMode).
+    // Solo debe verse cuando ya tiene un Pokémon seleccionado previamente y la partida no ha comenzado.
+    if (btnChange) {
+      if (state.secretPokemon && !state.isSelectingSecretMode) {
+        btnChange.classList.remove("hidden");
+      } else {
+        btnChange.classList.add("hidden");
+      }
+    }
+
     if (btnReady) btnReady.classList.remove("hidden");
     if (badgeLocked) badgeLocked.classList.add("hidden");
     actualizarUITurno();
@@ -1717,23 +1730,46 @@ function enterSelectingSecretMode() {
   state.isSelectingSecretMode = true;
   const boardSection = document.getElementById("view-board");
   const banner = document.getElementById("board-instruction-banner");
+  const btnCancelSecret = document.getElementById("btn-cancel-secret-select");
+  const bannerText = document.getElementById("instruction-banner-text");
 
   if (boardSection) boardSection.classList.add("selecting-secret-mode");
   if (banner) banner.classList.remove("hidden");
 
-  showToast("Haz clic en cualquier carta del tablero para elegirla como secreto.", "info", 4000);
+  // Si aún no tiene un Pokémon secreto (apenas está eligiendo uno por primera vez)
+  if (!state.secretPokemon) {
+    if (btnCancelSecret) btnCancelSecret.classList.add("hidden");
+    if (bannerText) {
+      bannerText.textContent = "Haz clic en cualquier carta del tablero para elegirla como tu Pokémon secreto.";
+    }
+    showToast("Haz clic en cualquier carta del tablero para elegir tu Pokémon secreto.", "info", 4000);
+  } else {
+    if (btnCancelSecret) btnCancelSecret.classList.remove("hidden");
+    if (bannerText) {
+      bannerText.textContent = "Haz clic en cualquier carta del tablero para fijarla como tu nuevo Pokémon secreto.";
+    }
+    showToast("Haz clic en cualquier carta del tablero para cambiar tu Pokémon secreto.", "info", 4000);
+  }
+
+  syncReadyUI();
 }
 
 /**
  * Sale del modo de selección de secreto
  */
 function exitSelectingSecretMode() {
+  if (!state.secretPokemon) {
+    showToast("⚠️ Debes elegir tu Pokémon secreto antes de continuar.", "warning");
+    return;
+  }
   state.isSelectingSecretMode = false;
   const boardSection = document.getElementById("view-board");
   const banner = document.getElementById("board-instruction-banner");
 
   if (boardSection) boardSection.classList.remove("selecting-secret-mode");
   if (banner) banner.classList.add("hidden");
+
+  syncReadyUI();
 }
 
 /**

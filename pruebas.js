@@ -220,6 +220,23 @@ function simularSyncReadyUI(isReady) {
 simularSyncReadyUI(true);
 assert(mockBtnText.textContent === "¡Listo!" && !mockBtnText.textContent.includes("✓"), "El texto del botón ¡Listo! no duplica la palomita textual '✓'");
 
+// Visibilidad del botón Cambiar Pokémon
+function simularVisibilidadBotonCambiar(s) {
+  // Partida iniciada o terminada
+  if (s.isGameStarted || s.isGameOver || (s.isPlayerReady && s.isRivalReady)) {
+    return false;
+  }
+  // No debe aparecer si apenas está eligiendo por primera vez o está en modo selección activa
+  if (!s.secretPokemon || s.isSelectingSecretMode) {
+    return false;
+  }
+  return true;
+}
+assert(simularVisibilidadBotonCambiar({ secretPokemon: null, isSelectingSecretMode: true, isGameStarted: false }) === false, "No muestra el botón Cambiar si el jugador apenas está eligiendo su Pokémon por primera vez");
+assert(simularVisibilidadBotonCambiar({ secretPokemon: { id: 25 }, isSelectingSecretMode: true, isGameStarted: false }) === false, "No muestra el botón Cambiar mientras está en modo de selección activa");
+assert(simularVisibilidadBotonCambiar({ secretPokemon: { id: 25 }, isSelectingSecretMode: false, isGameStarted: false }) === true, "Muestra el botón Cambiar una vez que ya tiene un Pokémon seleccionado previamente");
+assert(simularVisibilidadBotonCambiar({ secretPokemon: { id: 25 }, isSelectingSecretMode: false, isGameStarted: true }) === false, "Oculta el botón Cambiar una vez que la partida ha comenzado");
+
 // 5. Tests del Sistema de Turnos
 console.log("\n📦 5. Módulo Sistema de Turnos:");
 const turnState = {
