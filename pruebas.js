@@ -552,18 +552,6 @@ function simularIrAlInicioDesdeModal(s, roomCode) {
   clearRoomSessionState(roomCode);
   return {
     view: "view-setup",
-    sessionCleared: sessionStorage.getItem(`poke_match_state_${roomCode}`) === null
-  };
-}
-saveMatchStateToSession();
-const resHome = simularIrAlInicioDesdeModal(fugaState, "REC123-123");
-assert(resHome.view === "view-setup" && resHome.sessionCleared, "Ir al inicio desde el modal de resultado limpia la sesión y conduce a la vista de configuración");
-
-// 4) Opción de Ir al Inicio desde el modal de resultado
-function simularIrAlInicioDesdeModal(s, roomCode) {
-  clearRoomSessionState(roomCode);
-  return {
-    view: "view-setup",
     sessionCleared: context.sessionStorage.getItem(`poke_match_state_${roomCode}`) === null
   };
 }
